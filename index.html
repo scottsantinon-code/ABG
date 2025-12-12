@@ -1,0 +1,2850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>ABG Analyzer</title>
+  <meta name="author" content="Scott Santinon">
+  <meta name="description" content="Systematic arterial blood gas interpretation tool supporting Traditional (Henderson-Hasselbalch) and Physicochemical (Stewart) approaches">
+  <meta name="copyright" content="© 2025 Scott Santinon">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" content="#FAFAFA">
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-primary: #FAFAFA;
+      --bg-secondary: #FFFFFF;
+      --bg-tertiary: #F0F0F5;
+      --text-primary: #000000;
+      --text-secondary: #6E6E73;
+      --text-tertiary: #AEAEB2;
+      --accent: #0066CC;
+      --accent-light: rgba(0, 102, 204, 0.08);
+      --success: #30D158;
+      --success-light: rgba(48, 209, 88, 0.12);
+      --warning: #FF9F0A;
+      --warning-light: rgba(255, 159, 10, 0.12);
+      --error: #FF453A;
+      --error-light: rgba(255, 69, 58, 0.12);
+      --border: rgba(0, 0, 0, 0.04);
+      --border-strong: rgba(0, 0, 0, 0.08);
+      --shadow-sm: 0 0 0 1px rgba(0,0,0,0.03), 0 2px 4px rgba(0,0,0,0.02);
+      --shadow-md: 0 0 0 1px rgba(0,0,0,0.03), 0 4px 12px rgba(0,0,0,0.05);
+      --radius-lg: 16px;
+      --radius-md: 12px;
+      --radius-sm: 10px;
+      --transition: 0.2s ease;
+      --font: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', system-ui, sans-serif;
+    }
+
+    html {
+      font-size: 16px;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.47059;
+      min-height: 100vh;
+      min-height: 100dvh;
+      letter-spacing: -0.022em;
+    }
+
+    #root {
+      min-height: 100vh;
+      min-height: 100dvh;
+    }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.15); border-radius: 3px; }
+
+    input[type="number"] { -moz-appearance: textfield; }
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-in { animation: fadeIn 0.35s ease-out forwards; }
+    .stagger-1 { animation-delay: 0.05s; opacity: 0; }
+    .stagger-2 { animation-delay: 0.1s; opacity: 0; }
+    .stagger-3 { animation-delay: 0.15s; opacity: 0; }
+    .stagger-4 { animation-delay: 0.2s; opacity: 0; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script type="text/babel" data-type="module">
+    const { useState, useEffect } = React;
+
+    // ============================================
+    // CONSTANTS
+    // ============================================
+
+    const DEFAULTS = {
+      albumin: 40,
+      phosphate: 1.1,
+      calcium: 1.15,
+      magnesium: 0.85,
+      lactate: 1.0,
+      k: 4.0,
+    };
+
+    // ============================================
+    // STYLES
+    // ============================================
+
+    const styles = {
+      container: {
+        minHeight: '100vh',
+        minHeight: '100dvh',
+        padding: '12px',
+        paddingBottom: '32px',
+        maxWidth: '440px',
+        margin: '0 auto',
+      },
+      header: {
+        textAlign: 'center',
+        marginBottom: '20px',
+        paddingTop: '8px',
+      },
+      stepIndicator: {
+        fontSize: '11px',
+        fontWeight: '600',
+        letterSpacing: '1px',
+        color: 'var(--accent)',
+        textTransform: 'uppercase',
+        marginBottom: '4px',
+      },
+      title: {
+        fontSize: '26px',
+        fontWeight: '700',
+        letterSpacing: '-0.5px',
+        color: 'var(--text-primary)',
+        marginBottom: '4px',
+      },
+      subtitle: {
+        fontSize: '14px',
+        color: 'var(--text-secondary)',
+        fontWeight: '400',
+      },
+      card: {
+        background: 'var(--bg-secondary)',
+        borderRadius: 'var(--radius-md)',
+        padding: '16px',
+        marginBottom: '10px',
+        boxShadow: 'var(--shadow-sm)',
+      },
+      cardTitle: {
+        fontSize: '11px',
+        fontWeight: '600',
+        letterSpacing: '0.8px',
+        color: 'var(--text-secondary)',
+        textTransform: 'uppercase',
+        marginBottom: '12px',
+      },
+      inputGroup: {
+        marginBottom: '12px',
+      },
+      inputLabel: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '5px',
+      },
+      labelText: {
+        fontSize: '13px',
+        fontWeight: '500',
+        color: 'var(--text-primary)',
+      },
+      labelUnit: {
+        fontSize: '11px',
+        color: 'var(--text-secondary)',
+      },
+      input: {
+        width: '100%',
+        padding: '10px 12px',
+        border: '1px solid var(--border-strong)',
+        borderRadius: 'var(--radius-sm)',
+        fontSize: '16px',
+        fontFamily: 'var(--font)',
+        color: 'var(--text-primary)',
+        background: 'var(--bg-tertiary)',
+        transition: 'all var(--transition)',
+        outline: 'none',
+      },
+      defaultBadge: {
+        display: 'inline-flex',
+        alignItems: 'center',
+        padding: '2px 6px',
+        background: 'var(--warning-light)',
+        color: 'var(--warning)',
+        borderRadius: '4px',
+        fontSize: '10px',
+        fontWeight: '600',
+        marginLeft: '8px',
+      },
+      button: {
+        width: '100%',
+        padding: '12px 18px',
+        border: 'none',
+        borderRadius: 'var(--radius-sm)',
+        background: 'var(--accent)',
+        color: 'white',
+        fontSize: '15px',
+        fontWeight: '600',
+        fontFamily: 'var(--font)',
+        cursor: 'pointer',
+        transition: 'all var(--transition)',
+      },
+      buttonSecondary: {
+        background: 'var(--bg-tertiary)',
+        color: 'var(--text-primary)',
+      },
+      buttonDisabled: {
+        opacity: 0.4,
+        cursor: 'not-allowed',
+      },
+      buttonSmall: {
+        padding: '8px 14px',
+        fontSize: '14px',
+        width: 'auto',
+        display: 'inline-flex',
+        borderRadius: '8px',
+      },
+      resultBox: {
+        padding: '12px',
+        background: 'var(--bg-tertiary)',
+        borderRadius: 'var(--radius-sm)',
+        marginBottom: '10px',
+      },
+      resultLabel: {
+        fontSize: '11px',
+        fontWeight: '600',
+        letterSpacing: '0.5px',
+        color: 'var(--text-secondary)',
+        textTransform: 'uppercase',
+        marginBottom: '2px',
+      },
+      resultValue: {
+        fontSize: '18px',
+        fontWeight: '600',
+        color: 'var(--text-primary)',
+      },
+      statusBadge: (type) => ({
+        display: 'inline-flex',
+        alignItems: 'center',
+        padding: '5px 10px',
+        borderRadius: '6px',
+        fontSize: '13px',
+        fontWeight: '600',
+        background: type === 'error' ? 'var(--error-light)' :
+                   type === 'warning' ? 'var(--warning-light)' :
+                   type === 'success' ? 'var(--success-light)' :
+                   'var(--accent-light)',
+        color: type === 'error' ? 'var(--error)' :
+               type === 'warning' ? 'var(--warning)' :
+               type === 'success' ? 'var(--success)' :
+               'var(--accent)',
+      }),
+      divider: {
+        height: '1px',
+        background: 'var(--border-strong)',
+        margin: '12px 0',
+      },
+      grid: {
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: '8px',
+      },
+      backButton: {
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '2px',
+        background: 'none',
+        border: 'none',
+        color: 'var(--accent)',
+        fontSize: '15px',
+        fontWeight: '400',
+        cursor: 'pointer',
+        padding: '0',
+        marginBottom: '12px',
+        fontFamily: 'var(--font)',
+      },
+      expandHeader: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        cursor: 'pointer',
+        padding: '10px 0',
+      },
+      chevron: (expanded) => ({
+        width: '18px',
+        height: '18px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: 'var(--text-tertiary)',
+        transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
+        transition: 'transform var(--transition)',
+      }),
+      workingContent: {
+        fontSize: '12px',
+        color: 'var(--text-secondary)',
+        lineHeight: '1.5',
+        paddingTop: '10px',
+        borderTop: '1px solid var(--border)',
+      },
+      formula: {
+        fontFamily: 'ui-monospace, SF Mono, Monaco, monospace',
+        fontSize: '11px',
+        background: 'var(--accent-light)',
+        padding: '2px 6px',
+        borderRadius: '4px',
+        color: 'var(--accent)',
+      },
+      valueRow: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        padding: '5px 0',
+        borderBottom: '1px solid var(--border)',
+        fontSize: '13px',
+      },
+      optionCard: {
+        padding: '14px',
+        background: 'var(--bg-tertiary)',
+        borderRadius: 'var(--radius-sm)',
+        cursor: 'pointer',
+        transition: 'all var(--transition)',
+        marginBottom: '8px',
+      },
+      optionCardSelected: {
+        background: 'var(--accent-light)',
+        boxShadow: 'inset 0 0 0 2px var(--accent)',
+      },
+      optionTitle: {
+        fontSize: '15px',
+        fontWeight: '600',
+        marginBottom: '2px',
+      },
+      optionDesc: {
+        fontSize: '12px',
+        color: 'var(--text-secondary)',
+        lineHeight: '1.3',
+      },
+      infoBox: {
+        padding: '10px 12px',
+        background: 'var(--accent-light)',
+        borderRadius: '8px',
+        fontSize: '12px',
+        color: 'var(--text-secondary)',
+        lineHeight: '1.4',
+        marginTop: '10px',
+      },
+      warningBox: {
+        padding: '10px 12px',
+        background: 'var(--warning-light)',
+        borderRadius: '8px',
+        fontSize: '12px',
+        color: 'var(--text-primary)',
+        lineHeight: '1.4',
+        marginTop: '10px',
+      },
+      summaryRow: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '8px 0',
+        borderBottom: '1px solid var(--border)',
+      },
+    };
+
+    // ============================================
+    // COMPONENTS
+    // ============================================
+
+    const ChevronIcon = () => (
+      <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
+        <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    );
+
+    const BackIcon = () => (
+      <svg width="8" height="14" viewBox="0 0 8 14" fill="none">
+        <path d="M7 1L1 7L7 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    );
+
+    const Input = ({ label, unit, value, onChange, placeholder, isDefault, defaultValue, autoFocus, warning }) => {
+      const [focused, setFocused] = useState(false);
+      const hasWarning = warning && value;
+      
+      return (
+        <div style={{ marginBottom: '10px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+            <span style={{ fontSize: '13px', fontWeight: '500', color: 'var(--text-primary)' }}>
+              {label}
+              {isDefault && value === '' && <span style={styles.defaultBadge}>Def: {defaultValue}</span>}
+            </span>
+            {unit && <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>{unit}</span>}
+          </div>
+          <input
+            type="number"
+            step="any"
+            inputMode="decimal"
+            autoFocus={autoFocus}
+            style={{
+              width: '100%',
+              padding: '10px 12px',
+              border: '1.5px solid var(--border-strong)',
+              borderRadius: '10px',
+              fontSize: '17px',
+              fontWeight: '500',
+              fontFamily: 'var(--font)',
+              color: 'var(--text-primary)',
+              background: 'var(--bg-secondary)',
+              outline: 'none',
+              borderColor: hasWarning ? 'var(--warning)' : focused ? 'var(--accent)' : 'var(--border-strong)',
+              boxShadow: focused ? '0 0 0 3px var(--accent-light)' : 'none',
+              transition: 'all 0.15s ease',
+            }}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
+            placeholder={placeholder || (isDefault ? `${defaultValue}` : '')}
+          />
+          {hasWarning && (
+            <div style={{ fontSize: '11px', color: 'var(--warning)', marginTop: '3px' }}>⚠️ {warning}</div>
+          )}
+        </div>
+      );
+    };
+
+    const ExpandableWorking = ({ children, label = "Show working" }) => {
+      const [expanded, setExpanded] = useState(false);
+      
+      return (
+        <div>
+          <div style={styles.expandHeader} onClick={() => setExpanded(!expanded)}>
+            <span style={{ fontSize: '14px', color: 'var(--accent)', fontWeight: '500' }}>
+              {expanded ? 'Hide' : label}
+            </span>
+            <div style={styles.chevron(expanded)}><ChevronIcon /></div>
+          </div>
+          {expanded && <div style={styles.workingContent}>{children}</div>}
+        </div>
+      );
+    };
+
+    const Formula = ({ children }) => <code style={styles.formula}>{children}</code>;
+    const Divider = () => <div style={styles.divider} />;
+
+    const ValueRow = ({ label, value, isDefault, highlight }) => (
+      <div style={{
+        ...styles.valueRow,
+        background: highlight ? 'rgba(0, 122, 255, 0.04)' : 'transparent',
+        margin: highlight ? '0 -8px' : '0',
+        padding: highlight ? '6px 8px' : '6px 0',
+        borderRadius: highlight ? '4px' : '0',
+      }}>
+        <span>{label}</span>
+        <span style={{ fontWeight: '500', color: 'var(--text-primary)' }}>
+          {value}
+          {isDefault && <span style={{ ...styles.defaultBadge, marginLeft: '6px' }}>default</span>}
+        </span>
+      </div>
+    );
+
+    // ============================================
+    // SCREENS
+    // ============================================
+
+    // Landing Screen
+    const LandingScreen = ({ onSelect }) => (
+      <div style={styles.container}>
+        <div style={styles.header} className="animate-in">
+          <div style={styles.stepIndicator}>Blood Gas</div>
+          <h1 style={styles.title}>ABG Analyzer</h1>
+          <p style={styles.subtitle}>Systematic acid-base interpretation</p>
+        </div>
+
+        <div style={styles.card} className="animate-in stagger-1">
+          <div style={styles.cardTitle}>Choose Approach</div>
+          
+          <div 
+            style={styles.optionCard}
+            onClick={() => onSelect('traditional')}
+          >
+            <div style={styles.optionTitle}>Traditional</div>
+            <div style={styles.optionDesc}>Henderson-Hasselbalch. Anion gap, delta ratio.</div>
+          </div>
+
+          <div 
+            style={styles.optionCard}
+            onClick={() => onSelect('stewart')}
+          >
+            <div style={styles.optionTitle}>Physicochemical</div>
+            <div style={styles.optionDesc}>Stewart approach. SID, ATOT, strong ion gap.</div>
+          </div>
+        </div>
+
+        <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', lineHeight: '1.5', textAlign: 'center', padding: '16px 8px' }} className="animate-in stagger-2">
+          <p style={{ marginBottom: '8px' }}>
+            Educational aid only. Not medical advice. Results must be interpreted in clinical context. Authors accept no responsibility for clinical decisions.
+          </p>
+          <p>© 2025 Scott Santinon</p>
+        </div>
+      </div>
+    );
+
+    // Step 1: All Values (Traditional)
+    const Step1_AllValues = ({ data, setData, onNext, onBack, approach }) => {
+      const needsStewart = approach === 'stewart';
+      const canProceed = data.pH && data.paCO2 && data.hco3 && data.na && data.cl;
+      
+      // Input validation - returns warning message or null
+      const checkRange = (value, min, max, unit) => {
+        if (!value) return null;
+        const v = parseFloat(value);
+        if (v < min || v > max) return `Outside typical range (${min}–${max} ${unit})`;
+        return null;
+      };
+      
+      return (
+        <div style={styles.container}>
+          <button style={styles.backButton} onClick={onBack}><BackIcon /> Back</button>
+          
+          <div style={styles.header} className="animate-in">
+            <div style={styles.stepIndicator}>Step 1</div>
+            <h1 style={styles.title}>Enter Values</h1>
+          </div>
+
+          <div style={styles.card} className="animate-in stagger-1">
+            <div style={styles.cardTitle}>Blood Gas</div>
+            <Input 
+              label="pH" 
+              value={data.pH || ''} 
+              onChange={v => setData({...data, pH: v})} 
+              placeholder="7.40"
+              autoFocus
+              warning={checkRange(data.pH, 6.8, 7.8, '')}
+            />
+            <div style={styles.grid}>
+              <Input 
+                label="PaCO₂" 
+                unit="mmHg" 
+                value={data.paCO2 || ''} 
+                onChange={v => setData({...data, paCO2: v})} 
+                placeholder="40"
+                warning={checkRange(data.paCO2, 10, 120, 'mmHg')}
+              />
+              <Input 
+                label="HCO₃⁻" 
+                unit="mmol/L" 
+                value={data.hco3 || ''} 
+                onChange={v => setData({...data, hco3: v})} 
+                placeholder="24"
+                warning={checkRange(data.hco3, 5, 50, 'mmol/L')}
+              />
+            </div>
+          </div>
+
+          <div style={styles.card} className="animate-in stagger-2">
+            <div style={styles.cardTitle}>Electrolytes</div>
+            <div style={styles.grid}>
+              <Input 
+                label="Na⁺" 
+                unit="mmol/L" 
+                value={data.na || ''} 
+                onChange={v => setData({...data, na: v})} 
+                placeholder="140"
+                warning={checkRange(data.na, 110, 170, 'mmol/L')}
+              />
+              <Input 
+                label="Cl⁻" 
+                unit="mmol/L" 
+                value={data.cl || ''} 
+                onChange={v => setData({...data, cl: v})} 
+                placeholder="102"
+                warning={checkRange(data.cl, 70, 130, 'mmol/L')}
+              />
+            </div>
+            
+            {needsStewart && (
+              <>
+                <div style={styles.grid}>
+                  <Input 
+                    label="K⁺" 
+                    unit="mmol/L" 
+                    value={data.k || ''} 
+                    onChange={v => setData({...data, k: v})} 
+                    placeholder="4.0"
+                    isDefault
+                    defaultValue="4.0"
+                    warning={checkRange(data.k, 2.0, 8.0, 'mmol/L')}
+                  />
+                  <Input 
+                    label="Lactate" 
+                    unit="mmol/L" 
+                    value={data.lactate || ''} 
+                    onChange={v => setData({...data, lactate: v})} 
+                    placeholder="1.0"
+                    isDefault
+                    defaultValue="1.0"
+                    warning={checkRange(data.lactate, 0, 25, 'mmol/L')}
+                  />
+                </div>
+                <div style={styles.grid}>
+                  <Input 
+                    label="Ca²⁺ (ionised)" 
+                    unit="mmol/L" 
+                    value={data.ca || ''} 
+                    onChange={v => setData({...data, ca: v})} 
+                    placeholder="1.15"
+                    isDefault
+                    defaultValue="1.15"
+                    warning={checkRange(data.ca, 0.8, 1.5, 'mmol/L')}
+                  />
+                  <Input 
+                    label="Mg²⁺" 
+                    unit="mmol/L" 
+                    value={data.mg || ''} 
+                    onChange={v => setData({...data, mg: v})} 
+                    placeholder="0.85"
+                    isDefault
+                    defaultValue="0.85"
+                    warning={checkRange(data.mg, 0.4, 1.2, 'mmol/L')}
+                  />
+                </div>
+              </>
+            )}
+            
+            <Divider />
+            
+            <Input 
+              label="Albumin" 
+              unit="g/L" 
+              value={data.albumin || ''} 
+              onChange={v => setData({...data, albumin: v})} 
+              placeholder="40"
+              isDefault
+              defaultValue="40"
+              warning={checkRange(data.albumin, 10, 55, 'g/L')}
+            />
+            
+            {needsStewart && (
+              <Input 
+                label="Phosphate" 
+                unit="mmol/L" 
+                value={data.phosphate || ''} 
+                onChange={v => setData({...data, phosphate: v})} 
+                placeholder="1.1"
+                isDefault
+                defaultValue="1.1"
+                warning={checkRange(data.phosphate, 0.5, 3.0, 'mmol/L')}
+              />
+            )}
+          </div>
+
+          {!canProceed && (
+            <div style={{ padding: '12px 16px', background: 'rgba(0, 122, 255, 0.06)', borderRadius: '10px', marginBottom: '12px' }} className="animate-in stagger-3">
+              <div style={{ fontSize: '13px', color: 'var(--accent)', fontWeight: '500' }}>
+                Required fields missing:
+              </div>
+              <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                {[
+                  !data.pH && 'pH',
+                  !data.paCO2 && 'PaCO2',
+                  !data.hco3 && 'HCO3',
+                  !data.na && 'Na',
+                  !data.cl && 'Cl',
+                ].filter(Boolean).join(', ')}
+              </div>
+            </div>
+          )}
+
+          <button
+            className="animate-in stagger-3"
+            style={{
+              ...styles.button,
+              ...(canProceed ? {} : styles.buttonDisabled),
+            }}
+            onClick={onNext}
+            disabled={!canProceed}
+          >
+            Analyse
+          </button>
+        </div>
+      );
+    };
+
+    // Step 2: Full Analysis Results (Traditional)
+    const Step2_FullAnalysis = ({ data, setData, onNext, onBack }) => {
+      const [timing, setTiming] = useState(data.timing || 'acute');
+      
+      const pH = parseFloat(data.pH);
+      const paCO2 = parseFloat(data.paCO2);
+      const hco3 = parseFloat(data.hco3);
+      const na = parseFloat(data.na);
+      const cl = parseFloat(data.cl);
+      const albumin = data.albumin ? parseFloat(data.albumin) : DEFAULTS.albumin;
+      
+      // pH Status
+      const pHStatus = pH < 7.35 ? 'acidaemia' : pH > 7.45 ? 'alkalaemia' : 'normal';
+      const statusType = pHStatus === 'acidaemia' ? 'error' : pHStatus === 'alkalaemia' ? 'warning' : 'success';
+      
+      // Primary disorder
+      let primaryDisorder = '';
+      let isMetabolic = false;
+      let isRespiratory = false;
+      
+      // Check for abnormal values
+      const lowHCO3 = hco3 < 22;
+      const highHCO3 = hco3 > 26;
+      const lowPaCO2 = paCO2 < 35;
+      const highPaCO2 = paCO2 > 45;
+      
+      if (pHStatus === 'acidaemia') {
+        if (highPaCO2 && !lowHCO3) {
+          primaryDisorder = 'Respiratory acidosis';
+          isRespiratory = true;
+        } else if (lowHCO3 && !highPaCO2) {
+          primaryDisorder = 'Metabolic acidosis';
+          isMetabolic = true;
+        } else if (lowHCO3 && highPaCO2) {
+          primaryDisorder = 'Metabolic + respiratory acidosis';
+          isMetabolic = true;
+          isRespiratory = true;
+        } else {
+          primaryDisorder = 'Acidaemia (indeterminate)';
+          isMetabolic = true;
+        }
+      } else if (pHStatus === 'alkalaemia') {
+        if (lowPaCO2 && !highHCO3) {
+          primaryDisorder = 'Respiratory alkalosis';
+          isRespiratory = true;
+        } else if (highHCO3 && !lowPaCO2) {
+          primaryDisorder = 'Metabolic alkalosis';
+          isMetabolic = true;
+        } else if (highHCO3 && lowPaCO2) {
+          primaryDisorder = 'Metabolic + respiratory alkalosis';
+          isMetabolic = true;
+          isRespiratory = true;
+        } else {
+          primaryDisorder = 'Alkalaemia (indeterminate)';
+          isMetabolic = true;
+        }
+      } else {
+        // Normal pH - check for compensated disorders or mixed
+        if (lowHCO3 && lowPaCO2) {
+          primaryDisorder = 'Compensated metabolic acidosis';
+          isMetabolic = true;
+        } else if (highHCO3 && highPaCO2) {
+          // Could be compensated met alk OR compensated resp acidosis
+          primaryDisorder = 'Compensated disorder';
+          isMetabolic = true;
+          isRespiratory = true;
+        } else if (highPaCO2 && !highHCO3) {
+          // High CO2 with normal-ish HCO3 and normal pH is unusual
+          primaryDisorder = 'Respiratory acidosis (compensated)';
+          isRespiratory = true;
+        } else if (lowPaCO2 && !lowHCO3) {
+          primaryDisorder = 'Respiratory alkalosis (compensated)';
+          isRespiratory = true;
+        } else if (lowHCO3 || highHCO3 || lowPaCO2 || highPaCO2) {
+          // Some abnormality exists
+          primaryDisorder = 'Mixed disorder (normal pH)';
+          isMetabolic = true;
+        } else {
+          // All values normal - still calculate AG
+          primaryDisorder = 'Check anion gap';
+          isMetabolic = true;
+        }
+      }
+
+      const isAcidosis = pHStatus === 'acidaemia' || primaryDisorder.toLowerCase().includes('acidosis');
+      const isAlkalosis = pHStatus === 'alkalaemia' || primaryDisorder.toLowerCase().includes('alkalosis');
+
+      // Compensation (only for pure disorders, not mixed)
+      let expectedPaCO2 = null;
+      let expectedHCO3 = null;
+      let compensationResult = '';
+      let compensationNote = '';
+
+      const isMixed = isMetabolic && isRespiratory;
+
+      if (isMixed) {
+        compensationResult = 'Mixed disorder — classic single-disorder compensation rules do not apply';
+      } else if (isMetabolic && isAcidosis) {
+        expectedPaCO2 = (1.5 * hco3) + 8;
+        // Physiological floor: PaCO2 cannot go below ~10 mmHg
+        if (expectedPaCO2 < 10) {
+          compensationNote = 'Maximal respiratory compensation reached (PaCO₂ floor ~10 mmHg)';
+          expectedPaCO2 = 10;
+        }
+      } else if (isMetabolic && isAlkalosis) {
+        expectedPaCO2 = (0.7 * hco3) + 20;
+        // Physiological ceiling: PaCO2 rarely exceeds ~55-60 for compensation
+        if (expectedPaCO2 > 55) {
+          compensationNote = 'Expected PaCO₂ exceeds usual compensatory limit (~55 mmHg)';
+        }
+      } else if (isRespiratory) {
+        const deltaCO2 = Math.abs(paCO2 - 40) / 10;
+        if (isAcidosis) {
+          const change = timing === 'acute' ? 1 : 4;
+          expectedHCO3 = 24 + (deltaCO2 * change);
+          // Physiological ceiling: HCO3 rarely exceeds 45 mmol/L
+          if (expectedHCO3 > 45) {
+            compensationNote = 'Beyond usual physiological compensation (HCO₃ ceiling ~45 mmol/L)';
+            expectedHCO3 = 45;
+          }
+        } else {
+          const change = timing === 'acute' ? 2 : 5;
+          expectedHCO3 = 24 - (deltaCO2 * change);
+          // Physiological floor: HCO3 rarely goes below 12-15 for compensation
+          if (expectedHCO3 < 12) {
+            compensationNote = 'Beyond usual physiological compensation (HCO₃ floor ~12 mmol/L)';
+            expectedHCO3 = 12;
+          }
+        }
+      }
+
+      if (!isMixed) {
+        if (expectedPaCO2 !== null) {
+          const diff = paCO2 - expectedPaCO2;
+          if (Math.abs(diff) <= 3) compensationResult = 'Appropriate compensation';
+          else if (diff > 3) compensationResult = 'Additional respiratory acidosis';
+          else compensationResult = 'Additional respiratory alkalosis';
+        } else if (expectedHCO3 !== null) {
+          const diff = hco3 - expectedHCO3;
+          if (Math.abs(diff) <= 3) compensationResult = 'Appropriate compensation';
+          else if (diff > 3) compensationResult = 'Additional metabolic alkalosis';
+          else compensationResult = 'Additional metabolic acidosis';
+        }
+      }
+
+      const compensationType = compensationResult.includes('Appropriate') ? 'success' : 
+                               compensationResult.includes('Mixed') ? 'neutral' : 'warning';
+
+      // Anion Gap (only for metabolic acidosis)
+      const rawAG = na - hco3 - cl;
+      const correction = 0.25 * (40 - albumin);
+      const correctedAG = rawAG + correction;
+      const isHAGMA = correctedAG > 12;
+
+      // Delta Ratio (only for HAGMA)
+      let deltaAG = null;
+      let deltaHCO3 = null;
+      let deltaRatio = null;
+      let deltaInterpretation = '';
+      
+      if (isMetabolic && isAcidosis && isHAGMA) {
+        deltaAG = correctedAG - 12;
+        deltaHCO3 = 24 - hco3;
+        deltaRatio = deltaHCO3 > 0 ? deltaAG / deltaHCO3 : null;
+        
+        if (deltaRatio !== null) {
+          if (deltaRatio < 0.4) deltaInterpretation = 'NAGMA (not HAGMA)';
+          else if (deltaRatio < 0.8) deltaInterpretation = 'Mixed HAGMA + NAGMA';
+          else if (deltaRatio <= 2) deltaInterpretation = 'No additional process';
+          else deltaInterpretation = 'HAGMA + metabolic alkalosis';
+        }
+      }
+
+      const handleNext = () => {
+        const updatedData = {
+          ...data,
+          pHStatus,
+          primaryDisorder,
+          isMetabolic,
+          isRespiratory,
+          isAcidosis,
+          isAlkalosis,
+          timing,
+          expectedPaCO2,
+          expectedHCO3,
+          compensationResult,
+          rawAG,
+          correctedAG,
+          isHAGMA,
+          usedAlbumin: albumin,
+          deltaAG,
+          deltaHCO3,
+          deltaRatio,
+          deltaInterpretation,
+        };
+        setData(updatedData);
+        onNext();
+      };
+
+      return (
+        <div style={styles.container}>
+          <button style={styles.backButton} onClick={onBack}><BackIcon /> Back</button>
+          
+          <div style={styles.header} className="animate-in">
+            <div style={styles.stepIndicator}>Step 2</div>
+            <h1 style={styles.title}>Analysis</h1>
+          </div>
+
+          {/* Primary Disorder */}
+          <div style={styles.card} className="animate-in stagger-1">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+              <div>
+                <div style={styles.resultLabel}>Primary Disorder</div>
+                <div style={{ fontSize: '18px', fontWeight: '600' }}>{primaryDisorder}</div>
+              </div>
+              <span style={styles.statusBadge(statusType)}>
+                pH {pH.toFixed(2)}
+              </span>
+            </div>
+
+            {/* Timing toggle for respiratory - only show for pure respiratory disorders */}
+            {isRespiratory && !isMixed && (
+              <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid var(--border)' }}>
+                <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '8px' }}>
+                  Duration (affects expected compensation):
+                </div>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    style={{
+                      flex: 1,
+                      padding: '8px 12px',
+                      border: '2px solid',
+                      borderColor: timing === 'acute' ? 'var(--accent)' : 'var(--border)',
+                      borderRadius: '8px',
+                      background: timing === 'acute' ? 'rgba(0, 122, 255, 0.04)' : 'transparent',
+                      fontSize: '14px',
+                      fontWeight: '500',
+                      cursor: 'pointer',
+                      fontFamily: 'var(--font)',
+                    }}
+                    onClick={() => setTiming('acute')}
+                  >
+                    Acute
+                  </button>
+                  <button
+                    style={{
+                      flex: 1,
+                      padding: '8px 12px',
+                      border: '2px solid',
+                      borderColor: timing === 'chronic' ? 'var(--accent)' : 'var(--border)',
+                      borderRadius: '8px',
+                      background: timing === 'chronic' ? 'rgba(0, 122, 255, 0.04)' : 'transparent',
+                      fontSize: '14px',
+                      fontWeight: '500',
+                      cursor: 'pointer',
+                      fontFamily: 'var(--font)',
+                    }}
+                    onClick={() => setTiming('chronic')}
+                  >
+                    Chronic
+                  </button>
+                </div>
+                <ExpandableWorking label="How to decide">
+                  <p><strong>Acute (hours)</strong></p>
+                  <p>• Sudden onset with acute precipitant</p>
+                  <p>• Overdose, PE, asthma, pneumonia, panic</p>
+                  <p>• HCO₃ still near 24 despite abnormal CO₂</p>
+                  <Divider />
+                  <p><strong>Chronic (3-5+ days)</strong></p>
+                  <p>• Known chronic lung disease (COPD, ILD, OHS)</p>
+                  <p>• Gradual onset or at patient's baseline</p>
+                  <p>• HCO₃ already significantly shifted</p>
+                  <Divider />
+                  <p style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+                    If unsure, compare actual HCO₃ ({hco3}) to expected values below
+                  </p>
+                </ExpandableWorking>
+                
+                {/* Show expected values for both */}
+                <div style={{ marginTop: '10px', fontSize: '13px', color: 'var(--text-secondary)', background: 'var(--surface)', padding: '10px', borderRadius: '8px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                    <span>If acute → expected HCO₃:</span>
+                    <span style={{ fontWeight: '500' }}>
+                      {isAcidosis 
+                        ? (24 + (Math.abs(paCO2 - 40) / 10) * 1).toFixed(0)
+                        : (24 - (Math.abs(paCO2 - 40) / 10) * 2).toFixed(0)
+                      } mmol/L
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span>If chronic → expected HCO₃:</span>
+                    <span style={{ fontWeight: '500' }}>
+                      {isAcidosis 
+                        ? (24 + (Math.abs(paCO2 - 40) / 10) * 4).toFixed(0)
+                        : (24 - (Math.abs(paCO2 - 40) / 10) * 5).toFixed(0)
+                      } mmol/L
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '6px', paddingTop: '6px', borderTop: '1px solid var(--border)' }}>
+                    <span>Actual HCO₃:</span>
+                    <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>{hco3} mmol/L</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Compensation */}
+          {compensationResult && (
+            <div style={styles.card} className="animate-in stagger-2">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={styles.resultLabel}>Compensation</div>
+                <span style={styles.statusBadge(compensationType)}>{compensationResult}</span>
+              </div>
+              {compensationNote && (
+                <div style={{ fontSize: '13px', color: 'var(--warning)', marginTop: '8px', fontStyle: 'italic' }}>
+                  ⚠️ {compensationNote}
+                </div>
+              )}
+              <ExpandableWorking>
+                {expectedPaCO2 !== null && (
+                  <>
+                    <p>Expected PaCO₂ = {expectedPaCO2.toFixed(0)} mmHg</p>
+                    <p>Actual PaCO₂ = {paCO2} mmHg</p>
+                    <p>Difference = {Math.abs(paCO2 - expectedPaCO2).toFixed(0)} mmHg {Math.abs(paCO2 - expectedPaCO2) <= 2 ? '(within ±2)' : ''}</p>
+                  </>
+                )}
+                {expectedHCO3 !== null && (
+                  <>
+                    <p>Expected HCO₃ = {expectedHCO3.toFixed(0)} mmol/L ({timing})</p>
+                    <p>Actual HCO₃ = {hco3} mmol/L</p>
+                  </>
+                )}
+              </ExpandableWorking>
+            </div>
+          )}
+
+          {/* Anion Gap (for metabolic acidosis OR when checking for hidden gap) */}
+          {((isMetabolic && isAcidosis) || primaryDisorder === 'Check anion gap') && (
+            <div style={styles.card} className="animate-in stagger-3">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <div style={styles.resultLabel}>Anion Gap</div>
+                  <div style={{ fontSize: '16px', fontWeight: '600' }}>{correctedAG.toFixed(1)} mEq/L</div>
+                </div>
+                <span style={styles.statusBadge(isHAGMA ? 'error' : 'success')}>
+                  {isHAGMA ? 'Elevated (HAGMA)' : 'Normal'}
+                </span>
+              </div>
+              <ExpandableWorking>
+                <p>Raw AG = {na} - {hco3} - {cl} = {rawAG.toFixed(1)}</p>
+                <p>Albumin correction = +{correction.toFixed(1)}</p>
+                <p>Corrected AG = {correctedAG.toFixed(1)} {!data.albumin && '(using default albumin 40)'}</p>
+              </ExpandableWorking>
+            </div>
+          )}
+
+          {/* Delta Ratio (for HAGMA) */}
+          {isHAGMA && deltaRatio !== null && (
+            <div style={styles.card} className="animate-in stagger-4">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <div style={styles.resultLabel}>Delta Ratio</div>
+                  <div style={{ fontSize: '16px', fontWeight: '600' }}>{deltaRatio.toFixed(2)}</div>
+                </div>
+                <span style={styles.statusBadge(deltaInterpretation === 'No additional process' ? 'success' : 'warning')}>
+                  {deltaInterpretation}
+                </span>
+              </div>
+              <ExpandableWorking>
+                <p>ΔAG = {correctedAG.toFixed(1)} - 12 = {deltaAG.toFixed(1)}</p>
+                <p>ΔHCO₃ = 24 - {hco3} = {deltaHCO3.toFixed(1)}</p>
+                <p>Ratio = {deltaRatio.toFixed(2)}</p>
+                <Divider />
+                <p style={{ fontSize: '12px' }}>{"<"}0.4 NAGMA | 0.4-0.8 mixed | 0.8-2 HAGMA | {">"}2 +met alk</p>
+              </ExpandableWorking>
+            </div>
+          )}
+
+          {/* Synthesis Summary */}
+          <div style={styles.card} className="animate-in stagger-5">
+            <div style={styles.cardTitle}>Summary</div>
+            <div style={{ fontSize: '15px', lineHeight: '1.7', color: 'var(--text-primary)' }}>
+              {(() => {
+                const parts = [];
+                
+                // Handle mixed disorders (both metabolic and respiratory primary)
+                if (isMixed) {
+                  // Metabolic component
+                  if (isAcidosis || (isHAGMA && pHStatus !== 'alkalaemia')) {
+                    if (isHAGMA) {
+                      if (deltaInterpretation === 'Mixed HAGMA + NAGMA' || deltaInterpretation === 'Concurrent NAGMA') {
+                        parts.push('Mixed HAGMA + NAGMA');
+                      } else if (deltaInterpretation === 'HAGMA + metabolic alkalosis') {
+                        parts.push('HAGMA with concurrent metabolic alkalosis');
+                      } else {
+                        parts.push('High anion gap metabolic acidosis');
+                      }
+                    } else {
+                      parts.push('Normal anion gap metabolic acidosis');
+                    }
+                  } else if (isAlkalosis) {
+                    parts.push('Metabolic alkalosis');
+                  }
+                  
+                  // Respiratory component
+                  if (pHStatus === 'acidaemia' || primaryDisorder.toLowerCase().includes('acidosis')) {
+                    parts.push('respiratory acidosis');
+                  } else {
+                    parts.push('respiratory alkalosis');
+                  }
+                } else {
+                  // Single primary disorder
+                  if (isMetabolic && isAcidosis) {
+                    if (isHAGMA) {
+                      if (deltaInterpretation === 'Mixed HAGMA + NAGMA' || deltaInterpretation === 'Concurrent NAGMA') {
+                        parts.push('Mixed high and normal anion gap metabolic acidosis');
+                      } else if (deltaInterpretation === 'HAGMA + metabolic alkalosis') {
+                        parts.push('High anion gap metabolic acidosis with concurrent metabolic alkalosis');
+                      } else {
+                        parts.push('High anion gap metabolic acidosis');
+                      }
+                    } else {
+                      parts.push('Normal anion gap metabolic acidosis');
+                    }
+                  } else if (isMetabolic && isAlkalosis) {
+                    parts.push('Metabolic alkalosis');
+                  } else if (isRespiratory && isAcidosis) {
+                    parts.push(timing === 'acute' ? 'Acute respiratory acidosis' : 'Chronic respiratory acidosis');
+                  } else if (isRespiratory && isAlkalosis) {
+                    parts.push(timing === 'acute' ? 'Acute respiratory alkalosis' : 'Chronic respiratory alkalosis');
+                  } else if (pHStatus === 'normal') {
+                    if (isHAGMA) {
+                      parts.push('Normal pH with hidden HAGMA (likely mixed disorder)');
+                    } else {
+                      parts.push('Normal acid-base status');
+                    }
+                  }
+                  
+                  // Secondary disorder from compensation analysis
+                  if (compensationResult && compensationResult !== 'Appropriate compensation') {
+                    if (compensationResult.includes('respiratory acidosis')) {
+                      parts.push('additional respiratory acidosis');
+                    } else if (compensationResult.includes('respiratory alkalosis')) {
+                      parts.push('additional respiratory alkalosis');
+                    } else if (compensationResult.includes('metabolic acidosis')) {
+                      parts.push('additional metabolic acidosis');
+                    } else if (compensationResult.includes('metabolic alkalosis')) {
+                      parts.push('additional metabolic alkalosis');
+                    }
+                  }
+                }
+                
+                if (parts.length === 0) return 'Unable to determine';
+                if (parts.length === 1) return parts[0];
+                return parts[0] + ' + ' + parts.slice(1).join(' + ');
+              })()}
+            </div>
+          </div>
+
+          <button className="animate-in stagger-6" style={styles.button} onClick={handleNext}>
+            Find Cause →
+          </button>
+        </div>
+      );
+    };
+
+    // Step 2: Stewart/Physicochemical Analysis
+    const Step2_StewartAnalysis = ({ data, setData, onNext, onBack }) => {
+      const [timing, setTiming] = useState(data.timing || 'acute');
+      
+      const pH = parseFloat(data.pH);
+      const paCO2 = parseFloat(data.paCO2);
+      const hco3 = parseFloat(data.hco3);
+      const na = parseFloat(data.na);
+      const cl = parseFloat(data.cl);
+      const k = data.k ? parseFloat(data.k) : DEFAULTS.k;
+      const ca = data.ca ? parseFloat(data.ca) : 1.15;
+      const mg = data.mg ? parseFloat(data.mg) : 0.85;
+      const lactate = data.lactate ? parseFloat(data.lactate) : 1.0;
+      const albumin = data.albumin ? parseFloat(data.albumin) : DEFAULTS.albumin;
+      const phosphate = data.phosphate ? parseFloat(data.phosphate) : 1.1;
+      
+      // pH Status (same as traditional)
+      const pHStatus = pH < 7.35 ? 'acidaemia' : pH > 7.45 ? 'alkalaemia' : 'normal';
+      const statusType = pHStatus === 'acidaemia' ? 'error' : pHStatus === 'alkalaemia' ? 'warning' : 'success';
+      
+      // Primary disorder
+      let primaryDisorder = '';
+      let isMetabolic = false;
+      let isRespiratory = false;
+      
+      // Check for abnormal values
+      const lowHCO3 = hco3 < 22;
+      const highHCO3 = hco3 > 26;
+      const lowPaCO2 = paCO2 < 35;
+      const highPaCO2 = paCO2 > 45;
+      
+      if (pHStatus === 'acidaemia') {
+        if (highPaCO2 && !lowHCO3) {
+          primaryDisorder = 'Respiratory acidosis';
+          isRespiratory = true;
+        } else if (lowHCO3 && !highPaCO2) {
+          primaryDisorder = 'Metabolic acidosis';
+          isMetabolic = true;
+        } else if (lowHCO3 && highPaCO2) {
+          primaryDisorder = 'Metabolic + respiratory acidosis';
+          isMetabolic = true;
+          isRespiratory = true;
+        } else {
+          primaryDisorder = 'Acidaemia (indeterminate)';
+          isMetabolic = true;
+        }
+      } else if (pHStatus === 'alkalaemia') {
+        if (lowPaCO2 && !highHCO3) {
+          primaryDisorder = 'Respiratory alkalosis';
+          isRespiratory = true;
+        } else if (highHCO3 && !lowPaCO2) {
+          primaryDisorder = 'Metabolic alkalosis';
+          isMetabolic = true;
+        } else if (highHCO3 && lowPaCO2) {
+          primaryDisorder = 'Metabolic + respiratory alkalosis';
+          isMetabolic = true;
+          isRespiratory = true;
+        } else {
+          primaryDisorder = 'Alkalaemia (indeterminate)';
+          isMetabolic = true;
+        }
+      } else {
+        // Normal pH - check for compensated disorders or mixed
+        if (lowHCO3 && lowPaCO2) {
+          primaryDisorder = 'Compensated metabolic acidosis';
+          isMetabolic = true;
+        } else if (highHCO3 && highPaCO2) {
+          primaryDisorder = 'Compensated disorder';
+          isMetabolic = true;
+          isRespiratory = true;
+        } else if (highPaCO2 && !highHCO3) {
+          primaryDisorder = 'Respiratory acidosis (compensated)';
+          isRespiratory = true;
+        } else if (lowPaCO2 && !lowHCO3) {
+          primaryDisorder = 'Respiratory alkalosis (compensated)';
+          isRespiratory = true;
+        } else if (lowHCO3 || highHCO3 || lowPaCO2 || highPaCO2) {
+          primaryDisorder = 'Mixed disorder (normal pH)';
+          isMetabolic = true;
+        } else {
+          primaryDisorder = 'Check SIG';
+          isMetabolic = true;
+        }
+      }
+
+      const isAcidosis = pHStatus === 'acidaemia' || primaryDisorder.toLowerCase().includes('acidosis');
+      const isAlkalosis = pHStatus === 'alkalaemia' || primaryDisorder.toLowerCase().includes('alkalosis');
+
+      // ========== STEWART CALCULATIONS ==========
+      
+      // SIDa (apparent Strong Ion Difference)
+      // Ca and Mg are divalent, so ×2 for charge contribution
+      const SIDa = na + k + (2 * ca) + (2 * mg) - cl - lactate;
+      const normalSIDa = 40; // Normal ~38-42 mEq/L
+      
+      // ATOT (weak acid charges)
+      // Albumin charge formula (Figge-Fencl)
+      const albuminCharge = (albumin / 10) * (0.123 * pH - 0.631);
+      // Phosphate charge
+      const phosphateCharge = phosphate * (0.309 * pH - 0.469);
+      const ATOT = albuminCharge + phosphateCharge;
+      
+      // SIDe (effective) = HCO3 + ATOT
+      const SIDe = hco3 + ATOT;
+      
+      // SIG (Strong Ion Gap) = SIDa - SIDe
+      const SIG = SIDa - SIDe;
+      const normalSIG = 2; // Normal < 2
+      
+      // Component effects (deviation from normal)
+      const naEffect = na - 140; // Positive = alkalosis from hypernatraemia/free water deficit
+      const clEffect = 102 - cl; // Positive = alkalosis from hypochloraemia
+      const lactateEffect = -(lactate - 1.0); // Elevated lactate = acidosis
+      const albuminEffect = (40 - albumin) * 0.25; // Low albumin = alkalosis
+      
+      // Interpretation
+      let sidInterpretation = '';
+      if (SIDa < 38) {
+        sidInterpretation = 'Low SID → metabolic acidosis';
+      } else if (SIDa > 42) {
+        sidInterpretation = 'High SID → metabolic alkalosis';
+      } else {
+        sidInterpretation = 'Normal SID';
+      }
+      
+      let sigInterpretation = '';
+      if (SIG > 2) {
+        sigInterpretation = 'Elevated SIG → unmeasured anions present';
+      } else {
+        sigInterpretation = 'Normal SIG';
+      }
+
+      const handleNext = () => {
+        setData(prev => ({
+          ...prev,
+          pHStatus,
+          primaryDisorder,
+          isMetabolic,
+          isRespiratory,
+          isAcidosis,
+          isAlkalosis,
+          timing,
+          // Stewart data
+          SIDa,
+          SIDe,
+          SIG,
+          ATOT,
+          albuminCharge,
+          phosphateCharge,
+          naEffect,
+          clEffect,
+          lactateEffect,
+          albuminEffect,
+          isHAGMA: SIG > 2, // SIG > 2 is analogous to HAGMA
+          usedAlbumin: albumin,
+        }));
+        onNext();
+      };
+
+      return (
+        <div style={styles.container}>
+          <button style={styles.backButton} onClick={onBack}><BackIcon /> Back</button>
+          
+          <div style={styles.header} className="animate-in">
+            <div style={styles.stepIndicator}>Step 2 — Stewart</div>
+            <h1 style={styles.title}>Analysis</h1>
+          </div>
+
+          {/* Primary Disorder */}
+          <div style={styles.card} className="animate-in stagger-1">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+              <div>
+                <div style={styles.resultLabel}>Primary Disorder</div>
+                <div style={{ fontSize: '18px', fontWeight: '600' }}>{primaryDisorder}</div>
+              </div>
+              <span style={styles.statusBadge(statusType)}>
+                pH {pH.toFixed(2)}
+              </span>
+            </div>
+
+            {isRespiratory && (
+              <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid var(--border)' }}>
+                <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '8px' }}>
+                  Duration (affects expected compensation):
+                </div>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    style={{
+                      flex: 1, padding: '8px 12px', border: '2px solid',
+                      borderColor: timing === 'acute' ? 'var(--accent)' : 'var(--border)',
+                      borderRadius: '8px',
+                      background: timing === 'acute' ? 'rgba(0, 122, 255, 0.04)' : 'transparent',
+                      fontSize: '14px', fontWeight: '500', cursor: 'pointer', fontFamily: 'var(--font)',
+                    }}
+                    onClick={() => setTiming('acute')}
+                  >Acute</button>
+                  <button
+                    style={{
+                      flex: 1, padding: '8px 12px', border: '2px solid',
+                      borderColor: timing === 'chronic' ? 'var(--accent)' : 'var(--border)',
+                      borderRadius: '8px',
+                      background: timing === 'chronic' ? 'rgba(0, 122, 255, 0.04)' : 'transparent',
+                      fontSize: '14px', fontWeight: '500', cursor: 'pointer', fontFamily: 'var(--font)',
+                    }}
+                    onClick={() => setTiming('chronic')}
+                  >Chronic</button>
+                </div>
+                <ExpandableWorking label="How to decide">
+                  <p><strong>Acute (hours)</strong></p>
+                  <p>• Sudden onset with acute precipitant</p>
+                  <p>• Overdose, PE, asthma, pneumonia, panic</p>
+                  <p>• HCO₃ still near 24 despite abnormal CO₂</p>
+                  <Divider />
+                  <p><strong>Chronic (3-5+ days)</strong></p>
+                  <p>• Known chronic lung disease (COPD, ILD, OHS)</p>
+                  <p>• Gradual onset or at patient's baseline</p>
+                  <p>• HCO₃ already significantly shifted</p>
+                  <Divider />
+                  <p style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+                    If unsure, compare actual HCO₃ ({hco3}) to expected values below
+                  </p>
+                </ExpandableWorking>
+                
+                {/* Show expected values for both */}
+                <div style={{ marginTop: '10px', fontSize: '13px', color: 'var(--text-secondary)', background: 'var(--surface)', padding: '10px', borderRadius: '8px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                    <span>If acute → expected HCO₃:</span>
+                    <span style={{ fontWeight: '500' }}>
+                      {isAcidosis 
+                        ? (24 + (Math.abs(paCO2 - 40) / 10) * 1).toFixed(0)
+                        : (24 - (Math.abs(paCO2 - 40) / 10) * 2).toFixed(0)
+                      } mmol/L
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span>If chronic → expected HCO₃:</span>
+                    <span style={{ fontWeight: '500' }}>
+                      {isAcidosis 
+                        ? (24 + (Math.abs(paCO2 - 40) / 10) * 4).toFixed(0)
+                        : (24 - (Math.abs(paCO2 - 40) / 10) * 5).toFixed(0)
+                      } mmol/L
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '6px', paddingTop: '6px', borderTop: '1px solid var(--border)' }}>
+                    <span>Actual HCO₃:</span>
+                    <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>{hco3} mmol/L</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* SID */}
+          <div style={styles.card} className="animate-in stagger-2">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <div style={styles.resultLabel}>Apparent Strong Ion Difference (SIDa)</div>
+                <div style={{ fontSize: '18px', fontWeight: '600' }}>{SIDa.toFixed(1)} mEq/L</div>
+              </div>
+              <span style={styles.statusBadge(SIDa < 38 ? 'error' : SIDa > 42 ? 'warning' : 'success')}>
+                {sidInterpretation.split('→')[0].trim()}
+              </span>
+            </div>
+            <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+              Normal 38-42 mEq/L
+            </div>
+            <ExpandableWorking>
+              <p><Formula>SIDa = Na + K + 2Ca + 2Mg − Cl − Lactate</Formula></p>
+              <p>= {na} + {k} + {(2*ca).toFixed(1)} + {(2*mg).toFixed(1)} − {cl} − {lactate}</p>
+              <p>= {SIDa.toFixed(1)} mEq/L</p>
+              <Divider />
+              <p style={{ fontSize: '12px' }}>
+                ↓SID → acidosis (excess strong anions or deficit strong cations)<br/>
+                ↑SID → alkalosis (deficit strong anions or excess strong cations)
+              </p>
+            </ExpandableWorking>
+          </div>
+
+          {/* Component Effects */}
+          <div style={styles.card} className="animate-in stagger-3">
+            <div style={styles.cardTitle}>Component Effects</div>
+            <div style={{ fontSize: '14px', lineHeight: '1.8' }}>
+              <div style={{ padding: '6px 0', borderBottom: '1px solid var(--border)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>Free water</span>
+                  <span style={{ fontWeight: '500', color: naEffect > 2 ? 'var(--warning)' : naEffect < -2 ? 'var(--error)' : 'var(--text-primary)' }}>
+                    {naEffect > 2 ? 'Deficit → alkalosis' : naEffect < -2 ? 'Excess → acidosis' : 'Normal'}
+                  </span>
+                </div>
+                <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                  Na⁺ {na} mmol/L {naEffect !== 0 ? `(${naEffect > 0 ? '+' : ''}${naEffect.toFixed(0)} from 140)` : ''}
+                </div>
+              </div>
+              <div style={{ padding: '6px 0', borderBottom: '1px solid var(--border)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>Chloride</span>
+                  <span style={{ fontWeight: '500', color: clEffect > 2 ? 'var(--warning)' : clEffect < -2 ? 'var(--error)' : 'var(--text-primary)' }}>
+                    {clEffect > 2 ? 'Low → alkalosis' : clEffect < -2 ? 'High → acidosis' : 'Normal'}
+                  </span>
+                </div>
+                <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                  Cl⁻ {cl} mmol/L {clEffect !== 0 ? `(${-clEffect > 0 ? '+' : ''}${(-clEffect).toFixed(0)} from 102)` : ''}
+                </div>
+              </div>
+              <div style={{ padding: '6px 0', borderBottom: '1px solid var(--border)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>Lactate</span>
+                  <span style={{ fontWeight: '500', color: lactate > 2 ? 'var(--error)' : 'var(--text-primary)' }}>
+                    {lactate > 2 ? 'Elevated → acidosis' : 'Normal'}
+                  </span>
+                </div>
+                <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                  {lactate.toFixed(1)} mmol/L
+                </div>
+              </div>
+              <div style={{ padding: '6px 0' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>Albumin</span>
+                  <span style={{ fontWeight: '500', color: albumin < 30 ? 'var(--warning)' : 'var(--text-primary)' }}>
+                    {albumin < 30 ? 'Low → alkalosis' : 'Normal'}
+                  </span>
+                </div>
+                <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                  {albumin} g/L {albumin !== 40 ? `(${albumin > 40 ? '+' : ''}${(albumin - 40).toFixed(0)} from 40)` : ''}
+                </div>
+              </div>
+            </div>
+            <ExpandableWorking>
+              <p><strong>Free water</strong> — Na⁺ is tightly regulated, so ↑Na⁺ indicates water deficit (concentration alkalosis) and ↓Na⁺ indicates water excess (dilutional acidosis)</p>
+              <p><strong>Chloride</strong> — Major SID anion. ↑Cl⁻ directly lowers SID → acidosis. ↓Cl⁻ raises SID → alkalosis</p>
+              <p><strong>Lactate</strong> — Strong anion that lowers SID when elevated</p>
+              <p><strong>Albumin</strong> — Weak acid buffer. ↓Albumin reduces buffering capacity → apparent alkalosis</p>
+            </ExpandableWorking>
+          </div>
+
+          {/* SIG */}
+          <div style={styles.card} className="animate-in stagger-4">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <div style={styles.resultLabel}>Strong Ion Gap (SIG)</div>
+                <div style={{ fontSize: '18px', fontWeight: '600' }}>{SIG.toFixed(1)} mEq/L</div>
+              </div>
+              <span style={styles.statusBadge(SIG > 2 ? 'error' : 'success')}>
+                {SIG > 2 ? 'Elevated' : 'Normal'}
+              </span>
+            </div>
+            <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+              {SIG > 2 ? 'Unmeasured strong anions present (analogous to HAGMA)' : 'No unmeasured anions'}
+            </div>
+            <ExpandableWorking>
+              <p><Formula>SIG = SIDa − SIDe</Formula></p>
+              <p>SIDe = HCO₃ + ATOT = {hco3} + {ATOT.toFixed(1)} = {SIDe.toFixed(1)}</p>
+              <p>SIG = {SIDa.toFixed(1)} − {SIDe.toFixed(1)} = {SIG.toFixed(1)}</p>
+              <Divider />
+              <p style={{ fontSize: '12px' }}>
+                ATOT = albumin charge ({albuminCharge.toFixed(1)}) + phosphate charge ({phosphateCharge.toFixed(1)})
+              </p>
+              <p style={{ fontSize: '12px' }}>Normal SIG {"<"} 2 mEq/L</p>
+            </ExpandableWorking>
+          </div>
+
+          {/* Contribution Chart */}
+          <div style={styles.card} className="animate-in stagger-5">
+            <div style={styles.cardTitle}>Contribution Chart</div>
+            <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '12px' }}>
+              Acidosis ← → Alkalosis
+            </div>
+            
+            {(() => {
+              const contributions = [
+                { label: 'Free water', value: naEffect, threshold: 2 },
+                { label: 'Chloride', value: clEffect, threshold: 2 },
+                { label: 'Lactate', value: lactateEffect, threshold: 0.5 },
+                { label: 'Albumin', value: albuminEffect, threshold: 1 },
+                { label: 'Unmeasured anions', value: -(SIG > 2 ? SIG : 0), threshold: 0 },
+              ].filter(c => Math.abs(c.value) > c.threshold);
+              
+              const maxVal = Math.max(10, ...contributions.map(c => Math.abs(c.value)));
+              
+              return (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {contributions.length === 0 ? (
+                    <div style={{ fontSize: '14px', color: 'var(--text-secondary)', textAlign: 'center', padding: '12px' }}>
+                      No significant metabolic contributions identified
+                    </div>
+                  ) : (
+                    contributions.map((c, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div style={{ width: '100px', fontSize: '13px', textAlign: 'right', flexShrink: 0 }}>
+                          {c.label}
+                        </div>
+                        <div style={{ flex: 1, display: 'flex', alignItems: 'center', height: '24px' }}>
+                          <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
+                            {c.value < 0 && (
+                              <div style={{
+                                width: `${Math.abs(c.value) / maxVal * 100}%`,
+                                height: '20px',
+                                background: 'rgba(255, 59, 48, 0.7)',
+                                borderRadius: '4px 0 0 4px',
+                              }} />
+                            )}
+                          </div>
+                          <div style={{ width: '2px', height: '24px', background: 'var(--border)' }} />
+                          <div style={{ flex: 1 }}>
+                            {c.value > 0 && (
+                              <div style={{
+                                width: `${Math.abs(c.value) / maxVal * 100}%`,
+                                height: '20px',
+                                background: 'rgba(255, 149, 0, 0.7)',
+                                borderRadius: '0 4px 4px 0',
+                              }} />
+                            )}
+                          </div>
+                        </div>
+                        <div style={{ width: '45px', fontSize: '12px', color: 'var(--text-secondary)', flexShrink: 0 }}>
+                          {c.value > 0 ? '+' : ''}{c.value.toFixed(1)}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              );
+            })()}
+          </div>
+
+          {/* Clinical Summary */}
+          <div style={styles.card} className="animate-in stagger-6">
+            <div style={styles.cardTitle}>Clinical Summary</div>
+            <div style={{ fontSize: '15px', lineHeight: '1.7' }}>
+              {(() => {
+                const findings = [];
+                const acidosisDrivers = [];
+                const alkalosisDrivers = [];
+                
+                // Identify drivers
+                if (naEffect < -2) acidosisDrivers.push('free water excess (dilutional)');
+                if (naEffect > 2) alkalosisDrivers.push('free water deficit (concentration)');
+                if (clEffect < -2) acidosisDrivers.push('hyperchloraemia');
+                if (clEffect > 2) alkalosisDrivers.push('hypochloraemia');
+                if (lactate > 2) acidosisDrivers.push(`elevated lactate (${lactate.toFixed(1)} mmol/L)`);
+                if (albumin < 30) alkalosisDrivers.push(`hypoalbuminaemia (${albumin} g/L)`);
+                if (SIG > 2) acidosisDrivers.push(`unmeasured anions (SIG ${SIG.toFixed(1)})`);
+                
+                // Primary disorder statement
+                if (pHStatus === 'acidaemia') {
+                  findings.push(<span key="primary"><strong>Acidaemia (pH {pH.toFixed(2)})</strong></span>);
+                } else if (pHStatus === 'alkalaemia') {
+                  findings.push(<span key="primary"><strong>Alkalaemia (pH {pH.toFixed(2)})</strong></span>);
+                } else {
+                  findings.push(<span key="primary"><strong>Normal pH ({pH.toFixed(2)})</strong></span>);
+                }
+                
+                // Drivers
+                if (acidosisDrivers.length > 0) {
+                  findings.push(
+                    <span key="acidosis"> with acidosis driven by {acidosisDrivers.join(', ')}</span>
+                  );
+                }
+                
+                if (alkalosisDrivers.length > 0) {
+                  if (acidosisDrivers.length > 0) {
+                    findings.push(
+                      <span key="alkalosis">, partially offset by {alkalosisDrivers.join(', ')}</span>
+                    );
+                  } else {
+                    findings.push(
+                      <span key="alkalosis"> with alkalosis driven by {alkalosisDrivers.join(', ')}</span>
+                    );
+                  }
+                }
+                
+                if (acidosisDrivers.length === 0 && alkalosisDrivers.length === 0) {
+                  findings.push(<span key="none"> — no significant metabolic derangement identified via Stewart analysis</span>);
+                }
+                
+                findings.push(<span key="period">.</span>);
+                
+                // Respiratory component
+                if (isRespiratory) {
+                  const respType = isAcidosis ? 'acidosis' : 'alkalosis';
+                  findings.push(
+                    <span key="resp"><br/><br/>{timing === 'chronic' ? 'Chronic' : 'Acute'} respiratory {respType} (PaCO₂ {paCO2} mmHg) is also present.</span>
+                  );
+                }
+                
+                return findings;
+              })()}
+            </div>
+          </div>
+
+          {/* Osmolar Gap (inline for elevated SIG) */}
+          {SIG > 2 && (
+            <div style={styles.card} className="animate-in stagger-7">
+              <div style={styles.cardTitle}>Consider Osmolar Gap</div>
+              <div style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '12px' }}>
+                Elevated osmolar gap suggests foreign solute (toxic alcohols, mannitol, ethanol)
+              </div>
+              
+              <div style={styles.grid}>
+                <Input 
+                  label="Measured Osm" 
+                  unit="mOsm/kg" 
+                  value={data.measuredOsm || ''} 
+                  onChange={v => setData(prev => ({...prev, measuredOsm: v}))} 
+                  placeholder="285"
+                />
+                <Input 
+                  label="Glucose" 
+                  unit="mmol/L" 
+                  value={data.glucose || ''} 
+                  onChange={v => setData(prev => ({...prev, glucose: v}))} 
+                  placeholder="5.5"
+                />
+              </div>
+              <Input 
+                label="Urea" 
+                unit="mmol/L" 
+                value={data.urea || ''} 
+                onChange={v => setData(prev => ({...prev, urea: v}))} 
+                placeholder="5.0"
+              />
+              
+              {data.measuredOsm && data.glucose && data.urea && (() => {
+                const measOsm = parseFloat(data.measuredOsm);
+                const glucose = parseFloat(data.glucose);
+                const urea = parseFloat(data.urea);
+                const calcOsm = (2 * na) + glucose + urea;
+                const osmGap = measOsm - calcOsm;
+                const isElevated = osmGap > 10;
+                
+                // Save to data for FindCause
+                if (data.osmGap !== osmGap) {
+                  setTimeout(() => setData(prev => ({...prev, osmGap, ogCalculated: true})), 0);
+                }
+                
+                return (
+                  <div style={{ marginTop: '12px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', background: 'var(--surface)', borderRadius: '8px' }}>
+                      <div>
+                        <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Osmolar Gap</div>
+                        <div style={{ fontSize: '18px', fontWeight: '600' }}>{osmGap.toFixed(0)} mOsm/kg</div>
+                      </div>
+                      <span style={styles.statusBadge(isElevated ? 'error' : 'success')}>
+                        {isElevated ? 'Elevated' : 'Normal'}
+                      </span>
+                    </div>
+                    
+                    {isElevated && (
+                      <div style={styles.warningBox}>
+                        ↑OG + ↑SIG → foreign solute present. Consider toxic alcohols (methanol, ethylene glycol), or check ethanol level.
+                      </div>
+                    )}
+                    
+                    {!isElevated && (
+                      <div style={styles.infoBox}>
+                        Normal OG with ↑SIG → no foreign osmoles. Likely ketoacidosis, lactic acidosis, uraemia, or late-stage toxic alcohol (fully metabolised).
+                      </div>
+                    )}
+                    
+                    <ExpandableWorking>
+                      <p>Calculated Osm = 2×Na + glucose + urea</p>
+                      <p>= 2×{na} + {glucose} + {urea} = {calcOsm.toFixed(0)}</p>
+                      <p>OG = {measOsm} − {calcOsm.toFixed(0)} = {osmGap.toFixed(0)}</p>
+                      <Divider />
+                      <p style={{ fontSize: '12px' }}>Normal OG {"<"} 10 mOsm/kg</p>
+                    </ExpandableWorking>
+                  </div>
+                );
+              })()}
+              
+              {!(data.measuredOsm && data.glucose && data.urea) && (
+                <div style={{ fontSize: '13px', color: 'var(--text-secondary)', fontStyle: 'italic', marginTop: '8px' }}>
+                  Enter values above to calculate, or skip if not indicated
+                </div>
+              )}
+            </div>
+          )}
+
+          <button className="animate-in stagger-4" style={styles.button} onClick={handleNext}>
+            Find Cause →
+          </button>
+        </div>
+      );
+    };
+
+    // Step 3: Osmolar Gap (optional, for HAGMA)
+    const Step3_OsmolarGap = ({ data, setData, onNext, onBack }) => {
+      const [wantOG, setWantOG] = useState(null);
+      
+      const na = parseFloat(data.na);
+      const glucose = data.glucose ? parseFloat(data.glucose) : null;
+      const urea = data.urea ? parseFloat(data.urea) : null;
+      const measuredOsm = data.measuredOsm ? parseFloat(data.measuredOsm) : null;
+      
+      let osmGap = null;
+      let canCalculate = glucose !== null && urea !== null && measuredOsm !== null;
+      
+      if (canCalculate) {
+        const calculatedOsm = (2 * na) + glucose + urea;
+        osmGap = measuredOsm - calculatedOsm;
+      }
+
+      const highOG = osmGap > 10;
+      const highAG = data.isHAGMA;
+
+      return (
+        <div style={styles.container}>
+          <button style={styles.backButton} onClick={onBack}><BackIcon /> Back</button>
+          
+          <div style={styles.header} className="animate-in">
+            <div style={styles.stepIndicator}>Step 3</div>
+            <h1 style={styles.title}>Osmolar Gap</h1>
+          </div>
+
+          {wantOG === null && (
+            <div style={styles.card} className="animate-in stagger-1">
+              <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '14px', lineHeight: '1.5' }}>
+                Detects abnormal solutes in plasma. Interpreted alongside the anion gap.
+              </p>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                <button
+                  style={{ ...styles.button, ...styles.buttonSmall }}
+                  onClick={() => setWantOG(true)}
+                >
+                  Calculate
+                </button>
+                <button
+                  style={{ ...styles.button, ...styles.buttonSmall, ...styles.buttonSecondary }}
+                  onClick={() => { setWantOG(false); onNext(); }}
+                >
+                  Skip
+                </button>
+              </div>
+            </div>
+          )}
+
+          {wantOG === true && (
+            <>
+              <div style={styles.card} className="animate-in stagger-1">
+                <div style={styles.grid}>
+                  <Input 
+                    label="Glucose" 
+                    unit="mmol/L" 
+                    value={data.glucose || ''} 
+                    onChange={v => setData(prev => ({...prev, glucose: v}))} 
+                    placeholder="5.5"
+                    autoFocus
+                  />
+                  <Input 
+                    label="Urea" 
+                    unit="mmol/L" 
+                    value={data.urea || ''} 
+                    onChange={v => setData(prev => ({...prev, urea: v}))} 
+                    placeholder="5.0"
+                  />
+                </div>
+                <Input 
+                  label="Measured Osm" 
+                  unit="mOsm/kg" 
+                  value={data.measuredOsm || ''} 
+                  onChange={v => setData(prev => ({...prev, measuredOsm: v}))} 
+                  placeholder="285"
+                />
+              </div>
+
+              {canCalculate && (
+                <>
+                  <div style={styles.card} className="animate-in">
+                    <div style={styles.resultBox}>
+                      <div style={styles.resultLabel}>Osmolar Gap</div>
+                      <span style={styles.statusBadge(highOG ? 'error' : 'success')}>
+                        {osmGap.toFixed(0)} mOsm/kg {highOG ? '(Elevated)' : '(Normal)'}
+                      </span>
+                    </div>
+                    
+                    <ExpandableWorking>
+                      <p><Formula>OG = Measured − Calculated</Formula></p>
+                      <p>Calculated = (2 × Na) + Glucose + Urea</p>
+                      <p>= (2 × {na}) + {glucose} + {urea} = {((2 * na) + glucose + urea).toFixed(0)}</p>
+                      <p>OG = {measuredOsm} − {((2 * na) + glucose + urea).toFixed(0)} = {osmGap.toFixed(0)}</p>
+                      <Divider />
+                      <p style={{ fontSize: '12px' }}>Normal {"<"} 10 mOsm/kg</p>
+                    </ExpandableWorking>
+                  </div>
+
+                  {/* Interpretation based on OG + AG combination */}
+                  <div style={styles.card} className="animate-in stagger-2">
+                    <div style={styles.cardTitle}>
+                      {highOG && highAG && 'High OG + High AG'}
+                      {highOG && !highAG && 'High OG + Normal AG'}
+                      {!highOG && highAG && 'Normal OG + High AG'}
+                      {!highOG && !highAG && 'Normal OG + Normal AG'}
+                    </div>
+                    
+                    {highOG && highAG && (
+                      <>
+                        <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '12px', fontStyle: 'italic' }}>
+                          Foreign solute that has dissociated
+                        </p>
+                        <div style={{ fontSize: '15px', lineHeight: '1.8' }}>
+                          <p>• Toxic alcohol (mid-stage)</p>
+                          <p>• Salicylate intoxication</p>
+                          <p>• Lactic acidosis</p>
+                          <p>• Ketoacidosis</p>
+                          <p>• AKI</p>
+                        </div>
+                      </>
+                    )}
+                    
+                    {highOG && !highAG && (
+                      <>
+                        <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '12px', fontStyle: 'italic' }}>
+                          Foreign solute that has not dissociated
+                        </p>
+                        <div style={{ fontSize: '15px', lineHeight: '1.8' }}>
+                          <p>• Mannitol</p>
+                          <p>• Ethanol</p>
+                          <p>• Toxic alcohol (early)</p>
+                          <p>• Glycine (TURP syndrome)</p>
+                        </div>
+                      </>
+                    )}
+                    
+                    {!highOG && highAG && (
+                      <>
+                        <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '12px', fontStyle: 'italic' }}>
+                          No foreign osmoles — consider other HAGMA causes
+                        </p>
+                        <div style={{ fontSize: '15px', lineHeight: '1.8' }}>
+                          <p>• Toxic alcohol (late — fully metabolised)</p>
+                          <p>• Ketoacidosis</p>
+                          <p>• Lactic acidosis</p>
+                          <p>• Uraemia</p>
+                        </div>
+                      </>
+                    )}
+                    
+                    {!highOG && !highAG && (
+                      <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
+                        No evidence of abnormal solute.
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Toxic alcohol timeline */}
+                  {highOG && (
+                    <div style={styles.card} className="animate-in stagger-3">
+                      <div style={styles.cardTitle}>Toxic Alcohol Timeline</div>
+                      <div style={{ fontSize: '14px', lineHeight: '1.8', color: 'var(--text-secondary)' }}>
+                        <p><strong style={{ color: 'var(--text-primary)' }}>Early</strong> — non-polar, not yet metabolised → ↑OG only</p>
+                        <p><strong style={{ color: 'var(--text-primary)' }}>Middle</strong> — partially metabolised to organic acids → ↑OG and ↑AG</p>
+                        <p><strong style={{ color: 'var(--text-primary)' }}>Late</strong> — fully metabolised → ↑AG, normal OG</p>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+
+              <button
+                className="animate-in stagger-4"
+                style={styles.button}
+                onClick={() => {
+                  setData(prev => ({ ...prev, osmGap, highOG, ogCalculated: true }));
+                  onNext();
+                }}
+              >
+                Find Cause →
+              </button>
+            </>
+          )}
+        </div>
+      );
+    };
+
+    // Find Cause Screen (Step Two)
+    // Lactate Causes Screen (sub-screen)
+    // ============================================
+    // FIND CAUSE - STEPWISE WORKFLOW
+    // ============================================
+
+    // Sub-screen: Lactate Causes
+    const LactateCausesScreen = ({ onBack }) => (
+      <div style={styles.container}>
+        <button style={styles.backButton} onClick={onBack}><BackIcon /> Back</button>
+        
+        <div style={styles.header} className="animate-in">
+          <div style={styles.stepIndicator}>HAGMA</div>
+          <h1 style={styles.title}>Lactic Acidosis</h1>
+        </div>
+
+        <div style={styles.card} className="animate-in stagger-1">
+          <div style={{ fontSize: '12px', lineHeight: '1.8', color: 'var(--text-secondary)' }}>
+            <div style={{ padding: '8px', background: 'var(--error-light)', borderRadius: '6px', marginBottom: '8px' }}>
+              <strong style={{ color: 'var(--text-primary)' }}>Type A (Hypoxia)</strong><br/>
+              ↓O₂, ↓CO, anaemia, ischaemia, CO/MetHb
+            </div>
+            
+            <div style={{ padding: '8px', background: 'var(--warning-light)', borderRadius: '6px', marginBottom: '8px' }}>
+              <strong style={{ color: 'var(--text-primary)' }}>Type B (Non-hypoxic)</strong><br/>
+              <strong>B1:</strong> Liver, malignancy, sepsis, thiamine<br/>
+              <strong>B2:</strong> Metformin, propofol, salicylates, linezolid<br/>
+              <strong>B3:</strong> Mitochondrial disorders
+            </div>
+            
+            <div style={{ padding: '8px', background: 'var(--bg-tertiary)', borderRadius: '6px' }}>
+              <strong style={{ color: 'var(--text-primary)' }}>Other</strong><br/>
+              β₂-agonists, seizures, exercise
+            </div>
+          </div>
+        </div>
+
+        <div style={styles.card} className="animate-in stagger-2">
+          <div style={styles.cardTitle}>Lactate Gap</div>
+          <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+            <strong>POC − Lab lactate &gt;5</strong> = ethylene glycol<br/>
+            <span style={{ fontSize: '11px', fontStyle: 'italic' }}>(POC can't distinguish lactate from glycolate)</span>
+          </div>
+        </div>
+
+        <button className="animate-in stagger-3" style={{ ...styles.button, ...styles.buttonSecondary }} onClick={onBack}>
+          Back to HAGMA Workup
+        </button>
+      </div>
+    );
+
+    // Sub-screen: Osmolar Gap Calculator
+    const OsmolarGapScreen = ({ data, setData, onBack }) => {
+      const na = parseFloat(data.na) || 140;
+      const measOsm = data.measuredOsm ? parseFloat(data.measuredOsm) : null;
+      const glucose = data.glucose ? parseFloat(data.glucose) : null;
+      const urea = data.urea ? parseFloat(data.urea) : null;
+      
+      const canCalculate = measOsm !== null && glucose !== null && urea !== null;
+      const calcOsm = canCalculate ? (2 * na) + glucose + urea : null;
+      const osmGap = canCalculate ? measOsm - calcOsm : null;
+      const isElevated = osmGap !== null && osmGap > 10;
+      const correctedAG = parseFloat(data.correctedAG) || 12;
+      const highAG = correctedAG > 14;
+      
+      return (
+        <div style={styles.container}>
+          <button style={styles.backButton} onClick={onBack}><BackIcon /> Back</button>
+          
+          <div style={styles.header} className="animate-in">
+            <div style={styles.stepIndicator}>Toxins</div>
+            <h1 style={styles.title}>Osmolar Gap</h1>
+          </div>
+
+          <div style={styles.card} className="animate-in stagger-1">
+            <div style={styles.grid}>
+              <Input label="Measured Osm" unit="mOsm/kg" value={data.measuredOsm || ''} onChange={v => setData(prev => ({...prev, measuredOsm: v}))} placeholder="285" />
+              <Input label="Glucose" unit="mmol/L" value={data.glucose || ''} onChange={v => setData(prev => ({...prev, glucose: v}))} placeholder="5.5" />
+            </div>
+            <Input label="Urea" unit="mmol/L" value={data.urea || ''} onChange={v => setData(prev => ({...prev, urea: v}))} placeholder="5.0" />
+            
+            {canCalculate && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px', background: isElevated ? 'var(--error-light)' : 'var(--success-light)', borderRadius: '8px', marginTop: '8px' }}>
+                <div>
+                  <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Osmolar Gap</div>
+                  <div style={{ fontSize: '18px', fontWeight: '600' }}>{osmGap.toFixed(0)}</div>
+                </div>
+                <span style={styles.statusBadge(isElevated ? 'error' : 'success')}>{isElevated ? '↑Elevated' : 'Normal'}</span>
+              </div>
+            )}
+          </div>
+
+          {canCalculate && (
+            <div style={styles.card} className="animate-in stagger-2">
+              {isElevated && highAG && (
+                <div style={{ fontSize: '12px', lineHeight: '1.6', color: 'var(--text-secondary)' }}>
+                  <strong style={{ color: 'var(--error)' }}>↑OG + ↑AG:</strong> Toxic alcohol (mid), salicylates, lactate, ketones
+                </div>
+              )}
+              {isElevated && !highAG && (
+                <div style={{ fontSize: '12px', lineHeight: '1.6', color: 'var(--text-secondary)' }}>
+                  <strong style={{ color: 'var(--warning)' }}>↑OG + normal AG:</strong> Toxic alcohol (early), ethanol, mannitol
+                </div>
+              )}
+              {!isElevated && highAG && (
+                <div style={{ fontSize: '12px', lineHeight: '1.6', color: 'var(--text-secondary)' }}>
+                  <strong>Normal OG + ↑AG:</strong> Toxic alcohol (late, fully metabolised), ketoacidosis, lactate, uraemia
+                </div>
+              )}
+              {!isElevated && !highAG && (
+                <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>No evidence of abnormal solute load.</div>
+              )}
+              
+              {isElevated && (
+                <div style={{ marginTop: '10px', padding: '8px', background: 'var(--bg-tertiary)', borderRadius: '6px', fontSize: '11px' }}>
+                  <strong>Toxic alcohol timeline:</strong><br/>
+                  Early: ↑OG → Mid: ↑OG+↑AG → Late: ↑AG only
+                </div>
+              )}
+            </div>
+          )}
+
+          <button className="animate-in stagger-3" style={{ ...styles.button, ...styles.buttonSecondary }} onClick={onBack}>
+            Back to HAGMA Workup
+          </button>
+        </div>
+      );
+    };
+
+    // Process Screen: HAGMA Workup
+    const HAGMAWorkupScreen = ({ data, setData, onNext, onBack }) => {
+      const [subScreen, setSubScreen] = useState(null);
+      
+      const correctedAG = parseFloat(data.correctedAG) || 12;
+      const excessAG = Math.max(0, correctedAG - 12);
+      const lactateVal = data.lactate && !isNaN(parseFloat(data.lactate)) ? parseFloat(data.lactate) : null;
+      const lactateContribution = lactateVal !== null && lactateVal > 1 ? lactateVal - 1 : 0;
+      const ketonesVal = data.ketones && !isNaN(parseFloat(data.ketones)) ? parseFloat(data.ketones) : null;
+      const ketoneContribution = ketonesVal !== null && ketonesVal > 0.6 ? ketonesVal - 0.6 : 0;
+      const explainedAG = lactateContribution + ketoneContribution;
+      const unexplainedAG = Math.max(0, excessAG - explainedAG);
+      const hasUnexplainedGap = unexplainedAG > 1;
+      const hasAnyInput = lactateVal !== null || ketonesVal !== null;
+      
+      if (subScreen === 'lactate') {
+        return <LactateCausesScreen onBack={() => setSubScreen(null)} />;
+      }
+      if (subScreen === 'osmolar') {
+        return <OsmolarGapScreen data={data} setData={setData} onBack={() => setSubScreen(null)} />;
+      }
+      
+      return (
+        <div style={styles.container}>
+          <button style={styles.backButton} onClick={onBack}><BackIcon /> Back</button>
+          
+          <div style={styles.header} className="animate-in">
+            <div style={styles.stepIndicator}>Process 1</div>
+            <h1 style={styles.title}>HAGMA Workup</h1>
+          </div>
+
+          <div style={styles.card} className="animate-in stagger-1">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', padding: '10px', background: 'var(--error-light)', borderRadius: '8px' }}>
+              <span style={{ fontSize: '13px' }}>Excess AG</span>
+              <span style={{ fontSize: '18px', fontWeight: '600', color: 'var(--error)' }}>+{excessAG.toFixed(1)}</span>
+            </div>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '8px', alignItems: 'end', marginBottom: '8px' }}>
+              <Input label="Lactate" unit="mmol/L" value={data.lactate || ''} onChange={v => setData(prev => ({...prev, lactate: v}))} placeholder="—" />
+              {lactateVal !== null && <div style={{ padding: '8px', fontSize: '13px', fontWeight: '600' }}>+{lactateContribution.toFixed(1)}</div>}
+            </div>
+            {lactateVal > 2 && (
+              <button style={{ ...styles.buttonSmall, marginBottom: '8px', fontSize: '12px' }} onClick={() => setSubScreen('lactate')}>
+                Lactate causes →
+              </button>
+            )}
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '8px', alignItems: 'end', marginBottom: '8px' }}>
+              <Input label="β-hydroxybutyrate" unit="mmol/L" value={data.ketones || ''} onChange={v => setData(prev => ({...prev, ketones: v}))} placeholder="—" />
+              {ketonesVal !== null && <div style={{ padding: '8px', fontSize: '13px', fontWeight: '600' }}>+{ketoneContribution.toFixed(1)}</div>}
+            </div>
+            {ketonesVal > 1 && (
+              <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '8px' }}>DKA, alcoholic or starvation ketosis</div>
+            )}
+            
+            {hasAnyInput && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px', background: hasUnexplainedGap ? 'var(--warning-light)' : 'var(--success-light)', borderRadius: '8px', marginTop: '8px' }}>
+                <div>
+                  <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Unexplained</div>
+                  <div style={{ fontSize: '16px', fontWeight: '600', color: hasUnexplainedGap ? 'var(--warning)' : 'var(--success)' }}>{unexplainedAG.toFixed(1)}</div>
+                </div>
+                <span style={styles.statusBadge(hasUnexplainedGap ? 'warning' : 'success')}>{hasUnexplainedGap ? 'Investigate' : 'Explained'}</span>
+              </div>
+            )}
+            
+            {!hasAnyInput && (
+              <div style={{ fontSize: '13px', color: 'var(--text-secondary)', fontStyle: 'italic' }}>
+                Enter lactate and ketones to quantify their contribution
+              </div>
+            )}
+          </div>
+
+          {hasAnyInput && hasUnexplainedGap && (
+            <div style={styles.card} className="animate-in stagger-2">
+              <div style={styles.cardTitle}>Other Causes</div>
+              <div style={{ fontSize: '12px', lineHeight: '1.8', color: 'var(--text-secondary)' }}>
+                <p><strong style={{ color: 'var(--text-primary)' }}>Renal failure</strong> — sulphates, phosphates</p>
+                <p><strong style={{ color: 'var(--text-primary)' }}>D-lactate</strong> — short gut (not on standard assay)</p>
+                <p><strong style={{ color: 'var(--text-primary)' }}>Pyroglutamic</strong> — paracetamol + malnutrition</p>
+                <p><strong style={{ color: 'var(--text-primary)' }}>Toxins</strong> — salicylates, toxic alcohols</p>
+              </div>
+              <button style={{ ...styles.buttonSmall, marginTop: '10px', width: '100%', justifyContent: 'center' }} onClick={() => setSubScreen('osmolar')}>
+                Check Osmolar Gap →
+              </button>
+            </div>
+          )}
+
+          <button className="animate-in stagger-3" style={styles.button} onClick={onNext}>
+            Continue →
+          </button>
+        </div>
+      );
+    };
+
+    // Process Screen: NAGMA
+    const NAGMAScreen = ({ onNext, onBack, processNumber }) => {
+      const [showRTA, setShowRTA] = useState(false);
+      return (
+        <div style={styles.container}>
+          <button style={styles.backButton} onClick={onBack}><BackIcon /> Back</button>
+          
+          <div style={styles.header} className="animate-in">
+            <div style={styles.stepIndicator}>Process {processNumber}</div>
+            <h1 style={styles.title}>NAGMA</h1>
+          </div>
+
+          <div style={styles.card} className="animate-in stagger-1">
+            <div style={{ fontSize: '13px', lineHeight: '1.9', color: 'var(--text-secondary)' }}>
+              <p><strong style={{ color: 'var(--text-primary)' }}>GI loss</strong> — diarrhoea, fistula, ileostomy</p>
+              <p><strong style={{ color: 'var(--text-primary)' }}>Renal loss</strong> — RTA types 1, 2, 4</p>
+              <p><strong style={{ color: 'var(--text-primary)' }}>Chloride excess</strong> — NaCl infusion</p>
+              <p><strong style={{ color: 'var(--text-primary)' }}>Early renal failure</strong></p>
+            </div>
+            
+            <button 
+              style={{ ...styles.buttonSmall, marginTop: '12px', width: '100%', justifyContent: 'center' }}
+              onClick={() => setShowRTA(!showRTA)}
+            >
+              {showRTA ? 'Hide' : 'Show'} RTA differentiation
+            </button>
+            
+            {showRTA && (
+              <div style={{ marginTop: '12px', padding: '12px', background: 'var(--bg-tertiary)', borderRadius: '8px' }}>
+                <div style={{ fontSize: '12px', marginBottom: '8px' }}>
+                  <Formula>UOG = Urine osm − 2×(Na+K) − urea − glucose</Formula>
+                </div>
+                <div style={{ fontSize: '12px', lineHeight: '1.7', color: 'var(--text-secondary)' }}>
+                  <p><strong>UOG &lt;150:</strong> Type 1 or 4 RTA</p>
+                  <p><strong>UOG &gt;150:</strong> Type 2 or non-RTA</p>
+                </div>
+                <div style={{ marginTop: '8px', fontSize: '12px', lineHeight: '1.7', color: 'var(--text-secondary)' }}>
+                  <p><strong>Type 1:</strong> ↓K, pH &gt;5.3</p>
+                  <p><strong>Type 2:</strong> ↓K, pH variable</p>
+                  <p><strong>Type 4:</strong> ↑K, pH &lt;5.5</p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <button
+            className="animate-in stagger-2"
+            style={styles.button}
+            onClick={onNext}
+          >
+            Continue →
+          </button>
+        </div>
+      );
+    };
+
+    // Process Screen: Metabolic Alkalosis
+    const MetAlkalosisScreen = ({ onNext, onBack, processNumber }) => (
+      <div style={styles.container}>
+        <button style={styles.backButton} onClick={onBack}><BackIcon /> Back</button>
+        
+        <div style={styles.header} className="animate-in">
+          <div style={styles.stepIndicator}>Process {processNumber}</div>
+          <h1 style={styles.title}>Metabolic Alkalosis</h1>
+        </div>
+
+        <div style={styles.card} className="animate-in stagger-1">
+          <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '10px' }}>
+            Check spot urine chloride:
+          </div>
+          
+          <div style={{ padding: '10px 12px', background: 'var(--success-light)', borderRadius: '8px', marginBottom: '8px' }}>
+            <div style={{ fontWeight: '600', fontSize: '13px', marginBottom: '4px' }}>Cl⁻ responsive (&lt;20 mmol/L)</div>
+            <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+              Vomiting, NG suction, diuretics → Give NaCl
+            </div>
+          </div>
+          
+          <div style={{ padding: '10px 12px', background: 'var(--warning-light)', borderRadius: '8px' }}>
+            <div style={{ fontWeight: '600', fontSize: '13px', marginBottom: '4px' }}>Cl⁻ resistant (&gt;20 mmol/L)</div>
+            <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+              Hyperaldosteronism, Cushing's, Bartter/Gitelman → Treat cause
+            </div>
+          </div>
+        </div>
+
+        <button
+          className="animate-in stagger-2"
+          style={styles.button}
+          onClick={onNext}
+        >
+          Continue →
+        </button>
+      </div>
+    );
+
+    // Process Screen: Respiratory Acidosis
+    const RespAcidosisScreen = ({ onNext, onBack, processNumber }) => (
+      <div style={styles.container}>
+        <button style={styles.backButton} onClick={onBack}><BackIcon /> Back</button>
+        
+        <div style={styles.header} className="animate-in">
+          <div style={styles.stepIndicator}>Process {processNumber}</div>
+          <h1 style={styles.title}>Resp. Acidosis</h1>
+        </div>
+
+        <div style={styles.card} className="animate-in stagger-1">
+          <div style={{ fontSize: '13px', lineHeight: '1.8', color: 'var(--text-secondary)' }}>
+            <p><strong style={{ color: 'var(--text-primary)' }}>Airway</strong> — COPD, asthma, obstruction</p>
+            <p><strong style={{ color: 'var(--text-primary)' }}>Lung</strong> — pneumonia, oedema, ARDS</p>
+            <p><strong style={{ color: 'var(--text-primary)' }}>Neuromuscular</strong> — GBS, MND, myasthenia</p>
+            <p><strong style={{ color: 'var(--text-primary)' }}>CNS</strong> — opioids, sedatives, stroke</p>
+            <p><strong style={{ color: 'var(--text-primary)' }}>Chest wall</strong> — flail, kyphosis, obesity</p>
+          </div>
+          
+          <div style={{ marginTop: '12px', padding: '10px', background: 'var(--bg-tertiary)', borderRadius: '8px', fontSize: '12px' }}>
+            <strong>Acute:</strong> HCO₃ ↑1 per 10mmHg ↑CO₂<br/>
+            <strong>Chronic:</strong> HCO₃ ↑3.5 per 10mmHg ↑CO₂
+          </div>
+        </div>
+
+        <button className="animate-in stagger-2" style={styles.button} onClick={onNext}>
+          Continue →
+        </button>
+      </div>
+    );
+
+    // Process Screen: Respiratory Alkalosis
+    const RespAlkalosisScreen = ({ onNext, onBack, processNumber }) => (
+      <div style={styles.container}>
+        <button style={styles.backButton} onClick={onBack}><BackIcon /> Back</button>
+        
+        <div style={styles.header} className="animate-in">
+          <div style={styles.stepIndicator}>Process {processNumber}</div>
+          <h1 style={styles.title}>Resp. Alkalosis</h1>
+        </div>
+
+        <div style={styles.card} className="animate-in stagger-1">
+          <div style={{ fontSize: '13px', lineHeight: '1.8', color: 'var(--text-secondary)' }}>
+            <p><strong style={{ color: 'var(--text-primary)' }}>Hypoxia</strong> — PE, pneumonia, altitude</p>
+            <p><strong style={{ color: 'var(--text-primary)' }}>CNS</strong> — anxiety, pain, fever, sepsis</p>
+            <p><strong style={{ color: 'var(--text-primary)' }}>Metabolic</strong> — liver failure, pregnancy</p>
+            <p><strong style={{ color: 'var(--text-primary)' }}>Iatrogenic</strong> — overventilation</p>
+          </div>
+          
+          <div style={{ marginTop: '12px', padding: '10px', background: 'var(--bg-tertiary)', borderRadius: '8px', fontSize: '12px' }}>
+            <strong>Acute:</strong> HCO₃ ↓2 per 10mmHg ↓CO₂<br/>
+            <strong>Chronic:</strong> HCO₃ ↓5 per 10mmHg ↓CO₂
+          </div>
+        </div>
+
+        <button className="animate-in stagger-2" style={styles.button} onClick={onNext}>
+          Continue →
+        </button>
+      </div>
+    );
+
+    // Summary Screen
+    const SummaryScreen = ({ data, processes, approach, onRestart, onSwitchToStewart }) => (
+      <div style={styles.container}>
+        <div style={styles.header} className="animate-in">
+          <div style={styles.stepIndicator}>Complete</div>
+          <h1 style={styles.title}>Summary</h1>
+        </div>
+
+        <div style={styles.card} className="animate-in stagger-1">
+          <div style={styles.cardTitle}>Identified Processes</div>
+          <div style={{ fontSize: '15px', lineHeight: '1.8' }}>
+            {processes.map((p, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 0' }}>
+                <span style={{ color: 'var(--success)', fontSize: '16px' }}>✓</span>
+                <span>{p.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div style={styles.card} className="animate-in stagger-2">
+          <div style={styles.cardTitle}>Key Values</div>
+          <div style={{ fontSize: '14px', lineHeight: '1.8' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0' }}>
+              <span style={{ color: 'var(--text-secondary)' }}>pH</span>
+              <span style={{ fontWeight: '500' }}>{data.pH}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0' }}>
+              <span style={{ color: 'var(--text-secondary)' }}>PaCO₂</span>
+              <span style={{ fontWeight: '500' }}>{data.paCO2} mmHg</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0' }}>
+              <span style={{ color: 'var(--text-secondary)' }}>HCO₃</span>
+              <span style={{ fontWeight: '500' }}>{data.hco3} mmol/L</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0' }}>
+              <span style={{ color: 'var(--text-secondary)' }}>Corrected AG</span>
+              <span style={{ fontWeight: '500' }}>{parseFloat(data.correctedAG).toFixed(1)} mEq/L</span>
+            </div>
+            {data.lactate && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0' }}>
+                <span style={{ color: 'var(--text-secondary)' }}>Lactate</span>
+                <span style={{ fontWeight: '500' }}>{data.lactate} mmol/L</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {data.compensationResult && (
+          <div style={styles.card} className="animate-in stagger-3">
+            <div style={styles.cardTitle}>Compensation</div>
+            <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>{data.compensationResult}</p>
+          </div>
+        )}
+
+        {approach === 'traditional' && (
+          <button
+            className="animate-in stagger-4"
+            style={{ ...styles.button, marginTop: '16px' }}
+            onClick={onSwitchToStewart}
+          >
+            Analyse with Physicochemical →
+          </button>
+        )}
+
+        <button
+          className="animate-in stagger-4"
+          style={{ ...styles.button, ...styles.buttonSecondary, marginTop: '8px' }}
+          onClick={onRestart}
+        >
+          New Analysis
+        </button>
+
+        <div style={{ textAlign: 'center', padding: '16px 16px 8px', fontSize: '11px', color: 'var(--text-tertiary)' }}>
+          For educational purposes only.<br/>© 2025 Scott Santinon
+        </div>
+      </div>
+    );
+
+    // Pattern matching for syndromes
+    const checkSyndromePatterns = (data) => {
+      const syndromes = [];
+      
+      const na = parseFloat(data.na) || 140;
+      const k = parseFloat(data.k) || 4;
+      const ca = parseFloat(data.ca) || 1.15;
+      const mg = parseFloat(data.mg) || 0.85;
+      const phosphate = parseFloat(data.phosphate) || 1.1;
+      const glucose = parseFloat(data.glucose);
+      const lactate = parseFloat(data.lactate) || 1;
+      const isHAGMA = data.isHAGMA && data.isAcidosis;
+      const isNAGMA = data.isMetabolic && data.isAcidosis && !data.isHAGMA;
+      const isMetAlk = data.isMetabolic && data.isAlkalosis;
+      
+      // Adrenal insufficiency (Addison's): Hyponatraemia, Hyperkalaemia, NAGMA
+      if (na < 135 && k > 5.0) {
+        syndromes.push({
+          name: "Adrenal Insufficiency",
+          findings: ['Hyponatraemia', 'Hyperkalaemia', isNAGMA ? 'NAGMA' : null].filter(Boolean),
+          note: 'Check random cortisol, ACTH stimulation test',
+          urgency: 'high'
+        });
+      }
+      
+      // Hyperaldosteronism (Conn's): Hypokalaemia, possible hypernatraemia, Metabolic alkalosis
+      if (k < 3.5 && isMetAlk) {
+        syndromes.push({
+          name: "Hyperaldosteronism / Cushing's",
+          findings: ['Hypokalaemia', 'Metabolic alkalosis', na > 145 ? 'Hypernatraemia' : null].filter(Boolean),
+          note: 'Check aldosterone:renin ratio, cortisol',
+          urgency: 'medium'
+        });
+      }
+      
+      // Refeeding syndrome: Hypophosphataemia, Hypokalaemia, Hypomagnesaemia
+      const lowPO4 = phosphate < 0.8;
+      const lowK = k < 3.5;
+      const lowMg = mg < 0.7;
+      if ((lowPO4 && lowK) || (lowPO4 && lowMg) || (lowK && lowMg && lowPO4)) {
+        syndromes.push({
+          name: "Refeeding Syndrome",
+          findings: [lowPO4 ? 'Hypophosphataemia' : null, lowK ? 'Hypokalaemia' : null, lowMg ? 'Hypomagnesaemia' : null].filter(Boolean),
+          note: 'Recent nutritional rehabilitation? Give thiamine before feeding',
+          urgency: 'high'
+        });
+      }
+      
+      // Tumour lysis syndrome: Hyperkalaemia, Hypocalcaemia, Hyperphosphataemia, HAGMA
+      if (k > 5.5 && ca < 1.0 && phosphate > 1.5) {
+        syndromes.push({
+          name: "Tumour Lysis Syndrome",
+          findings: ['Hyperkalaemia', 'Hypocalcaemia', 'Hyperphosphataemia', isHAGMA ? 'HAGMA' : null].filter(Boolean),
+          note: 'Check uric acid, LDH. Urgent oncology review',
+          urgency: 'high'
+        });
+      }
+      
+      // DKA pattern: HAGMA + high glucose + ketones
+      if (isHAGMA && glucose > 14) {
+        syndromes.push({
+          name: "Diabetic Ketoacidosis",
+          findings: ['HAGMA', 'Hyperglycaemia (' + glucose?.toFixed(1) + ')'],
+          note: 'Check ketones. If confirmed, follow DKA protocol',
+          urgency: 'high'
+        });
+      }
+      
+      // Sepsis/shock: HAGMA + high lactate
+      if (isHAGMA && lactate > 4) {
+        syndromes.push({
+          name: "Lactic Acidosis (Shock/Sepsis)",
+          findings: ['HAGMA', 'Elevated lactate (' + lactate?.toFixed(1) + ')'],
+          note: 'Assess perfusion, consider sepsis screen',
+          urgency: 'high'
+        });
+      }
+      
+      return syndromes;
+    };
+
+    // Syndrome Pattern Screen
+    const SyndromeScreen = ({ data, syndromes, onContinue, onBack }) => (
+      <div style={styles.container}>
+        <button style={styles.backButton} onClick={onBack}><BackIcon /> Back</button>
+        
+        <div style={styles.header} className="animate-in">
+          <div style={styles.stepIndicator}>Pattern Match</div>
+          <h1 style={styles.title}>Consider</h1>
+        </div>
+
+        <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '16px', textAlign: 'center' }} className="animate-in stagger-1">
+          The electrolyte pattern may suggest:
+        </div>
+
+        {syndromes.map((syndrome, i) => (
+          <div 
+            key={i} 
+            style={{
+              ...styles.card,
+              borderLeft: `3px solid ${syndrome.urgency === 'high' ? 'var(--error)' : 'var(--warning)'}`,
+            }} 
+            className={`animate-in stagger-${i + 2}`}
+          >
+            <div style={{ fontSize: '16px', fontWeight: '600', marginBottom: '8px' }}>{syndrome.name}</div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '10px' }}>
+              {syndrome.findings.map((f, j) => (
+                <span key={j} style={{
+                  padding: '3px 8px',
+                  background: 'var(--bg-tertiary)',
+                  borderRadius: '4px',
+                  fontSize: '12px',
+                  color: 'var(--text-secondary)'
+                }}>{f}</span>
+              ))}
+            </div>
+            <div style={{ fontSize: '12px', color: 'var(--text-secondary)', fontStyle: 'italic' }}>
+              {syndrome.note}
+            </div>
+          </div>
+        ))}
+
+        <button
+          className="animate-in stagger-5"
+          style={{ ...styles.button, marginTop: '16px' }}
+          onClick={onContinue}
+        >
+          Continue to Differential →
+        </button>
+      </div>
+    );
+
+    // Main Find Cause Controller
+    const FindCauseScreen = ({ data, setData, approach, onBack, onRestart, onSwitchToStewart }) => {
+      const [currentStep, setCurrentStep] = useState('syndromes'); // syndromes, overview, process-0, process-1, ..., summary
+      
+      // Check for syndromes
+      const syndromes = checkSyndromePatterns(data);
+      
+      // Identify all processes
+      const processes = [];
+      const isMixedPrimary = data.isMetabolic && data.isRespiratory;
+      
+      // HAGMA only applies to metabolic acidosis
+      if (data.isHAGMA && data.isMetabolic && data.isAcidosis) {
+        processes.push({ type: 'hagma', label: 'High anion gap metabolic acidosis' });
+        if (data.deltaInterpretation === 'Mixed HAGMA + NAGMA' || data.deltaInterpretation === 'Concurrent NAGMA') {
+          processes.push({ type: 'nagma', label: 'Normal anion gap metabolic acidosis' });
+        } else if (data.deltaInterpretation === 'HAGMA + metabolic alkalosis') {
+          processes.push({ type: 'metalkalosis', label: 'Metabolic alkalosis' });
+        }
+      } else if (data.isMetabolic && data.isAcidosis) {
+        processes.push({ type: 'nagma', label: 'Normal anion gap metabolic acidosis' });
+      } else if (data.isMetabolic && data.isAlkalosis) {
+        processes.push({ type: 'metalkalosis', label: 'Metabolic alkalosis' });
+      }
+      
+      if (data.isRespiratory) {
+        if (data.isAcidosis || data.pHStatus === 'acidaemia' || (data.primaryDisorder && data.primaryDisorder.toLowerCase().includes('acidosis'))) {
+          processes.push({ type: 'respacidosis', label: 'Respiratory acidosis' });
+        }
+        if (data.isAlkalosis || data.pHStatus === 'alkalaemia' || (data.primaryDisorder && data.primaryDisorder.toLowerCase().includes('alkalosis'))) {
+          processes.push({ type: 'respalkalosis', label: 'Respiratory alkalosis' });
+        }
+      }
+      
+      if (!isMixedPrimary && data.compensationResult) {
+        if (data.compensationResult.includes('Additional respiratory acidosis')) {
+          processes.push({ type: 'respacidosis', label: 'Respiratory acidosis' });
+        } else if (data.compensationResult.includes('Additional respiratory alkalosis')) {
+          processes.push({ type: 'respalkalosis', label: 'Respiratory alkalosis' });
+        } else if (data.compensationResult.includes('Additional metabolic acidosis')) {
+          processes.push({ type: 'nagma', label: 'Metabolic acidosis' });
+        } else if (data.compensationResult.includes('Additional metabolic alkalosis')) {
+          processes.push({ type: 'metalkalosis', label: 'Metabolic alkalosis' });
+        }
+      }
+      
+      const uniqueProcesses = processes.filter((d, i, arr) => arr.findIndex(x => x.type === d.type) === i);
+      
+      // Navigation helpers
+      const goToNextProcess = (currentIndex) => {
+        if (currentIndex + 1 < uniqueProcesses.length) {
+          setCurrentStep(`process-${currentIndex + 1}`);
+        } else {
+          setCurrentStep('summary');
+        }
+      };
+      
+      const goToPrevProcess = (currentIndex) => {
+        if (currentIndex > 0) {
+          setCurrentStep(`process-${currentIndex - 1}`);
+        } else {
+          setCurrentStep('overview');
+        }
+      };
+      
+      // Syndrome screen (shows first if syndromes detected)
+      if (currentStep === 'syndromes') {
+        if (syndromes.length === 0) {
+          // Skip to overview if no syndromes
+          setCurrentStep('overview');
+          return null;
+        }
+        return (
+          <SyndromeScreen 
+            data={data}
+            syndromes={syndromes}
+            onContinue={() => setCurrentStep('overview')}
+            onBack={onBack}
+          />
+        );
+      }
+      
+      // Overview screen
+      if (currentStep === 'overview') {
+        const normalPH = data.pHStatus === 'normal';
+        const hiddenHAGMA = normalPH && data.isHAGMA;
+        
+        return (
+          <div style={styles.container}>
+            <button style={styles.backButton} onClick={onBack}><BackIcon /> Back</button>
+            
+            <div style={styles.header} className="animate-in">
+              <div style={styles.stepIndicator}>Differential</div>
+              <h1 style={styles.title}>Find Cause</h1>
+            </div>
+
+            <div style={styles.card} className="animate-in stagger-1">
+              <div style={styles.cardTitle}>Processes to Investigate</div>
+              <div style={{ fontSize: '15px', lineHeight: '1.8' }}>
+                {uniqueProcesses.map((d, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 0' }}>
+                    <span style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'var(--accent)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: '600' }}>{i + 1}</span>
+                    <span>{d.label}</span>
+                  </div>
+                ))}
+                {uniqueProcesses.length === 0 && (
+                  <span style={{ color: 'var(--text-secondary)' }}>Normal acid-base status</span>
+                )}
+              </div>
+            </div>
+
+            {hiddenHAGMA && (
+              <div style={{ ...styles.warningBox, margin: '0 0 16px 0' }} className="animate-in stagger-1">
+                <strong>Hidden HAGMA detected</strong><br/>
+                Normal pH with elevated anion gap — suggests mixed disorder or early/compensated process
+              </div>
+            )}
+
+            {uniqueProcesses.length > 0 ? (
+              <button
+                className="animate-in stagger-2"
+                style={{ ...styles.button, marginTop: '20px' }}
+                onClick={() => setCurrentStep('process-0')}
+              >
+                Begin Investigation →
+              </button>
+            ) : (
+              <>
+                <div style={styles.card} className="animate-in stagger-2">
+                  <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
+                    pH, HCO₃, PaCO₂, and anion gap are within normal limits.
+                  </p>
+                  <div style={styles.infoBox}>
+                    If clinical suspicion remains, consider repeat testing or venous blood gas.
+                  </div>
+                </div>
+                <button
+                  className="animate-in stagger-3"
+                  style={{ ...styles.button, ...styles.buttonSecondary, marginTop: '20px' }}
+                  onClick={onRestart}
+                >
+                  New Analysis
+                </button>
+              </>
+            )}
+          </div>
+        );
+      }
+      
+      // Summary screen
+      if (currentStep === 'summary') {
+        return (
+          <SummaryScreen 
+            data={data}
+            processes={uniqueProcesses}
+            approach={approach}
+            onRestart={onRestart}
+            onSwitchToStewart={onSwitchToStewart}
+          />
+        );
+      }
+      
+      // Process screens
+      const processIndex = parseInt(currentStep.split('-')[1]);
+      const currentProcess = uniqueProcesses[processIndex];
+      const processNumber = processIndex + 1;
+      
+      if (!currentProcess) {
+        setCurrentStep('summary');
+        return null;
+      }
+      
+      switch (currentProcess.type) {
+        case 'hagma':
+          return (
+            <HAGMAWorkupScreen 
+              data={data}
+              setData={setData}
+              onNext={() => goToNextProcess(processIndex)}
+              onBack={() => goToPrevProcess(processIndex)}
+            />
+          );
+        case 'nagma':
+          return (
+            <NAGMAScreen 
+              processNumber={processNumber}
+              onNext={() => goToNextProcess(processIndex)}
+              onBack={() => goToPrevProcess(processIndex)}
+            />
+          );
+        case 'metalkalosis':
+          return (
+            <MetAlkalosisScreen 
+              processNumber={processNumber}
+              onNext={() => goToNextProcess(processIndex)}
+              onBack={() => goToPrevProcess(processIndex)}
+            />
+          );
+        case 'respacidosis':
+          return (
+            <RespAcidosisScreen 
+              processNumber={processNumber}
+              onNext={() => goToNextProcess(processIndex)}
+              onBack={() => goToPrevProcess(processIndex)}
+            />
+          );
+        case 'respalkalosis':
+          return (
+            <RespAlkalosisScreen 
+              processNumber={processNumber}
+              onNext={() => goToNextProcess(processIndex)}
+              onBack={() => goToPrevProcess(processIndex)}
+            />
+          );
+        default:
+          return null;
+      }
+    };
+
+    // MAIN APP
+    // ============================================
+
+    const App = () => {
+      const [approach, setApproach] = useState(null);
+      const [step, setStep] = useState(0);
+      const [data, setData] = useState({});
+      const [showFindCause, setShowFindCause] = useState(false);
+
+      const handleRestart = () => {
+        setApproach(null);
+        setStep(0);
+        setData({});
+        setShowFindCause(false);
+      };
+
+      const handleSwitchToStewart = () => {
+        // Keep input data, switch to Stewart
+        // Go to step 1 to let them fill in K, Ca, Mg, lactate, phosphate if needed
+        // Data is preserved so basic values won't need re-entry
+        setApproach('stewart');
+        setShowFindCause(false);
+        setStep(1);
+      };
+
+      const handleBackFromFindCause = () => {
+        setShowFindCause(false);
+        setStep(2);
+      };
+
+      // Landing
+      if (!approach) {
+        return <LandingScreen onSelect={(a) => { setApproach(a); setStep(1); }} />;
+      }
+
+      // Find Cause screen
+      if (showFindCause) {
+        return (
+          <FindCauseScreen 
+            data={data}
+            setData={setData}
+            approach={approach}
+            onBack={handleBackFromFindCause} 
+            onRestart={handleRestart}
+            onSwitchToStewart={handleSwitchToStewart}
+          />
+        );
+      }
+
+      // Traditional pathway - condensed flow
+      if (approach === 'traditional') {
+        switch (step) {
+          case 1:
+            return <Step1_AllValues data={data} setData={setData} onNext={() => setStep(2)} onBack={handleRestart} approach={approach} />;
+          case 2:
+            return <Step2_FullAnalysis 
+              data={data} 
+              setData={setData} 
+              onNext={() => setShowFindCause(true)} 
+              onBack={() => setStep(1)} 
+            />;
+        }
+      }
+
+      // Stewart/Physicochemical pathway
+      if (approach === 'stewart') {
+        switch (step) {
+          case 1:
+            return <Step1_AllValues data={data} setData={setData} onNext={() => setStep(2)} onBack={handleRestart} approach={approach} />;
+          case 2:
+            return <Step2_StewartAnalysis 
+              data={data} 
+              setData={setData} 
+              onNext={() => setShowFindCause(true)} 
+              onBack={() => setStep(1)} 
+            />;
+        }
+      }
+
+      // Both - show traditional then can switch to Stewart
+      if (approach === 'both') {
+        switch (step) {
+          case 1:
+            return <Step1_AllValues data={data} setData={setData} onNext={() => setStep(2)} onBack={handleRestart} approach={approach} />;
+          case 2:
+            return <Step2_FullAnalysis 
+              data={data} 
+              setData={setData} 
+              onNext={() => setShowFindCause(true)} 
+              onBack={() => setStep(1)} 
+            />;
+        }
+      }
+
+      return null;
+    };
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
