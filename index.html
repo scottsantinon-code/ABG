@@ -2302,7 +2302,10 @@ const Step2_FullAnalysis = ({
     }
   }, pH.toFixed(2))), /*#__PURE__*/React.createElement("span", {
     style: styles.statusBadge(statusType)
-  }, primaryDisorder)), compensationResult && !showDualInterpretation && /*#__PURE__*/React.createElement("div", {
+  }, primaryDisorder)), compensationResult && !(
+  (compensationResult.includes('Additional respiratory acidosis') && primaryDisorder && primaryDisorder.includes('respiratory acidosis')) ||
+  (compensationResult.includes('Additional respiratory alkalosis') && primaryDisorder && primaryDisorder.includes('respiratory alkalosis'))
+) && !showDualInterpretation && /*#__PURE__*/React.createElement("div", {
     style: {
       padding: '10px 0',
       borderTop: '1px solid var(--border)'
