@@ -1040,8 +1040,6 @@ const LandingScreen = ({
     right: '12px',
     width: '40px',
     height: '40px',
-    borderRadius: '50%',
-    background: '#F0F0F0',
     cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
@@ -1151,71 +1149,6 @@ const LandingScreen = ({
   },
   className: "animate-in stagger-3"
 }, "\xA9 2025 Scott Santinon"));
-
-// Beta Testing Screen
-const BetaScreen = ({
-  onSelect,
-  onBack
-}) => /*#__PURE__*/React.createElement("div", {
-  style: styles.container
-}, /*#__PURE__*/React.createElement("button", {
-  style: styles.backButton,
-  onClick: onBack
-}, /*#__PURE__*/React.createElement(BackIcon, null), " Back"), /*#__PURE__*/React.createElement("div", {
-  style: styles.header,
-  className: "animate-in"
-}, /*#__PURE__*/React.createElement("div", {
-  style: {
-    ...styles.stepIndicator,
-    background: 'var(--accent-light)',
-    color: 'var(--accent)'
-  }
-}, "\uD83E\uDDEA Beta"), /*#__PURE__*/React.createElement("h1", {
-  style: styles.title
-}, "ABGlabs"), /*#__PURE__*/React.createElement("p", {
-  style: styles.subtitle
-}, "Features in development")), /*#__PURE__*/React.createElement("div", {
-  style: {
-    padding: '12px',
-    background: 'var(--warning-light)',
-    borderRadius: '10px',
-    marginBottom: '16px',
-    fontSize: '12px',
-    color: 'var(--text-secondary)',
-    lineHeight: '1.5'
-  },
-  className: "animate-in stagger-1"
-}, "These features are under active development and may change. Feedback welcome!"), /*#__PURE__*/React.createElement("div", {
-  style: styles.card,
-  className: "animate-in stagger-1"
-}, /*#__PURE__*/React.createElement("div", {
-  style: styles.cardTitle
-}, "Hyperglycaemic Crisis"), /*#__PURE__*/React.createElement("div", {
-  style: styles.optionCard,
-  onClick: () => onSelect('dkahhs')
-}, /*#__PURE__*/React.createElement("div", {
-  style: styles.optionTitle
-}, "DKA/HHS Monitor"), /*#__PURE__*/React.createElement("div", {
-  style: {
-    fontSize: '12px',
-      color: 'var(--text-tertiary)',
-    marginTop: '2px'
-  }
-}, "Classification, trends, fluid deficit"))), /*#__PURE__*/React.createElement("div", {
-  style: {
-    fontSize: '12px',
-      color: 'var(--text-tertiary)',
-    lineHeight: '1.5',
-    textAlign: 'center',
-    padding: '16px 8px'
-  },
-  className: "animate-in stagger-2"
-}, /*#__PURE__*/React.createElement("p", {
-  style: {
-    fontSize: '13px',
-    fontWeight: '500'
-  }
-}, "\xA9 2025 Scott Santinon")));
 
 // Step 1: All Values (Traditional)
 const Step1_AllValues = ({
@@ -1949,11 +1882,20 @@ const Step2_FullAnalysis = ({
     analysisPathway = 'A';
   } else if (isNormalPH && isHAGMA) {
     analysisPathway = 'B';
-  } else if (isNormalPH && !isHAGMA && (hco3 !== 24 || paCO2 !== 40)) {
-    // Normal pH, normal AG, but something is abnormal
-    analysisPathway = 'C';
+  } else if (isNormalPH && !isHAGMA) {
+    // Normal pH + Normal AG - check if values are genuinely abnormal
+    // Use range-based detection: HCO₃ <22 or >26, PaCO₂ <35 or >45
+    const hco3Abnormal = hco3 < 22 || hco3 > 26;
+    const paCO2Abnormal = paCO2 < 35 || paCO2 > 45;
+    if (hco3Abnormal || paCO2Abnormal) {
+      // At least one value outside normal range - ambiguous, dual interpretation
+      analysisPathway = 'C';
+    } else {
+      // Everything truly normal (pH 7.35-7.45, HCO₃ 22-26, PaCO₂ 35-45) - no acid-base disturbance
+      analysisPathway = 'A';
+    }
   } else {
-    analysisPathway = 'A'; // Normal everything - still use pathway A
+    analysisPathway = 'A'; // Fallback
   }
   const showDualInterpretation = analysisPathway === 'C';
 
@@ -1963,7 +1905,7 @@ const Step2_FullAnalysis = ({
   let isRespiratory = false;
   let needsCompensationAnalysis = false; // Flag for cases where both components need checking
 
-  // Check for abnormal values
+  // Define abnormal value flags (used throughout analysis)
   const lowHCO3 = hco3 < 22;
   const highHCO3 = hco3 > 26;
   const lowPaCO2 = paCO2 < 35;
@@ -2118,6 +2060,7 @@ const Step2_FullAnalysis = ({
     if (metFits) {
       // Metabolic primary with appropriate respiratory compensation
       expectedPaCO2 = metExpectedPaCO2;
+      compensationResult = 'Appropriate compensation';
       compensationVerdict = 'Appropriate compensation';
       if (isAcidosis) {
         primaryDisorder = 'Metabolic acidosis with appropriate respiratory compensation';
@@ -2128,6 +2071,7 @@ const Step2_FullAnalysis = ({
     } else if (respFitsAcute || respFitsChronic) {
       // Respiratory primary with appropriate metabolic compensation
       expectedHCO3 = respFitsChronic ? respExpectedHCO3Chronic : respExpectedHCO3Acute;
+      compensationResult = 'Appropriate compensation';
       compensationVerdict = 'Appropriate compensation';
       const timingLabel = respFitsChronic ? 'chronic' : 'acute';
       if (isAcidosis) {
@@ -2139,10 +2083,13 @@ const Step2_FullAnalysis = ({
     } else {
       // Neither fits well - true mixed disorder
       compensationVerdict = 'Outside expected range';
+      // Set compensationResult based on the direction of deviation
       if (isAcidosis) {
+        compensationResult = metDiff > 0 ? 'Additional respiratory acidosis' : 'Additional metabolic acidosis';
         primaryDisorder = 'Mixed metabolic and respiratory acidosis';
         additionalProcess = metDiff > 0 ? 'respacidosis' : 'nagma';
       } else {
+        compensationResult = metDiff < 0 ? 'Additional respiratory alkalosis' : 'Additional metabolic alkalosis';
         primaryDisorder = 'Mixed metabolic and respiratory alkalosis';
         additionalProcess = metDiff < 0 ? 'respalkalosis' : 'metalkalosis';
       }
@@ -2581,7 +2528,7 @@ const Step2_FullAnalysis = ({
       color: 'var(--text-tertiary)'
     },
     onClick: () => setChronicHypercapniaSelection(null)
-  }, "Change"))), isRespiratory && /*#__PURE__*/React.createElement("div", {
+  }, "Change"))), isRespiratory && !isMetabolic && !showDualInterpretation && /*#__PURE__*/React.createElement("div", {
     style: {
       paddingTop: '12px',
       borderTop: '1px solid var(--border)',
@@ -2752,14 +2699,14 @@ const Step2_StewartAnalysis = ({
     disorders.push({
       type: 'acidosis',
       source: 'Low SID',
-      detail: `SIDa ${SIDa.toFixed(1)} (<38)`
+      detail: `SIDa ${SIDa.toFixed(1)} (<42)`
     });
   }
   if (sidStatus === 'high') {
     disorders.push({
       type: 'alkalosis',
       source: 'High SID',
-      detail: `SIDa ${SIDa.toFixed(1)} (>42)`
+      detail: `SIDa ${SIDa.toFixed(1)} (>48)`
     });
   }
 
@@ -6818,25 +6765,6 @@ const SummaryScreen = ({
 };
 
 // ============================================
-// DKA/HHS MONITOR
-// ============================================
-
-// Helper: Corrected sodium (Katz 1973 formula, converted to mmol/L)
-// Original: Add 1.6 mEq/L per 100 mg/dL glucose above 100 mg/dL
-// In mmol/L: Add 0.29 per mmol/L glucose above 5.5 (≈0.3)
-const calcCorrectedNa = (na, glucose) => {
-  if (!na || !glucose) return null;
-  return na + 0.3 * (glucose - 5.5);
-};
-
-// Helper: Effective osmolality (excludes urea - for tonicity)
-// 2024 international consensus: HHS when effective osm >300 mOsm/kg
-const calcEffectiveOsm = (na, glucose) => {
-  if (!na || !glucose) return null;
-  return 2 * na + glucose;
-};
-
-// ============================================
 // ADVANCED HYBRID SCREEN
 // ============================================
 const AdvancedHybridScreen = ({
@@ -7709,837 +7637,6 @@ const AdvancedHybridScreen = ({
   }, "SIDa (", sidA?.toFixed(1), ") \u2212 SIDe (", sidE?.toFixed(1), ") = ", sig.toFixed(1))))));
 };
 
-// DKA/HHS Menu Screen
-const DKAHHSMonitor = ({
-  onBack,
-  initialTab
-}) => {
-  const [activeTab, setActiveTab] = useState(initialTab || 'calculators');
-
-  // Shared inputs for current values
-  const [currentGlucose, setCurrentGlucose] = useState('');
-  const [currentNa, setCurrentNa] = useState('');
-
-  // Presentation values (for trends)
-  const [presentationGlucose, setPresentationGlucose] = useState('');
-  const [presentationNa, setPresentationNa] = useState('');
-
-  // Time inputs
-  const [presentationTime, setPresentationTime] = useState('');
-  const [currentTime, setCurrentTime] = useState('');
-
-  // Fluid deficit inputs
-  const [weight, setWeight] = useState('');
-  const [tbwFactor, setTbwFactor] = useState('0.6');
-  const [targetNa, setTargetNa] = useState('145');
-
-  // Parse inputs
-  const glucNow = parseFloat(currentGlucose) || null;
-  const naNow = parseFloat(currentNa) || null;
-  const glucPresent = parseFloat(presentationGlucose) || null;
-  const naPresent = parseFloat(presentationNa) || null;
-
-  // Current calculator results
-  const correctedNaNow = calcCorrectedNa(naNow, glucNow);
-  const effectiveOsmNow = calcEffectiveOsm(naNow, glucNow);
-
-  // Presentation calculator results
-  const correctedNaPresent = calcCorrectedNa(naPresent, glucPresent);
-  const effectiveOsmPresent = calcEffectiveOsm(naPresent, glucPresent);
-
-  // Fluid deficit
-  const weightVal = parseFloat(weight) || null;
-  const tbwFactorVal = parseFloat(tbwFactor) || 0.6;
-  const targetNaVal = parseFloat(targetNa) || 145;
-  const tbw = weightVal ? weightVal * tbwFactorVal : null;
-  // Free water deficit only makes sense if Na is elevated
-  const canCalcFluidDeficit = tbw && correctedNaNow && correctedNaNow > targetNaVal;
-  const freeWaterDeficit = canCalcFluidDeficit ? tbw * (correctedNaNow / targetNaVal - 1) : null;
-
-  // Calculate hours between times
-  const calcHoursBetween = () => {
-    if (!presentationTime || !currentTime) return null;
-    const start = new Date(presentationTime);
-    const end = new Date(currentTime);
-    const diffMs = end - start;
-    if (diffMs <= 0) return null;
-    return diffMs / (1000 * 60 * 60);
-  };
-  const dt = calcHoursBetween();
-
-  // Set current time to now
-  const setNow = () => {
-    const now = new Date();
-    const localISOTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-    setCurrentTime(localISOTime);
-  };
-
-  // Trend calculations
-  const canCalcGlucoseTrend = dt > 0 && glucPresent !== null && glucNow !== null;
-  const canCalcOsmTrend = dt > 0 && effectiveOsmPresent !== null && effectiveOsmNow !== null;
-  const canCalcNaTrend = dt > 0 && correctedNaPresent !== null && correctedNaNow !== null;
-  const deltaGlucose = canCalcGlucoseTrend ? glucPresent - glucNow : null; // positive if falling
-  const rateGlucose = canCalcGlucoseTrend ? deltaGlucose / dt : null;
-  const deltaOsm = canCalcOsmTrend ? effectiveOsmPresent - effectiveOsmNow : null; // positive if falling
-  const rateOsm = canCalcOsmTrend ? deltaOsm / dt : null;
-  const deltaNaCorr = canCalcNaTrend ? correctedNaNow - correctedNaPresent : null; // positive if rising
-  const equivChange24h = canCalcNaTrend ? deltaNaCorr * (24 / dt) : null;
-
-  // Status functions (based on JBDS guidelines)
-  const getGlucoseStatus = () => {
-    if (!canCalcGlucoseTrend) return null;
-    const rate = rateGlucose;
-    if (rate < 0) return {
-      status: 'Rising',
-      color: 'var(--error)',
-      level: 'error'
-    };
-    if (rate >= 3 && rate <= 5) return {
-      status: 'On target (3–5 mmol/L/h)',
-      color: 'var(--success)',
-      level: 'success'
-    };
-    if (rate > 0 && rate < 3) return {
-      status: 'Slow (<3 mmol/L/h)',
-      color: 'var(--warning)',
-      level: 'warning'
-    };
-    if (rate > 5 && rate <= 6) return {
-      status: 'Monitor closely',
-      color: 'var(--warning)',
-      level: 'warning'
-    };
-    return {
-      status: 'Too fast (>6 mmol/L/h)',
-      color: 'var(--error)',
-      level: 'error'
-    };
-  };
-  const getOsmStatus = () => {
-    if (!canCalcOsmTrend) return null;
-    const rate = rateOsm;
-    if (rate < 0) return {
-      status: 'Rising',
-      color: 'var(--warning)',
-      level: 'warning'
-    };
-    if (rate < 3) return {
-      status: 'Too slow (<3 mOsm/kg/h)',
-      color: 'var(--warning)',
-      level: 'warning'
-    };
-    if (rate >= 3 && rate <= 8) return {
-      status: 'On target (3–8 mOsm/kg/h)',
-      color: 'var(--success)',
-      level: 'success'
-    };
-    return {
-      status: 'Too fast (>8 mOsm/kg/h)',
-      color: 'var(--error)',
-      level: 'error'
-    };
-  };
-  const getNaCorrStatus = () => {
-    if (!canCalcNaTrend) return null;
-    const absChange = Math.abs(equivChange24h);
-    if (absChange <= 10) return {
-      status: 'Safe (≤10 mmol/L/24h)',
-      color: 'var(--success)',
-      level: 'success'
-    };
-    if (absChange <= 12) return {
-      status: 'Monitor closely',
-      color: 'var(--warning)',
-      level: 'warning'
-    };
-    return {
-      status: 'Too fast (>12 mmol/L/24h)',
-      color: 'var(--error)',
-      level: 'error'
-    };
-  };
-  const glucoseStatus = getGlucoseStatus();
-  const osmStatus = getOsmStatus();
-  const naCorrStatus = getNaCorrStatus();
-
-  // Format hours nicely
-  const formatDuration = hours => {
-    if (!hours) return '';
-    const h = Math.floor(hours);
-    const m = Math.round((hours - h) * 60);
-    if (m === 0) return `${h}h`;
-    return `${h}h ${m}m`;
-  };
-  const inputStyle = {
-    width: '100%',
-    padding: '10px 12px',
-    border: '1px solid var(--border-strong)',
-    borderRadius: '8px',
-    fontSize: '14px',
-    fontFamily: 'var(--font)',
-    color: 'var(--text-primary)',
-    background: 'var(--bg-tertiary)',
-    outline: 'none',
-    boxSizing: 'border-box'
-  };
-  const smallBtnStyle = active => ({
-    flex: 1,
-    padding: '6px 8px',
-    background: active ? 'var(--accent-light)' : 'var(--bg-tertiary)',
-    color: active ? 'var(--accent)' : 'var(--text-secondary)',
-    border: '1px solid ' + (active ? 'var(--accent)' : 'var(--border)'),
-    borderRadius: '6px',
-    fontSize: '11px',
-    fontWeight: '500',
-    cursor: 'pointer',
-    fontFamily: 'var(--font)'
-  });
-  return /*#__PURE__*/React.createElement("div", {
-    style: styles.container
-  }, /*#__PURE__*/React.createElement("button", {
-    style: styles.backButton,
-    onClick: onBack
-  }, /*#__PURE__*/React.createElement(BackIcon, null), " Back"), /*#__PURE__*/React.createElement("div", {
-    style: styles.header,
-    className: "animate-in"
-  }, /*#__PURE__*/React.createElement("h1", {
-    style: styles.title
-  }, activeTab === 'calculators' ? 'Corrected Na⁺ / Free Water' : 'Correction Trends')), /*#__PURE__*/React.createElement("div", {
-    style: {
-      padding: '10px',
-      background: 'var(--warning-light)',
-      borderRadius: '8px',
-      marginBottom: '12px',
-      fontSize: '12px',
-      color: 'var(--text-secondary)'
-    },
-    className: "animate-in stagger-1"
-  }, "This tool supports interpretation only. Always follow your local DKA/HHS protocol and senior advice."), activeTab === 'calculators' && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    style: styles.card,
-    className: "animate-in stagger-2"
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: '14px',
-      fontWeight: '600',
-      marginBottom: '12px'
-    }
-  }, "Current Values"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'grid',
-      gridTemplateColumns: '1fr 1fr',
-      gap: '10px'
-    }
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: '12px',
-      color: 'var(--text-secondary)',
-      marginBottom: '4px'
-    }
-  }, "Glucose (mmol/L)"), /*#__PURE__*/React.createElement("input", {
-    type: "number",
-    value: currentGlucose,
-    onChange: e => setCurrentGlucose(e.target.value),
-    placeholder: "20",
-    style: inputStyle
-  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: '12px',
-      color: 'var(--text-secondary)',
-      marginBottom: '4px'
-    }
-  }, "Sodium (mmol/L)"), /*#__PURE__*/React.createElement("input", {
-    type: "number",
-    value: currentNa,
-    onChange: e => setCurrentNa(e.target.value),
-    placeholder: "140",
-    style: inputStyle
-  })))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'grid',
-      gridTemplateColumns: '1fr 1fr',
-      gap: '10px'
-    },
-    className: "animate-in stagger-3"
-  }, /*#__PURE__*/React.createElement("div", {
-    style: styles.card
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: '12px',
-      fontWeight: '600',
-      marginBottom: '6px'
-    }
-  }, "Corrected Na\u207A ", /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontWeight: '400',
-      color: 'var(--text-tertiary)'
-    }
-  }, "mmol/L")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      padding: '10px',
-      background: correctedNaNow && correctedNaNow > 155 ? 'var(--error-light)' : 'var(--bg-tertiary)',
-      borderRadius: '6px',
-      textAlign: 'center'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: '22px',
-      fontWeight: '700'
-    }
-  }, correctedNaNow ? correctedNaNow.toFixed(0) : '—')), correctedNaNow && correctedNaNow > 155 && /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginTop: '6px',
-      fontSize: '10px',
-      color: 'var(--error)'
-    }
-  }, "\u2191 Significant free water deficit (HHS)"), correctedNaNow && correctedNaNow <= 155 && correctedNaNow > 145 && /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginTop: '6px',
-      fontSize: '11px',
-      color: 'var(--text-tertiary)'
-    }
-  }, "Mild deficit")), /*#__PURE__*/React.createElement("div", {
-    style: styles.card
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: '12px',
-      fontWeight: '600',
-      marginBottom: '6px'
-    }
-  }, "Effective Osm ", /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontWeight: '400',
-      color: 'var(--text-tertiary)'
-    }
-  }, "mOsm/kg")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      padding: '10px',
-      background: effectiveOsmNow && effectiveOsmNow > 300 ? 'var(--warning-light)' : 'var(--bg-tertiary)',
-      borderRadius: '6px',
-      textAlign: 'center'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: '22px',
-      fontWeight: '700'
-    }
-  }, effectiveOsmNow ? effectiveOsmNow.toFixed(0) : '—')), effectiveOsmNow && effectiveOsmNow > 300 && /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginTop: '6px',
-      fontSize: '10px',
-      color: 'var(--warning)'
-    }
-  }, ">300 suggests HHS. Correct slowly!"))), /*#__PURE__*/React.createElement("div", {
-    style: styles.card,
-    className: "animate-in stagger-4"
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: '14px',
-      fontWeight: '600',
-      marginBottom: '4px'
-    }
-  }, "Free Water Deficit"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: '13px',
-      color: 'var(--text-secondary)',
-      marginBottom: '10px'
-    }
-  }, "Most relevant in HHS with significantly elevated corrected Na\u207A"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      gap: '8px',
-      marginBottom: '8px'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      flex: 1
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: '12px',
-      color: 'var(--text-secondary)',
-      marginBottom: '4px'
-    }
-  }, "Weight (kg)"), /*#__PURE__*/React.createElement("input", {
-    type: "number",
-    value: weight,
-    onChange: e => setWeight(e.target.value),
-    placeholder: "70",
-    style: inputStyle
-  })), /*#__PURE__*/React.createElement("div", {
-    style: {
-      flex: 1
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: '12px',
-      color: 'var(--text-secondary)',
-      marginBottom: '4px'
-    }
-  }, "TBW factor"), /*#__PURE__*/React.createElement("select", {
-    value: tbwFactor,
-    onChange: e => setTbwFactor(e.target.value),
-    style: {
-      ...inputStyle,
-      appearance: 'auto'
-    }
-  }, /*#__PURE__*/React.createElement("option", {
-    value: "0.6"
-  }, "Male (0.6)"), /*#__PURE__*/React.createElement("option", {
-    value: "0.85"
-  }, "Female (0.5)"), /*#__PURE__*/React.createElement("option", {
-    value: "0.45"
-  }, "Elderly (0.45)")))), canCalcFluidDeficit ? /*#__PURE__*/React.createElement("div", {
-    style: {
-      padding: '10px',
-      background: 'var(--warning-light)',
-      borderRadius: '8px',
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center'
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: '12px',
-      color: 'var(--text-secondary)'
-    }
-  }, "Estimated deficit"), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: '20px',
-      fontWeight: '700',
-      color: 'var(--warning)'
-    }
-  }, "\u2248 ", freeWaterDeficit.toFixed(1), " L")) : /*#__PURE__*/React.createElement("div", {
-    style: {
-      padding: '10px',
-      background: 'var(--bg-tertiary)',
-      borderRadius: '8px',
-      fontSize: '12px',
-      color: 'var(--text-tertiary)',
-      textAlign: 'center'
-    }
-  }, !glucNow || !naNow ? 'Enter glucose and Na above' : correctedNaNow <= targetNaVal ? 'Na not elevated' : 'Enter weight'))), activeTab === 'trends' && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    style: styles.card,
-    className: "animate-in stagger-2"
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'grid',
-      gridTemplateColumns: '1fr 1fr',
-      gap: '8px',
-      marginBottom: '4px'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: '12px',
-      fontWeight: '600',
-      color: 'var(--text-tertiary)'
-    }
-  }, "Presentation"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: '12px',
-      fontWeight: '600',
-      color: 'var(--text-tertiary)'
-    }
-  }, "Now")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'grid',
-      gridTemplateColumns: '1fr 1fr',
-      gap: '8px'
-    }
-  }, /*#__PURE__*/React.createElement("input", {
-    type: "datetime-local",
-    value: presentationTime,
-    onChange: e => setPresentationTime(e.target.value),
-    style: {
-      ...inputStyle,
-      fontSize: '12px',
-      padding: '8px'
-    }
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      gap: '4px'
-    }
-  }, /*#__PURE__*/React.createElement("input", {
-    type: "datetime-local",
-    value: currentTime,
-    onChange: e => setCurrentTime(e.target.value),
-    style: {
-      ...inputStyle,
-      flex: 1,
-      fontSize: '12px',
-      padding: '8px'
-    }
-  }), /*#__PURE__*/React.createElement("button", {
-    onClick: setNow,
-    style: {
-      padding: '8px 10px',
-      background: 'var(--accent)',
-      color: 'white',
-      border: 'none',
-      borderRadius: '8px',
-      fontSize: '12px',
-      fontWeight: '600',
-      cursor: 'pointer',
-      fontFamily: 'var(--font)'
-    }
-  }, "Now"))), dt !== null && /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginTop: '8px',
-      textAlign: 'center',
-      fontSize: '13px'
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: 'var(--text-secondary)'
-    }
-  }, "Duration: "), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontWeight: '700',
-      color: 'var(--accent)'
-    }
-  }, formatDuration(dt)))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...styles.card,
-      padding: 0,
-      overflow: 'hidden'
-    },
-    className: "animate-in stagger-3"
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'grid',
-      gridTemplateColumns: '80px 1fr 1fr',
-      background: 'var(--bg-tertiary)',
-      borderBottom: '1px solid var(--border)'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      padding: '10px 8px',
-      fontSize: '12px',
-      fontWeight: '600',
-      color: 'var(--text-tertiary)'
-    }
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      padding: '10px 8px',
-      fontSize: '12px',
-      fontWeight: '600',
-      color: 'var(--text-tertiary)',
-      textAlign: 'center',
-      borderLeft: '1px solid var(--border)'
-    }
-  }, "Presentation"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      padding: '10px 8px',
-      fontSize: '12px',
-      fontWeight: '600',
-      color: 'var(--text-tertiary)',
-      textAlign: 'center',
-      borderLeft: '1px solid var(--border)'
-    }
-  }, "Now")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'grid',
-      gridTemplateColumns: '80px 1fr 1fr',
-      borderBottom: '1px solid var(--border)',
-      background: 'white'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      padding: '8px',
-      fontSize: '12px',
-      fontWeight: '500',
-      display: 'flex',
-      alignItems: 'center'
-    }
-  }, "Glucose", /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: '11px',
-      color: 'var(--text-tertiary)',
-      fontWeight: '400'
-    }
-  }, "mmol/L")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      borderLeft: '1px solid var(--border)',
-      padding: '4px'
-    }
-  }, /*#__PURE__*/React.createElement("input", {
-    type: "number",
-    value: presentationGlucose,
-    onChange: e => setPresentationGlucose(e.target.value),
-    placeholder: "\u2014",
-    style: {
-      ...inputStyle,
-      border: 'none',
-      background: 'transparent',
-      textAlign: 'center',
-      fontSize: '14px',
-      fontWeight: '600',
-      width: '100%'
-    }
-  })), /*#__PURE__*/React.createElement("div", {
-    style: {
-      borderLeft: '1px solid var(--border)',
-      padding: '4px'
-    }
-  }, /*#__PURE__*/React.createElement("input", {
-    type: "number",
-    value: currentGlucose,
-    onChange: e => setCurrentGlucose(e.target.value),
-    placeholder: "\u2014",
-    style: {
-      ...inputStyle,
-      border: 'none',
-      background: 'transparent',
-      textAlign: 'center',
-      fontSize: '14px',
-      fontWeight: '600',
-      width: '100%'
-    }
-  }))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'grid',
-      gridTemplateColumns: '80px 1fr 1fr',
-      borderBottom: '1px solid var(--border)',
-      background: 'white'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      padding: '8px',
-      fontSize: '12px',
-      fontWeight: '500',
-      display: 'flex',
-      alignItems: 'center'
-    }
-  }, "Na\u207A", /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: '11px',
-      color: 'var(--text-tertiary)',
-      fontWeight: '400'
-    }
-  }, "mmol/L")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      borderLeft: '1px solid var(--border)',
-      padding: '4px'
-    }
-  }, /*#__PURE__*/React.createElement("input", {
-    type: "number",
-    value: presentationNa,
-    onChange: e => setPresentationNa(e.target.value),
-    placeholder: "\u2014",
-    style: {
-      ...inputStyle,
-      border: 'none',
-      background: 'transparent',
-      textAlign: 'center',
-      fontSize: '14px',
-      fontWeight: '600',
-      width: '100%'
-    }
-  })), /*#__PURE__*/React.createElement("div", {
-    style: {
-      borderLeft: '1px solid var(--border)',
-      padding: '4px'
-    }
-  }, /*#__PURE__*/React.createElement("input", {
-    type: "number",
-    value: currentNa,
-    onChange: e => setCurrentNa(e.target.value),
-    placeholder: "\u2014",
-    style: {
-      ...inputStyle,
-      border: 'none',
-      background: 'transparent',
-      textAlign: 'center',
-      fontSize: '14px',
-      fontWeight: '600',
-      width: '100%'
-    }
-  }))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      background: 'var(--bg-tertiary)',
-      padding: '6px 8px',
-      fontSize: '10px',
-      fontWeight: '600',
-      color: 'var(--text-tertiary)',
-      borderBottom: '1px solid var(--border)'
-    }
-  }, "CALCULATED"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'grid',
-      gridTemplateColumns: '80px 1fr 1fr',
-      borderBottom: '1px solid var(--border)',
-      background: 'var(--bg-secondary)'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      padding: '8px',
-      fontSize: '12px',
-      fontWeight: '500',
-      color: 'var(--text-secondary)'
-    }
-  }, "Corr Na\u207A", /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: '11px',
-      color: 'var(--text-tertiary)',
-      fontWeight: '400'
-    }
-  }, "mmol/L")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      borderLeft: '1px solid var(--border)',
-      padding: '8px',
-      textAlign: 'center',
-      fontSize: '14px',
-      fontWeight: '600',
-      color: correctedNaPresent && correctedNaPresent > 155 ? 'var(--error)' : 'var(--text-primary)'
-    }
-  }, correctedNaPresent ? correctedNaPresent.toFixed(0) : '—'), /*#__PURE__*/React.createElement("div", {
-    style: {
-      borderLeft: '1px solid var(--border)',
-      padding: '8px',
-      textAlign: 'center',
-      fontSize: '14px',
-      fontWeight: '600',
-      color: correctedNaNow && correctedNaNow > 155 ? 'var(--error)' : 'var(--text-primary)'
-    }
-  }, correctedNaNow ? correctedNaNow.toFixed(0) : '—')), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'grid',
-      gridTemplateColumns: '80px 1fr 1fr',
-      background: 'var(--bg-secondary)'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      padding: '8px',
-      fontSize: '12px',
-      fontWeight: '500',
-      color: 'var(--text-secondary)'
-    }
-  }, "Eff Osm", /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: '11px',
-      color: 'var(--text-tertiary)',
-      fontWeight: '400'
-    }
-  }, "mOsm/kg")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      borderLeft: '1px solid var(--border)',
-      padding: '8px',
-      textAlign: 'center',
-      fontSize: '14px',
-      fontWeight: '600',
-      color: effectiveOsmPresent && effectiveOsmPresent > 300 ? 'var(--warning)' : 'var(--text-primary)'
-    }
-  }, effectiveOsmPresent ? effectiveOsmPresent.toFixed(0) : '—'), /*#__PURE__*/React.createElement("div", {
-    style: {
-      borderLeft: '1px solid var(--border)',
-      padding: '8px',
-      textAlign: 'center',
-      fontSize: '14px',
-      fontWeight: '600',
-      color: effectiveOsmNow && effectiveOsmNow > 300 ? 'var(--warning)' : 'var(--text-primary)'
-    }
-  }, effectiveOsmNow ? effectiveOsmNow.toFixed(0) : '—'))), canCalcGlucoseTrend && /*#__PURE__*/React.createElement("div", {
-    style: styles.card,
-    className: "animate-in stagger-4"
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: '6px'
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: '13px',
-      fontWeight: '600'
-    }
-  }, "Glucose Rate of Change"), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: '14px',
-      fontWeight: '700'
-    }
-  }, rateGlucose >= 0 ? '−' : '+', Math.abs(rateGlucose).toFixed(1), " mmol/L/h")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      padding: '8px 10px',
-      background: glucoseStatus.level === 'success' ? 'var(--success-light)' : glucoseStatus.level === 'warning' ? 'var(--warning-light)' : 'var(--error-light)',
-      borderRadius: '6px'
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: '12px',
-      fontWeight: '600',
-      color: glucoseStatus.color
-    }
-  }, glucoseStatus.status)), glucoseStatus.level === 'error' && rateGlucose < 0 && /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginTop: '6px',
-      fontSize: '12px',
-      color: 'var(--text-secondary)',
-      lineHeight: '1.4'
-    }
-  }, "\u26A0\uFE0F Glucose rising \u2014 review insulin and clinical status."), glucoseStatus.level === 'error' && rateGlucose > 6 && /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginTop: '6px',
-      fontSize: '12px',
-      color: 'var(--text-secondary)',
-      lineHeight: '1.4'
-    }
-  }, "\u26A0\uFE0F Glucose falling too rapidly \u2014 risk of cerebral oedema in HHS.")), canCalcOsmTrend && /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...styles.card,
-      border: '2px solid var(--accent)'
-    },
-    className: "animate-in stagger-4"
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: '6px'
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: '13px',
-      fontWeight: '600'
-    }
-  }, "Osmolality Rate of Change"), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: '14px',
-      fontWeight: '700'
-    }
-  }, rateOsm >= 0 ? '−' : '+', Math.abs(rateOsm).toFixed(1), " mOsm/kg/h")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      padding: '8px 10px',
-      background: osmStatus.level === 'success' ? 'var(--success-light)' : osmStatus.level === 'warning' ? 'var(--warning-light)' : 'var(--error-light)',
-      borderRadius: '6px'
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: '12px',
-      fontWeight: '600',
-      color: osmStatus.color
-    }
-  }, osmStatus.status)), /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginTop: '6px',
-      fontSize: '12px',
-      color: 'var(--text-secondary)',
-      lineHeight: '1.4'
-    }
-  }, osmStatus.level === 'success' && '✓ Within target range (JBDS: 3–8 mOsm/kg/h).', osmStatus.level === 'warning' && rateOsm >= 0 && rateOsm < 3 && '⚠️ Correction may be inadequate — consider fluid review.', osmStatus.level === 'warning' && rateOsm < 0 && '⚠️ Rising osmolality — patient becoming more dehydrated.', osmStatus.level === 'error' && '🚨 Osmolality falling too rapidly — risk of cerebral oedema and osmotic demyelination.')), !canCalcGlucoseTrend && !canCalcOsmTrend && /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...styles.card,
-      textAlign: 'center'
-    },
-    className: "animate-in stagger-4"
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: '13px',
-      color: 'var(--text-tertiary)'
-    }
-  }, "Enter times and values above to see trends"))));
-};
-
 // Pattern matching for syndromes
 const checkSyndromePatterns = data => {
   const syndromes = [];
@@ -8717,6 +7814,48 @@ const FindCauseScreen = ({
         label: 'Metabolic alkalosis'
       });
     }
+  } else if (data.showDualInterpretation) {
+    // Pathway C: Dual interpretation needed - don't queue contradictory processes
+    // Queue based on value directions, favoring one interpretation
+    const hco3 = parseFloat(data.hco3);
+    const paCO2 = parseFloat(data.paCO2);
+    const lowHCO3 = hco3 < 22;
+    const highHCO3 = hco3 > 26;
+    const lowPaCO2 = paCO2 < 35;
+    const highPaCO2 = paCO2 > 45;
+
+    // Determine primary direction from the more abnormal value
+    // Compare deviation from normal for each
+    const hco3Deviation = lowHCO3 ? (22 - hco3) : highHCO3 ? (hco3 - 26) : 0;
+    const paCO2Deviation = lowPaCO2 ? (35 - paCO2) : highPaCO2 ? (paCO2 - 45) : 0;
+
+    if (hco3Deviation >= paCO2Deviation && hco3Deviation > 0) {
+      // Metabolic process is primary
+      if (lowHCO3) {
+        processes.push({
+          type: 'nagma',
+          label: 'Normal anion gap metabolic acidosis (compensated)'
+        });
+      } else if (highHCO3) {
+        processes.push({
+          type: 'metalkalosis',
+          label: 'Metabolic alkalosis (compensated)'
+        });
+      }
+    } else if (paCO2Deviation > 0) {
+      // Respiratory process is primary
+      if (highPaCO2) {
+        processes.push({
+          type: 'respacidosis',
+          label: 'Respiratory acidosis (compensated)'
+        });
+      } else if (lowPaCO2) {
+        processes.push({
+          type: 'respalkalosis',
+          label: 'Respiratory alkalosis (compensated)'
+        });
+      }
+    }
   } else if (data.isMetabolic && data.isAcidosis) {
     processes.push({
       type: 'nagma',
@@ -8728,7 +7867,8 @@ const FindCauseScreen = ({
       label: 'Metabolic alkalosis'
     });
   }
-  if (data.isRespiratory) {
+  // Respiratory processes - skip if Pathway C (already handled above)
+  if (data.isRespiratory && !data.showDualInterpretation) {
     if (data.isAcidosis || data.pHStatus === 'acidaemia' || data.primaryDisorder && data.primaryDisorder.toLowerCase().includes('acidosis')) {
       processes.push({
         type: 'respacidosis',
@@ -10365,32 +9505,32 @@ const SettingsScreen = ({
   }, "DIFFERENTIAL DIAGNOSIS QUICK ACCESS"), /*#__PURE__*/React.createElement("button", {
     onClick: () => onNavigateToDDx && onNavigateToDDx('hagma'),
     style: ddxButtonStyle
-  }, /*#__PURE__*/React.createElement("span", null, "HAGMA causes"), /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement("span", null, "HAGMA"), /*#__PURE__*/React.createElement("span", {
     style: { color: 'var(--text-tertiary)' }
   }, "\u2192")), /*#__PURE__*/React.createElement("button", {
     onClick: () => onNavigateToDDx && onNavigateToDDx('lactate'),
     style: ddxButtonStyle
-  }, /*#__PURE__*/React.createElement("span", null, "High lactate causes"), /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement("span", null, "High lactate"), /*#__PURE__*/React.createElement("span", {
     style: { color: 'var(--text-tertiary)' }
   }, "\u2192")), /*#__PURE__*/React.createElement("button", {
     onClick: () => onNavigateToDDx && onNavigateToDDx('nagma'),
     style: ddxButtonStyle
-  }, /*#__PURE__*/React.createElement("span", null, "NAGMA causes"), /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement("span", null, "NAGMA"), /*#__PURE__*/React.createElement("span", {
     style: { color: 'var(--text-tertiary)' }
   }, "\u2192")), /*#__PURE__*/React.createElement("button", {
     onClick: () => onNavigateToDDx && onNavigateToDDx('metalkalosis'),
     style: ddxButtonStyle
-  }, /*#__PURE__*/React.createElement("span", null, "Metabolic alkalosis causes"), /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement("span", null, "Metabolic alkalosis"), /*#__PURE__*/React.createElement("span", {
     style: { color: 'var(--text-tertiary)' }
   }, "\u2192")), /*#__PURE__*/React.createElement("button", {
     onClick: () => onNavigateToDDx && onNavigateToDDx('respacidosis'),
     style: ddxButtonStyle
-  }, /*#__PURE__*/React.createElement("span", null, "Respiratory acidosis causes"), /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement("span", null, "Respiratory acidosis"), /*#__PURE__*/React.createElement("span", {
     style: { color: 'var(--text-tertiary)' }
   }, "\u2192")), /*#__PURE__*/React.createElement("button", {
     onClick: () => onNavigateToDDx && onNavigateToDDx('respalkalosis'),
     style: ddxButtonStyle
-  }, /*#__PURE__*/React.createElement("span", null, "Respiratory alkalosis causes"), /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement("span", null, "Respiratory alkalosis"), /*#__PURE__*/React.createElement("span", {
     style: { color: 'var(--text-tertiary)' }
   }, "\u2192"))), /*#__PURE__*/React.createElement("div", {
     style: styles.card,
@@ -10538,14 +9678,6 @@ const App = () => {
     });
   }
 
-  // Beta screen
-  if (approach === 'beta') {
-    return /*#__PURE__*/React.createElement(BetaScreen, {
-      onSelect: a => setApproach(a),
-      onBack: handleRestart
-    });
-  }
-
   // Oxygenation screen
   if (approach === 'oxygenation') {
     return /*#__PURE__*/React.createElement(OxygenationScreen, {
@@ -10572,24 +9704,10 @@ const App = () => {
     const ddxType = approach.replace('ddx-', '');
     return /*#__PURE__*/React.createElement(DDxReferenceScreen, {
       ddxType: ddxType,
-      onBack: handleRestart
-    });
-  }
-
-  // DKA/HHS Menu screen
-  // DKA/HHS Calculators
-  if (approach === 'dkahhs-calculators') {
-    return /*#__PURE__*/React.createElement(DKAHHSMonitor, {
-      onBack: handleRestart,
-      initialTab: "calculators"
-    });
-  }
-
-  // DKA/HHS Trend Monitor
-  if (approach === 'dkahhs-trends') {
-    return /*#__PURE__*/React.createElement(DKAHHSMonitor, {
-      onBack: handleRestart,
-      initialTab: "trends"
+      onBack: () => {
+        setApproach(null);
+        setShowSettings(true);
+      }
     });
   }
 
