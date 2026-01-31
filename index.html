@@ -734,6 +734,53 @@ const ProgressBar = ({
     }
   }));
 };
+const ReportBugLink = ({ data, screenName }) => {
+  const handleClick = () => {
+    const timestamp = new Date().toISOString();
+    const userAgent = navigator.userAgent;
+
+    // Build app state summary
+    let stateLines = [];
+    stateLines.push(`Screen: ${screenName || 'Unknown'}`);
+    if (data) {
+      if (data.pH) stateLines.push(`pH: ${data.pH}`);
+      if (data.paCO2) stateLines.push(`pCO₂: ${data.paCO2}`);
+      if (data.hco3) stateLines.push(`HCO₃: ${data.hco3}`);
+      if (data.na) stateLines.push(`Na: ${data.na}`);
+      if (data.cl) stateLines.push(`Cl: ${data.cl}`);
+      if (data.albumin) stateLines.push(`Albumin: ${data.albumin}`);
+      if (data.primaryDisorder) stateLines.push(`Primary: ${data.primaryDisorder}`);
+      if (data.compensationResult) stateLines.push(`Compensation: ${data.compensationResult}`);
+      if (data.isHAGMA) stateLines.push(`HAGMA: Yes (AG ${data.correctedAG?.toFixed(1)})`);
+      if (data.deltaInterpretation) stateLines.push(`Delta: ${data.deltaInterpretation}`);
+      if (data.analysisPathway) stateLines.push(`Pathway: ${data.analysisPathway}`);
+    }
+
+    const body = `[Describe the bug here]\n\n\n\n--- Debug Info (do not edit) ---\n${stateLines.join('\n')}\nTimestamp: ${timestamp}\nDevice: ${userAgent}\nApp: Blood Gas Pro v1.0\n`;
+
+    const mailtoUrl = `mailto:scott.santinon@gmail.com?subject=${encodeURIComponent('Blood Gas Pro Bug Report')}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailtoUrl;
+  };
+
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: 'center',
+      padding: '20px 0 10px 0',
+      marginTop: 'auto'
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: handleClick,
+    style: {
+      background: 'none',
+      border: 'none',
+      fontSize: '11px',
+      color: 'var(--text-tertiary)',
+      cursor: 'pointer',
+      fontFamily: 'var(--font)',
+      opacity: 0.6
+    }
+  }, "Report a bug"));
+};
 const Input = ({
   label,
   unit,
@@ -1639,7 +1686,7 @@ const Step1_AllValues = ({
       cursor: 'pointer',
       marginTop: '4px'
     }
-  }, "Cancel")))));
+  }, "Cancel")))), /*#__PURE__*/React.createElement(ReportBugLink, { data: data, screenName: "Step 1 - Enter Values" }));
 };
 
 // Dual Interpretation Card for Pathway C (Normal pH + Normal AG + Abnormal values)
@@ -1857,6 +1904,8 @@ const Step2_FullAnalysis = ({
   const [showDeltaInfo, setShowDeltaInfo] = useState(false);
   const [chronicHypercapniaSelection, setChronicHypercapniaSelection] = useState(data.chronicHypercapniaSelection || null);
   const [showChronicGuidance, setShowChronicGuidance] = useState(false);
+  const [respChronicOverride, setRespChronicOverride] = useState(data.respChronicOverride || null); // null, 'yes', 'no'
+  const [showRespChronicGuidance, setShowRespChronicGuidance] = useState(false);
   // Dual interpretation state (for Pathway C - normal pH, normal AG, ambiguous)
   const [dualRespTiming, setDualRespTiming] = useState(null);
   const [dualSelectedInterpretation, setDualSelectedInterpretation] = useState(null);
@@ -1931,6 +1980,10 @@ const Step2_FullAnalysis = ({
     } else {
       // Default to metabolic
       primaryDisorder = 'Metabolic acidosis';
+      isMetabolic = true;
+    }
+    // If HAGMA is present, there IS a metabolic acidosis component
+    if (isHAGMA && !isMetabolic) {
       isMetabolic = true;
     }
   } else if (analysisPathway === 'A' && pHStatus === 'alkalaemia') {
@@ -2036,6 +2089,15 @@ const Step2_FullAnalysis = ({
       }
     }
   }
+  // For respiratory acidosis with acute timing, also check if chronic would fit
+  // This helps identify cases where user might have selected wrong timing
+  let chronicWouldFit = false;
+  let chronicExpectedHCO3 = null;
+  if (isRespiratory && isAcidosis && timing === 'acute' && !isMetabolic) {
+    const deltaCO2 = Math.abs(paCO2 - 40) / 10;
+    chronicExpectedHCO3 = 24 + 4 * deltaCO2;
+    chronicWouldFit = Math.abs(hco3 - chronicExpectedHCO3) <= 3;
+  }
   // For cases with both components flagged (needsCompensationAnalysis), calculate both ways
   if (needsCompensationAnalysis) {
     // Try metabolic primary first (Winter's)
@@ -2087,7 +2149,7 @@ const Step2_FullAnalysis = ({
       if (isAcidosis) {
         compensationResult = metDiff > 0 ? 'Additional respiratory acidosis' : 'Additional metabolic acidosis';
         primaryDisorder = 'Mixed metabolic and respiratory acidosis';
-        additionalProcess = metDiff > 0 ? 'respacidosis' : 'nagma';
+        additionalProcess = metDiff > 0 ? 'respacidosis' : (isHAGMA ? null : 'nagma');
       } else {
         compensationResult = metDiff < 0 ? 'Additional respiratory alkalosis' : 'Additional metabolic alkalosis';
         primaryDisorder = 'Mixed metabolic and respiratory alkalosis';
@@ -2124,8 +2186,16 @@ const Step2_FullAnalysis = ({
     } else {
       compensationResult = 'Additional metabolic acidosis';
       compensationVerdict = 'Outside expected range';
-      additionalProcess = 'nagma';
+      additionalProcess = isHAGMA ? null : 'nagma';
     }
+  }
+
+  // Override compensation result if user confirms this is chronic hypercapnia
+  if (respChronicOverride === 'yes' && isRespiratory && isAcidosis && chronicWouldFit) {
+    compensationResult = 'Appropriate chronic compensation';
+    compensationVerdict = 'Appropriate compensation';
+    additionalProcess = null;
+    expectedHCO3 = chronicExpectedHCO3;
   }
 
   const compensationType = compensationResult.includes('Appropriate') ? 'success' :
@@ -2177,6 +2247,9 @@ const Step2_FullAnalysis = ({
       chronicHypercapniaSelection,
       chronicHypercapniaConfirmed: chronicHypercapniaSelection === 'yes',
       additionalMetAlkConfirmed: chronicHypercapniaSelection === 'no',
+      respChronicOverride,
+      respChronicConfirmed: respChronicOverride === 'yes',
+      respAdditionalMetAlkConfirmed: respChronicOverride === 'no',
       // New pathway-based fields
       analysisPathway,
       showDualInterpretation,
@@ -2260,28 +2333,115 @@ const Step2_FullAnalysis = ({
       color: 'var(--text-tertiary)',
       marginTop: '4px'
     }
-  }, compensationNote), compensationResult === 'Additional metabolic alkalosis' && isRespiratory && isAcidosis && /*#__PURE__*/React.createElement("div", {
+  }, compensationNote), compensationResult === 'Additional metabolic alkalosis' && isRespiratory && isAcidosis && chronicWouldFit && /*#__PURE__*/React.createElement("div", {
     style: {
-      marginTop: '8px',
-      padding: '10px 12px',
+      marginTop: '10px',
+      padding: '12px',
       background: 'var(--bg-tertiary)',
       borderRadius: '8px',
-      fontSize: '12px',
+      fontSize: '13px',
       lineHeight: '1.5'
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       fontWeight: '600',
-      marginBottom: '6px',
+      marginBottom: '4px',
       color: 'var(--text-primary)'
     }
-  }, "How to distinguish:"), /*#__PURE__*/React.createElement("div", {
+  }, "HCO₃ higher than expected for acute process"), respChronicOverride === null ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     style: {
-      color: 'var(--text-secondary)'
+      fontSize: '12px',
+      color: 'var(--text-secondary)',
+      marginBottom: '8px'
     }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: { marginBottom: '4px' }
-  }, /*#__PURE__*/React.createElement("strong", null, "Chronic CO₂ retention?"), " (COPD, OHS) → HCO₃ elevation may be appropriate renal compensation"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("strong", null, "Source of met alkalosis?"), " (vomiting, diuretics) → True additional metabolic disorder"))), isMetabolic && expectedPaCO2 !== null && data.sampleType === 'vbg' && /*#__PURE__*/React.createElement("div", {
+  }, "Does this patient have chronic hypercapnia?", /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '11px',
+      color: 'var(--text-tertiary)',
+      marginTop: '2px'
+    }
+  }, "(COPD, OHS, neuromuscular disease with baseline elevated HCO₃)")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: '8px',
+      marginBottom: '8px'
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    style: {
+      flex: 1,
+      padding: '10px',
+      border: '1px solid var(--border)',
+      borderRadius: '8px',
+      background: 'var(--bg-tertiary)',
+      cursor: 'pointer',
+      fontFamily: 'var(--font)',
+      fontSize: '13px',
+      fontWeight: '600',
+      color: 'var(--text-primary)'
+    },
+    onClick: () => { setRespChronicOverride('yes'); setShowRespChronicGuidance(false); }
+  }, "Yes"), /*#__PURE__*/React.createElement("button", {
+    style: {
+      flex: 1,
+      padding: '10px',
+      border: '1px solid var(--border)',
+      borderRadius: '8px',
+      background: 'var(--bg-tertiary)',
+      cursor: 'pointer',
+      fontFamily: 'var(--font)',
+      fontSize: '13px',
+      fontWeight: '600',
+      color: 'var(--text-primary)'
+    },
+    onClick: () => { setRespChronicOverride('no'); setShowRespChronicGuidance(false); }
+  }, "No"), /*#__PURE__*/React.createElement("button", {
+    style: {
+      flex: 1,
+      padding: '10px',
+      border: showRespChronicGuidance ? '2px solid var(--accent)' : '1px solid var(--border)',
+      borderRadius: '8px',
+      background: showRespChronicGuidance ? 'var(--accent-light)' : 'var(--bg-tertiary)',
+      cursor: 'pointer',
+      fontFamily: 'var(--font)',
+      fontSize: '13px',
+      fontWeight: '600',
+      color: showRespChronicGuidance ? 'var(--accent)' : 'var(--text-primary)'
+    },
+    onClick: () => setShowRespChronicGuidance(!showRespChronicGuidance)
+  }, "Not sure")), showRespChronicGuidance && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '12px',
+      color: 'var(--text-secondary)',
+      padding: '10px',
+      background: 'var(--bg-secondary)',
+      borderRadius: '6px',
+      lineHeight: '1.5'
+    }
+  }, /*#__PURE__*/React.createElement("div", { style: { marginBottom: '4px' } }, /*#__PURE__*/React.createElement("strong", null, "Suggests chronic:"), " Known COPD/OHS, previous ABGs with elevated HCO₃, stable clinical picture"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("strong", null, "Suggests additional met alk:"), " Vomiting, NG suction, diuretics, no known lung disease"))) : /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      padding: '8px 12px',
+      background: respChronicOverride === 'yes' ? 'var(--success-light)' : 'var(--warning-light)',
+      borderRadius: '6px'
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: '12px',
+      color: respChronicOverride === 'yes' ? 'var(--success)' : 'var(--warning)'
+    }
+  }, respChronicOverride === 'yes' ? "Elevated HCO₃ attributed to chronic compensation" : "Additional metabolic alkalosis confirmed — will investigate causes"), /*#__PURE__*/React.createElement("button", {
+    style: {
+      background: 'none',
+      border: 'none',
+      cursor: 'pointer',
+      fontFamily: 'var(--font)',
+      fontSize: '11px',
+      color: 'var(--text-tertiary)'
+    },
+    onClick: () => setRespChronicOverride(null)
+  }, "Change"))), isMetabolic && expectedPaCO2 !== null && data.sampleType === 'vbg' && /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: '8px',
       padding: '10px 12px',
@@ -2387,7 +2547,7 @@ const Step2_FullAnalysis = ({
       background: deltaInterpretation === 'Pure HAGMA' ? 'var(--bg-tertiary)' : 'var(--warning-light)',
       color: deltaInterpretation === 'Pure HAGMA' ? 'var(--text-secondary)' : 'var(--warning)'
     }
-  }, deltaInterpretation)), (deltaInterpretation === '↑HCO₃ component' || deltaInterpretation.includes('metabolic alkalosis')) && /*#__PURE__*/React.createElement("div", {
+  }, deltaInterpretation)), (deltaInterpretation === '↑HCO₃ component' || deltaInterpretation.includes('metabolic alkalosis')) && pH >= 7.30 && /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: '10px',
       padding: '12px',
@@ -2528,7 +2688,33 @@ const Step2_FullAnalysis = ({
       color: 'var(--text-tertiary)'
     },
     onClick: () => setChronicHypercapniaSelection(null)
-  }, "Change"))), isRespiratory && !isMetabolic && !showDualInterpretation && /*#__PURE__*/React.createElement("div", {
+  }, "Change"))), (deltaInterpretation === '↑HCO₃ component' || deltaInterpretation.includes('metabolic alkalosis')) && pH < 7.30 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: '10px',
+      padding: '12px',
+      background: 'var(--warning-light)',
+      borderRadius: '8px',
+      fontSize: '13px',
+      lineHeight: '1.5'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontWeight: '600',
+      marginBottom: '4px',
+      color: 'var(--warning)'
+    }
+  }, "Triple disorder identified"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '12px',
+      color: 'var(--text-secondary)'
+    }
+  }, "Respiratory acidosis + HAGMA + Metabolic alkalosis"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '11px',
+      color: 'var(--text-tertiary)',
+      marginTop: '4px'
+    }
+  }, "HCO₃ maintained despite frank acidaemia (pH ", pH.toFixed(2), ") indicates concurrent metabolic alkalosis")), isRespiratory && !isMetabolic && !showDualInterpretation && !isHAGMA && /*#__PURE__*/React.createElement("div", {
     style: {
       paddingTop: '12px',
       borderTop: '1px solid var(--border)',
@@ -2630,7 +2816,7 @@ const Step2_FullAnalysis = ({
     style: { marginBottom: '8px' }
   }, /*#__PURE__*/React.createElement("strong", null, "0.8–2"), " — Pure HAGMA"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("strong", null, ">2"), " — Concurrent met alkalosis or chronic resp acidosis")), /*#__PURE__*/React.createElement("p", {
     style: { fontSize: '14px', color: 'var(--text-tertiary)' }
-  }, "When ratio >2, HCO₃ is higher than expected for the AG elevation — suggests a process raising HCO₃."))));
+  }, "When ratio >2, HCO₃ is higher than expected for the AG elevation — suggests a process raising HCO₃."))), /*#__PURE__*/React.createElement(ReportBugLink, { data: data, screenName: "Step 2 - Analysis" }));
 };
 
 // Step 2: Stewart/Physicochemical Analysis - COMPACT VERSION
@@ -3588,7 +3774,7 @@ const Step2_StewartAnalysis = ({
     setData: setData,
     na: na,
     sigElevated: sigElevated
-  })));
+  })), /*#__PURE__*/React.createElement(ReportBugLink, { data: data, screenName: "Step 2 - Stewart Analysis" }));
 };
 // Step 3: Osmolar Gap (optional, for HAGMA)
 const Step3_OsmolarGap = ({
@@ -5323,7 +5509,7 @@ const HAGMAWorkupScreen = ({
     isOpen: showSheet === 'ketones',
     onClose: () => setShowSheet(null),
     title: "Ketoacidosis"
-  }, /*#__PURE__*/React.createElement(KetoacidosisCausesContent, null)));
+  }, /*#__PURE__*/React.createElement(KetoacidosisCausesContent, null)), /*#__PURE__*/React.createElement(ReportBugLink, { data: data, screenName: "HAGMA Differential" }));
 };
 
 // Process Screen: NAGMA
@@ -5877,7 +6063,7 @@ const NAGMAScreen = ({
       fontSize: '12px',
       color: 'var(--text-tertiary)'
     }
-  }, "This pattern is sometimes called \"non-gap acidosis phase of DKA recovery\" and reflects the transition from HAGMA to normal acid-base status."))));
+  }, "This pattern is sometimes called \"non-gap acidosis phase of DKA recovery\" and reflects the transition from HAGMA to normal acid-base status.")), /*#__PURE__*/React.createElement(ReportBugLink, { data: data, screenName: "NAGMA Differential" })));
 };
 
 // Process Screen: Metabolic Alkalosis
@@ -6155,7 +6341,7 @@ const MetAlkalosisScreen = ({
     className: "animate-in stagger-3",
     style: styles.button,
     onClick: onNext
-  }, "Continue \u2192"));
+  }, "Continue \u2192"), /*#__PURE__*/React.createElement(ReportBugLink, { data: data, screenName: "Met Alkalosis Differential" }));
 };
 
 // Process Screen: Respiratory Acidosis
@@ -6291,7 +6477,7 @@ const RespAcidosisScreen = ({
     className: "animate-in stagger-2",
     style: styles.button,
     onClick: onNext
-  }, "Continue \u2192"));
+  }, "Continue \u2192"), /*#__PURE__*/React.createElement(ReportBugLink, { data: data, screenName: "Resp Acidosis Differential" }));
 };
 
 // Process Screen: Respiratory Alkalosis
@@ -6434,7 +6620,7 @@ const RespAlkalosisScreen = ({
     className: "animate-in stagger-3",
     style: styles.button,
     onClick: onNext
-  }, "Continue \u2192"));
+  }, "Continue \u2192"), /*#__PURE__*/React.createElement(ReportBugLink, { data: data, screenName: "Resp Alkalosis Differential" }));
 };
 
 // Summary Screen
@@ -6761,7 +6947,7 @@ const SummaryScreen = ({
       fontSize: '13px',
       fontWeight: '500'
     }
-  }, "\xA9 2025 Scott Santinon")));
+  }, "\xA9 2025 Scott Santinon"), /*#__PURE__*/React.createElement(ReportBugLink, { data: data, screenName: "Summary" })));
 };
 
 // ============================================
@@ -7807,7 +7993,7 @@ const FindCauseScreen = ({
         type: 'metalkalosis',
         label: 'Metabolic alkalosis'
       });
-    } else if (data.deltaInterpretation && data.deltaInterpretation.includes('metabolic alkalosis') && data.chronicHypercapniaConfirmed !== true && data.chronicHypercapniaSelection === undefined) {
+    } else if (data.deltaInterpretation && data.deltaInterpretation.includes('metabolic alkalosis') && data.chronicHypercapniaConfirmed !== true && data.chronicHypercapniaSelection == null) {
       // Old behavior for backward compatibility: only if user hasn't made a decision
       processes.push({
         type: 'metalkalosis',
@@ -7912,12 +8098,12 @@ const FindCauseScreen = ({
         type: 'respalkalosis',
         label: 'Respiratory alkalosis'
       });
-    } else if (data.compensationResult.includes('Additional metabolic acidosis') && !processes.find(p => p.type === 'nagma')) {
+    } else if (data.compensationResult.includes('Additional metabolic acidosis') && !processes.find(p => p.type === 'nagma') && !data.isHAGMA) {
       processes.push({
         type: 'nagma',
         label: 'Metabolic acidosis'
       });
-    } else if (data.compensationResult.includes('Additional metabolic alkalosis') && !processes.find(p => p.type === 'metalkalosis')) {
+    } else if (data.compensationResult.includes('Additional metabolic alkalosis') && !processes.find(p => p.type === 'metalkalosis') && data.respChronicOverride !== 'yes') {
       processes.push({
         type: 'metalkalosis',
         label: 'Metabolic alkalosis'
@@ -8055,7 +8241,7 @@ const FindCauseScreen = ({
         marginTop: '20px'
       },
       onClick: onRestart
-    }, "New Analysis"))));
+    }, "New Analysis"))), /*#__PURE__*/React.createElement(ReportBugLink, { data: data, screenName: "Find Cause - Overview" }));
   }
 
   // Summary screen
@@ -9453,7 +9639,7 @@ const DDxReferenceScreen = ({
       color: 'var(--text-secondary)',
       lineHeight: '1.5'
     }
-  }, tip.content))));
+  }, tip.content))), /*#__PURE__*/React.createElement(ReportBugLink, { data: {}, screenName: "Reference" }));
 };
 
 // ============================================
