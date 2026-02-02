@@ -5634,32 +5634,36 @@ const NAGMAScreen = ({
   }, "Process ", processNumber), /*#__PURE__*/React.createElement("h1", {
     style: styles.title
   }, "NAGMA")), /*#__PURE__*/React.createElement("div", {
-    style: styles.card,
+    style: {
+      fontSize: '15px',
+      color: 'var(--text-secondary)',
+      marginBottom: '12px'
+    },
     className: "animate-in stagger-1"
+  }, "Normal anion gap metabolic acidosis \u2014 select likely cause(s):"), /*#__PURE__*/React.createElement("div", {
+    style: styles.card,
+    className: "animate-in stagger-2"
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: '12px',
-      color: 'var(--text-secondary)',
-      marginBottom: '10px'
-    }
-  }, "Normal anion gap metabolic acidosis \u2014 select likely cause(s):"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: '12px',
+      fontSize: '11px',
       fontWeight: '600',
-      color: 'var(--text-secondary)',
-      marginBottom: '4px',
-      marginTop: '8px'
+      textTransform: 'uppercase',
+      letterSpacing: '0.5px',
+      color: 'var(--text-tertiary)',
+      marginBottom: '6px'
     }
   }, "GI bicarbonate loss"), /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('diarrhoea')),
     onClick: () => toggleCause('diarrhoea')
   }, checkMark(causes.includes('diarrhoea')), /*#__PURE__*/React.createElement("span", null, "Diarrhoea / fistulae / high-output ileostomy")), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: '12px',
+      fontSize: '11px',
       fontWeight: '600',
-      color: 'var(--text-secondary)',
-      marginBottom: '4px',
-      marginTop: '12px',
+      textTransform: 'uppercase',
+      letterSpacing: '0.5px',
+      color: 'var(--text-tertiary)',
+      marginBottom: '6px',
+      marginTop: '16px',
       display: 'flex',
       alignItems: 'center',
       gap: '6px'
@@ -5672,11 +5676,13 @@ const NAGMAScreen = ({
     onClick: () => toggleCause('rta')
   }, checkMark(causes.includes('rta')), /*#__PURE__*/React.createElement("span", null, "RTA (Type 1, 2, or 4)")), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: '12px',
+      fontSize: '11px',
       fontWeight: '600',
-      color: 'var(--text-secondary)',
-      marginBottom: '4px',
-      marginTop: '12px'
+      textTransform: 'uppercase',
+      letterSpacing: '0.5px',
+      color: 'var(--text-tertiary)',
+      marginBottom: '6px',
+      marginTop: '16px'
     }
   }, "Chloride excess"), /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('saline')),
@@ -5693,11 +5699,13 @@ const NAGMAScreen = ({
     }
   }, "\u2191 Corrected Cl\u207B ", correctedCl.toFixed(0), " mmol/L (normal \u2264106)"))), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: '12px',
+      fontSize: '11px',
       fontWeight: '600',
-      color: 'var(--text-secondary)',
-      marginBottom: '4px',
-      marginTop: '12px'
+      textTransform: 'uppercase',
+      letterSpacing: '0.5px',
+      color: 'var(--text-tertiary)',
+      marginBottom: '6px',
+      marginTop: '16px'
     }
   }, "Other"), /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('ckd')),
@@ -6176,31 +6184,36 @@ const MetAlkalosisScreen = ({
   }, "Process ", processNumber), /*#__PURE__*/React.createElement("h1", {
     style: styles.title
   }, "Metabolic Alkalosis")), /*#__PURE__*/React.createElement("div", {
-    style: styles.card,
+    style: {
+      fontSize: '15px',
+      color: 'var(--text-secondary)',
+      marginBottom: '12px'
+    },
     className: "animate-in stagger-1"
+  }, "Select likely cause(s):"), /*#__PURE__*/React.createElement("div", {
+    style: styles.card,
+    className: "animate-in stagger-2"
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: '13px',
-      color: 'var(--text-secondary)',
-      marginBottom: '10px'
-    }
-  }, "Select likely cause(s):"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: '12px',
+      fontSize: '11px',
       fontWeight: '600',
-      color: 'var(--text-secondary)',
-      marginBottom: '4px'
+      textTransform: 'uppercase',
+      letterSpacing: '0.5px',
+      color: 'var(--text-tertiary)',
+      marginBottom: '6px'
     }
   }, "Loss of H\u207A from GIT"), /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('vomiting')),
     onClick: () => toggleCause('vomiting')
   }, checkMark(causes.includes('vomiting')), /*#__PURE__*/React.createElement("span", null, "Vomiting / NG suction")), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: '12px',
+      fontSize: '11px',
       fontWeight: '600',
-      color: 'var(--text-secondary)',
-      marginBottom: '4px',
-      marginTop: '12px'
+      textTransform: 'uppercase',
+      letterSpacing: '0.5px',
+      color: 'var(--text-tertiary)',
+      marginBottom: '6px',
+      marginTop: '16px'
     }
   }, "Loss of H\u207A from kidneys"), /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('diuretics')),
@@ -6210,22 +6223,26 @@ const MetAlkalosisScreen = ({
     onClick: () => toggleCause('mineralocorticoid')
   }, checkMark(causes.includes('mineralocorticoid')), /*#__PURE__*/React.createElement("span", null, "Mineralocorticoid excess (Conn's, Cushing's, steroids)")), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: '12px',
+      fontSize: '11px',
       fontWeight: '600',
-      color: 'var(--text-secondary)',
-      marginBottom: '4px',
-      marginTop: '12px'
+      textTransform: 'uppercase',
+      letterSpacing: '0.5px',
+      color: 'var(--text-tertiary)',
+      marginBottom: '6px',
+      marginTop: '16px'
     }
   }, "Gain of HCO\u2083\u207B"), /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('bicarb')),
     onClick: () => toggleCause('bicarb')
   }, checkMark(causes.includes('bicarb')), /*#__PURE__*/React.createElement("span", null, "NaHCO\u2083 / citrate (CRRT, transfusion)")), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: '12px',
+      fontSize: '11px',
       fontWeight: '600',
-      color: 'var(--text-secondary)',
-      marginBottom: '4px',
-      marginTop: '12px'
+      textTransform: 'uppercase',
+      letterSpacing: '0.5px',
+      color: 'var(--text-tertiary)',
+      marginBottom: '6px',
+      marginTop: '16px'
     }
   }, "Other"), /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('hypokalaemia')),
@@ -6455,20 +6472,23 @@ const RespAcidosisScreen = ({
   }, "Process ", processNumber), /*#__PURE__*/React.createElement("h1", {
     style: styles.title
   }, "Resp. Acidosis")), /*#__PURE__*/React.createElement("div", {
-    style: styles.card,
+    style: {
+      fontSize: '15px',
+      color: 'var(--text-secondary)',
+      marginBottom: '12px'
+    },
     className: "animate-in stagger-1"
+  }, "Hypoventilation \u2014 select likely cause(s):"), /*#__PURE__*/React.createElement("div", {
+    style: styles.card,
+    className: "animate-in stagger-2"
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: '13px',
-      color: 'var(--text-secondary)',
-      marginBottom: '10px'
-    }
-  }, "Hypoventilation \u2014 select likely cause(s):"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: '12px',
+      fontSize: '11px',
       fontWeight: '600',
-      color: 'var(--text-secondary)',
-      marginBottom: '4px'
+      textTransform: 'uppercase',
+      letterSpacing: '0.5px',
+      color: 'var(--text-tertiary)',
+      marginBottom: '6px'
     }
   }, "Reduced central drive"), /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('opioids')),
@@ -6478,44 +6498,52 @@ const RespAcidosisScreen = ({
     onClick: () => toggleCause('ohs')
   }, checkMark(causes.includes('ohs')), /*#__PURE__*/React.createElement("span", null, "OHS / brainstem pathology / severe hypothyroidism")), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: '12px',
+      fontSize: '11px',
       fontWeight: '600',
-      color: 'var(--text-secondary)',
-      marginBottom: '4px',
-      marginTop: '12px'
+      textTransform: 'uppercase',
+      letterSpacing: '0.5px',
+      color: 'var(--text-tertiary)',
+      marginBottom: '6px',
+      marginTop: '16px'
     }
   }, "Neuromuscular weakness"), /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('neuro')),
     onClick: () => toggleCause('neuro')
   }, checkMark(causes.includes('neuro')), /*#__PURE__*/React.createElement("span", null, "GBS, MG, MND, critical illness myopathy, spinal injury")), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: '12px',
+      fontSize: '11px',
       fontWeight: '600',
-      color: 'var(--text-secondary)',
-      marginBottom: '4px',
-      marginTop: '12px'
+      textTransform: 'uppercase',
+      letterSpacing: '0.5px',
+      color: 'var(--text-tertiary)',
+      marginBottom: '6px',
+      marginTop: '16px'
     }
   }, "Chest wall / pleural"), /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('chest_wall')),
     onClick: () => toggleCause('chest_wall')
   }, checkMark(causes.includes('chest_wall')), /*#__PURE__*/React.createElement("span", null, "Flail chest, kyphoscoliosis, effusion, pneumothorax")), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: '12px',
+      fontSize: '11px',
       fontWeight: '600',
-      color: 'var(--text-secondary)',
-      marginBottom: '4px',
-      marginTop: '12px'
+      textTransform: 'uppercase',
+      letterSpacing: '0.5px',
+      color: 'var(--text-tertiary)',
+      marginBottom: '6px',
+      marginTop: '16px'
     }
   }, "Airways / parenchyma"), /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('copd')),
     onClick: () => toggleCause('copd')
   }, checkMark(causes.includes('copd')), /*#__PURE__*/React.createElement("span", null, "COPD / severe asthma / severe pneumonia / ARDS (late)")), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: '12px',
+      fontSize: '11px',
       fontWeight: '600',
-      color: 'var(--text-secondary)',
-      marginBottom: '4px',
-      marginTop: '12px'
+      textTransform: 'uppercase',
+      letterSpacing: '0.5px',
+      color: 'var(--text-tertiary)',
+      marginBottom: '6px',
+      marginTop: '16px'
     }
   }, "Iatrogenic"), /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('vent')),
@@ -6591,31 +6619,36 @@ const RespAlkalosisScreen = ({
   }, "Process ", processNumber), /*#__PURE__*/React.createElement("h1", {
     style: styles.title
   }, "Resp. Alkalosis")), /*#__PURE__*/React.createElement("div", {
-    style: styles.card,
+    style: {
+      fontSize: '15px',
+      color: 'var(--text-secondary)',
+      marginBottom: '12px'
+    },
     className: "animate-in stagger-1"
+  }, "Hyperventilation \u2014 select likely cause(s):"), /*#__PURE__*/React.createElement("div", {
+    style: styles.card,
+    className: "animate-in stagger-2"
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: '13px',
-      color: 'var(--text-secondary)',
-      marginBottom: '10px'
-    }
-  }, "Hyperventilation \u2014 select likely cause(s):"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: '12px',
+      fontSize: '11px',
       fontWeight: '600',
-      color: 'var(--text-secondary)',
-      marginBottom: '4px'
+      textTransform: 'uppercase',
+      letterSpacing: '0.5px',
+      color: 'var(--text-tertiary)',
+      marginBottom: '6px'
     }
   }, "Hypoxaemia-driven"), /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('hypoxia')),
     onClick: () => toggleCause('hypoxia')
   }, checkMark(causes.includes('hypoxia')), /*#__PURE__*/React.createElement("span", null, "Pneumonia, PE, pulmonary oedema, ILD, altitude, anaemia")), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: '12px',
+      fontSize: '11px',
       fontWeight: '600',
-      color: 'var(--text-secondary)',
-      marginBottom: '4px',
-      marginTop: '12px'
+      textTransform: 'uppercase',
+      letterSpacing: '0.5px',
+      color: 'var(--text-tertiary)',
+      marginBottom: '6px',
+      marginTop: '16px'
     }
   }, "Central stimulation"), /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('anxiety')),
@@ -6628,11 +6661,13 @@ const RespAlkalosisScreen = ({
     onClick: () => toggleCause('cns')
   }, checkMark(causes.includes('cns')), /*#__PURE__*/React.createElement("span", null, "CNS pathology (stroke, infection, tumour)")), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: '12px',
+      fontSize: '11px',
       fontWeight: '600',
-      color: 'var(--text-secondary)',
-      marginBottom: '4px',
-      marginTop: '12px'
+      textTransform: 'uppercase',
+      letterSpacing: '0.5px',
+      color: 'var(--text-tertiary)',
+      marginBottom: '6px',
+      marginTop: '16px'
     }
   }, "Hormonal / metabolic"), /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('liver')),
@@ -6642,11 +6677,13 @@ const RespAlkalosisScreen = ({
     onClick: () => toggleCause('pregnancy')
   }, checkMark(causes.includes('pregnancy')), /*#__PURE__*/React.createElement("span", null, "Pregnancy")), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: '12px',
+      fontSize: '11px',
       fontWeight: '600',
-      color: 'var(--text-secondary)',
-      marginBottom: '4px',
-      marginTop: '12px'
+      textTransform: 'uppercase',
+      letterSpacing: '0.5px',
+      color: 'var(--text-tertiary)',
+      marginBottom: '6px',
+      marginTop: '16px'
     }
   }, "Iatrogenic"), /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('ventilation')),
@@ -9608,12 +9645,12 @@ const DDxReferenceScreen = ({
     className: `animate-in stagger-${sectionIdx + 1}`
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: '12px',
+      fontSize: '11px',
       fontWeight: '600',
-      color: 'var(--text-secondary)',
+      color: 'var(--text-tertiary)',
       marginBottom: '8px',
       textTransform: 'uppercase',
-      letterSpacing: '0.3px'
+      letterSpacing: '0.5px'
     }
   }, section.header), /*#__PURE__*/React.createElement("div", {
     style: {
