@@ -557,11 +557,8 @@ const styles = {
   statusBadge: type => ({
     display: 'inline-flex',
     alignItems: 'center',
-    padding: '6px 12px',
-    borderRadius: '8px',
     fontSize: '15px',
     fontWeight: '600',
-    background: type === 'error' ? 'var(--error-light)' : type === 'warning' ? 'var(--warning-light)' : type === 'success' ? 'var(--success-light)' : 'var(--accent-light)',
     color: type === 'error' ? 'var(--error)' : type === 'warning' ? 'var(--warning)' : type === 'success' ? 'var(--success)' : 'var(--accent)'
   }),
   divider: {
@@ -2364,9 +2361,6 @@ const Step2_FullAnalysis = ({
     style: {
       fontSize: '13px',
       fontWeight: '500',
-      padding: '3px 8px',
-      borderRadius: '10px',
-      background: compensationType === 'success' ? 'var(--success-light)' : compensationType === 'error' ? 'var(--error-light)' : compensationType === 'warning' ? 'var(--warning-light)' : 'var(--bg-tertiary)',
       color: compensationType === 'success' ? 'var(--success)' : compensationType === 'error' ? 'var(--error)' : compensationType === 'warning' ? 'var(--warning)' : 'var(--text-secondary)'
     }
   }, compensationResult)), compensationNote && /*#__PURE__*/React.createElement("div", {
@@ -2542,9 +2536,6 @@ const Step2_FullAnalysis = ({
     style: {
       fontSize: '13px',
       fontWeight: '500',
-      padding: '3px 8px',
-      borderRadius: '10px',
-      background: isHAGMA ? 'var(--error-light)' : 'var(--bg-tertiary)',
       color: isHAGMA ? 'var(--error)' : 'var(--text-tertiary)'
     }
   }, isHAGMA ? '↑ HAGMA' : 'Normal')), isHAGMA && !isAcidosis && /*#__PURE__*/React.createElement("div", {
@@ -2584,12 +2575,9 @@ const Step2_FullAnalysis = ({
     style: {
       fontSize: '13px',
       fontWeight: '500',
-      padding: '3px 8px',
-      borderRadius: '10px',
-      background: deltaInterpretation === 'Pure HAGMA' ? 'var(--bg-tertiary)' : 'var(--warning-light)',
       color: deltaInterpretation === 'Pure HAGMA' ? 'var(--text-secondary)' : 'var(--warning)'
     }
-  }, deltaInterpretation)), (deltaInterpretation === '↑HCO₃ component' || deltaInterpretation.includes('metabolic alkalosis')) && pH >= 7.30 && /*#__PURE__*/React.createElement("div", {
+  }, (deltaInterpretation === '↑HCO₃ component' || (deltaInterpretation && deltaInterpretation.includes('metabolic alkalosis'))) && chronicHypercapniaSelection === null ? 'See below ↓' : deltaInterpretation)), (deltaInterpretation === '↑HCO₃ component' || deltaInterpretation.includes('metabolic alkalosis')) && pH >= 7.30 && /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: '10px',
       padding: '12px',
@@ -2605,6 +2593,13 @@ const Step2_FullAnalysis = ({
       color: 'var(--text-primary)'
     }
   }, "HCO\u2083 higher than expected"), chronicHypercapniaSelection === null ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '11px',
+      color: 'var(--text-tertiary)',
+      marginBottom: '6px',
+      fontStyle: 'italic'
+    }
+  }, "Delta ratio >2 suggests elevated HCO\u2083 — need to determine why"), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: '12px',
       color: 'var(--text-secondary)',
