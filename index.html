@@ -2544,7 +2544,7 @@ const Step2_FullAnalysis = ({
       color: 'var(--text-tertiary)',
       marginTop: '4px'
     }
-  }, "\u2191AG despite ", pHStatus === 'normal' ? 'normal pH' : 'alkalaemia', " \u2014 mixed or compensated")), isHAGMA && deltaInterpretation && /*#__PURE__*/React.createElement("div", {
+  }, "Elevated AG despite ", pHStatus === 'normal' ? 'normal pH' : 'alkalemic pH', " \u2014 hidden metabolic acidosis")), isHAGMA && deltaInterpretation && /*#__PURE__*/React.createElement("div", {
     style: {
       padding: '10px 0',
       borderTop: '1px solid var(--border)',
@@ -2577,7 +2577,7 @@ const Step2_FullAnalysis = ({
       fontWeight: '500',
       color: deltaInterpretation === 'Pure HAGMA' ? 'var(--text-secondary)' : 'var(--warning)'
     }
-  }, (deltaInterpretation === '↑HCO₃ component' || (deltaInterpretation && deltaInterpretation.includes('metabolic alkalosis'))) && chronicHypercapniaSelection === null ? 'See below ↓' : deltaInterpretation)), (deltaInterpretation === '↑HCO₃ component' || deltaInterpretation.includes('metabolic alkalosis')) && pH >= 7.30 && /*#__PURE__*/React.createElement("div", {
+  }, (deltaInterpretation === '↑HCO₃ component' || (deltaInterpretation && deltaInterpretation.includes('metabolic alkalosis'))) ? (chronicHypercapniaSelection === null ? 'See below ↓' : (chronicHypercapniaSelection === 'yes' ? 'Chronic compensation' : 'Additional met alkalosis')) : deltaInterpretation)), (deltaInterpretation === '↑HCO₃ component' || deltaInterpretation.includes('metabolic alkalosis')) && pH >= 7.30 && /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: '10px',
       padding: '12px',
@@ -2713,7 +2713,7 @@ const Step2_FullAnalysis = ({
       fontSize: '12px',
       color: 'var(--text-secondary)'
     }
-  }, chronicHypercapniaSelection === 'yes' ? "Elevated HCO\u2083 attributed to chronic compensation" : "Concurrent metabolic alkalosis \u2014 will investigate causes"), /*#__PURE__*/React.createElement("button", {
+  }, chronicHypercapniaSelection === 'yes' ? "Elevated HCO\u2083 attributed to chronic respiratory compensation" : "Additional metabolic alkalosis \u2014 will explore causes (vomiting, diuretics, etc.)"), /*#__PURE__*/React.createElement("button", {
     style: {
       padding: '4px 10px',
       border: '1px solid var(--border)',
