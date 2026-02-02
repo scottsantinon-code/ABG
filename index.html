@@ -781,30 +781,31 @@ const ReportBugLink = ({ data, screenName }) => {
 };
 
 // Icon components for homepage
-const BeakerIcon = ({ size = 32 }) => /*#__PURE__*/React.createElement("svg", {
+const BeakerIcon = ({ size = 36, color = '#007AFF' }) => /*#__PURE__*/React.createElement("svg", {
   viewBox: "0 0 500 500",
   width: size,
   height: size,
+  fill: color,
   style: { marginBottom: '8px' }
-}, /*#__PURE__*/React.createElement("defs", null, /*#__PURE__*/React.createElement("linearGradient", {
-  id: "beakerGradient",
-  x1: "105.667",
-  x2: "312.835",
-  y1: "89.11",
-  y2: "523.723",
-  gradientUnits: "userSpaceOnUse"
-}, /*#__PURE__*/React.createElement("stop", { offset: "0", stopColor: "#75eda1" }),
-/*#__PURE__*/React.createElement("stop", { offset: "1", stopColor: "#349256" }))),
-/*#__PURE__*/React.createElement("g", {
+}, /*#__PURE__*/React.createElement("g", {
   clipRule: "evenodd",
-  fill: "url(#beakerGradient)",
   fillRule: "evenodd"
 }, /*#__PURE__*/React.createElement("path", {
   d: "m323.815 159.803-91.908-30.707-69.704 208.632c-8.479 25.38 5.221 52.828 30.601 61.308 25.38 8.479 52.828-5.221 61.307-30.601zm-98.028-42.968-72.775 217.823c-10.175 30.455 6.265 63.393 36.721 73.569 30.456 10.175 63.394-6.266 73.569-36.721l72.775-217.823z"
 }), /*#__PURE__*/React.createElement("path", {
+  d: "m204.439 218.699c-2.249 1.385-5.202.712-6.626-1.525-1.437-2.257-.772-5.252 1.485-6.689l2.573 4.042c-2.573-4.042-2.569-4.044-2.565-4.046l.008-.005.017-.011.039-.024c.028-.018.061-.038.099-.06.074-.045.167-.099.278-.161.222-.123.516-.277.88-.45.728-.344 1.739-.762 3.018-1.147 2.566-.772 6.187-1.404 10.715-1.062 9.137.691 21.316 5.29 35.561 19.308 12.934 12.729 24.212 16.749 31.911 17.788 3.888.524 6.967.303 9.009-.023 1.022-.164 1.785-.353 2.259-.488.236-.068.4-.122.487-.152.036-.012.059-.02.069-.024 2.474-.963 5.268.247 6.256 2.718.993 2.485-.217 5.304-2.702 6.297l-1.783-4.464c1.783 4.464 1.78 4.465 1.777 4.467l-.008.003-.016.006-.039.015c-.028.011-.062.024-.102.039-.079.029-.179.065-.301.107-.243.084-.57.189-.979.306-.816.233-1.958.51-3.39.739-2.868.457-6.904.722-11.832.057-9.935-1.34-23.103-6.401-37.413-20.484-13.001-12.794-23.132-16.071-29.495-16.552-3.222-.243-5.648.214-7.192.679-.776.233-1.335.47-1.664.626-.164.078-.27.135-.316.16-.008.004-.013.008-.018.01z"
+}), /*#__PURE__*/React.createElement("path", {
   d: "m339.645 132.958-102.409-34.2149c-.508-.1696-1.057.1044-1.226.612l-5.55 16.6109c-.17.508.104 1.057.612 1.226l102.409 34.215c.508.17 1.057-.104 1.226-.612l5.55-16.611c.17-.507-.104-1.056-.612-1.226zm-99.338-43.4058c-5.584-1.8654-11.623 1.1486-13.488 6.7322l-5.55 16.6106c-1.865 5.584 1.149 11.622 6.732 13.488l102.409 34.215c5.584 1.865 11.623-1.149 13.488-6.732l5.55-16.611c1.865-5.584-1.149-11.622-6.732-13.488z"
 }), /*#__PURE__*/React.createElement("path", {
+  d: "m281.156 174.673c.895-2.522 3.665-3.84 6.187-2.946l30.039 10.66c2.522.894 3.841 3.664 2.946 6.186s-3.664 3.841-6.186 2.946l-30.04-10.659c-2.522-.895-3.841-3.665-2.946-6.187z"
+}), /*#__PURE__*/React.createElement("path", {
+  d: "m272.435 199.868c.895-2.522 3.665-3.841 6.186-2.946l30.04 10.659c2.522.895 3.841 3.665 2.946 6.187-.895 2.521-3.665 3.84-6.186 2.946l-30.04-10.66c-2.522-.895-3.841-3.664-2.946-6.186z"
+}), /*#__PURE__*/React.createElement("path", {
   d: "m228.066 285.793c-3.479 0-6.299 2.82-6.299 6.299 0 3.478 2.82 6.298 6.299 6.298 3.478 0 6.298-2.82 6.298-6.298 0-3.479-2.82-6.299-6.298-6.299zm-15.989 6.299c0-8.831 7.158-15.989 15.989-15.989 8.83 0 15.988 7.158 15.988 15.989 0 8.83-7.158 15.989-15.988 15.989-8.831 0-15.989-7.159-15.989-15.989z"
+}), /*#__PURE__*/React.createElement("path", {
+  d: "m196.572 320.678c-1.605 0-2.907 1.301-2.907 2.907 0 1.605 1.302 2.907 2.907 2.907 1.606 0 2.907-1.302 2.907-2.907 0-1.606-1.301-2.907-2.907-2.907zm-12.597 2.907c0-6.957 5.64-12.597 12.597-12.597 6.958 0 12.598 5.64 12.598 12.597s-5.64 12.597-12.598 12.597c-6.957 0-12.597-5.64-12.597-12.597z"
+}), /*#__PURE__*/React.createElement("path", {
+  d: "m230.973 349.749c-1.873 0-3.392 1.518-3.392 3.391s1.519 3.392 3.392 3.392 3.391-1.519 3.391-3.392-1.518-3.391-3.391-3.391zm-13.082 3.391c0-7.225 5.857-13.082 13.082-13.082s13.081 5.857 13.081 13.082-5.856 13.082-13.081 13.082-13.082-5.857-13.082-13.082z"
 })));
 
 const AtomIcon = ({ size = 32, color = '#007AFF' }) => /*#__PURE__*/React.createElement("svg", {
@@ -822,35 +823,32 @@ const AtomIcon = ({ size = 32, color = '#007AFF' }) => /*#__PURE__*/React.create
 /*#__PURE__*/React.createElement("ellipse", { cx: "12", cy: "12", rx: "10", ry: "4", transform: "rotate(60 12 12)" }),
 /*#__PURE__*/React.createElement("ellipse", { cx: "12", cy: "12", rx: "10", ry: "4", transform: "rotate(120 12 12)" }));
 
-const MoleculeIcon = ({ size = 32, color = '#007AFF' }) => /*#__PURE__*/React.createElement("svg", {
-  viewBox: "0 0 24 24",
+const OxygenIcon = ({ size = 36, color = '#007AFF' }) => /*#__PURE__*/React.createElement("svg", {
+  viewBox: "0 0 512 512",
   width: size,
   height: size,
-  fill: "none",
-  stroke: color,
-  strokeWidth: "1.5",
-  strokeLinecap: "round",
-  strokeLinejoin: "round",
   style: { marginBottom: '8px' }
-}, /*#__PURE__*/React.createElement("circle", { cx: "12", cy: "12", r: "3" }),
-/*#__PURE__*/React.createElement("circle", { cx: "19", cy: "5", r: "2" }),
-/*#__PURE__*/React.createElement("circle", { cx: "5", cy: "19", r: "2" }),
-/*#__PURE__*/React.createElement("line", { x1: "14.5", y1: "9.5", x2: "17.5", y2: "6.5" }),
-/*#__PURE__*/React.createElement("line", { x1: "9.5", y1: "14.5", x2: "6.5", y2: "17.5" }));
+},
+/*#__PURE__*/React.createElement("path", { fill: color, d: "m186.41 310.62a5.38 5.38 0 0 1 -3.81-9.19l119.7-119.69a5.38 5.38 0 1 1 7.61 7.61l-119.69 119.65a5.37 5.37 0 0 1 -3.81 1.62z" }),
+/*#__PURE__*/React.createElement("path", { fill: color, d: "m210.5 332.75a5.38 5.38 0 0 1 -3.81-9.19l118.44-118.43a5.38 5.38 0 0 1 7.61 7.61l-118.43 118.43a5.37 5.37 0 0 1 -3.81 1.58z" }),
+/*#__PURE__*/React.createElement("circle", { cx: "111.74", cy: "400.16", fill: color, r: "106.36" }),
+/*#__PURE__*/React.createElement("circle", { cx: "400.26", cy: "111.84", fill: color, r: "106.36" }),
+/*#__PURE__*/React.createElement("path", { fill: "none", stroke: color, strokeWidth: "10", d: "m111.74 511.9a111.74 111.74 0 1 1 111.76-111.74 111.87 111.87 0 0 1 -111.76 111.74z" }),
+/*#__PURE__*/React.createElement("path", { fill: "none", stroke: color, strokeWidth: "10", d: "m400.26 223.58a111.76 111.76 0 1 1 111.74-111.74 111.87 111.87 0 0 1 -111.74 111.74z" }),
+/*#__PURE__*/React.createElement("path", { fill: "#fff", d: "m115.85 439.89h-8.22a23.31 23.31 0 0 1 -23.28-23.29v-32.88a23.31 23.31 0 0 1 23.29-23.29h8.22a23.31 23.31 0 0 1 23.29 23.29v32.88a23.31 23.31 0 0 1 -23.3 23.29zm-8.22-68.69a12.54 12.54 0 0 0 -12.52 12.52v32.88a12.54 12.54 0 0 0 12.52 12.52h8.22a12.54 12.54 0 0 0 12.52-12.52v-32.88a12.54 12.54 0 0 0 -12.52-12.52z" }),
+/*#__PURE__*/React.createElement("path", { fill: "#fff", d: "m404.36 151.57h-8.22a23.31 23.31 0 0 1 -23.29-23.29v-32.88a23.31 23.31 0 0 1 23.29-23.29h8.22a23.31 23.31 0 0 1 23.29 23.29v32.88a23.31 23.31 0 0 1 -23.29 23.29zm-8.22-68.69a12.54 12.54 0 0 0 -12.52 12.52v32.88a12.54 12.54 0 0 0 12.52 12.52h8.22a12.54 12.54 0 0 0 12.52-12.52v-32.88a12.54 12.54 0 0 0 -12.52-12.52z" }));
 
-const WindIcon = ({ size = 32, color = '#007AFF' }) => /*#__PURE__*/React.createElement("svg", {
-  viewBox: "0 0 24 24",
+const CarbonDioxideIcon = ({ size = 36, color = '#007AFF' }) => /*#__PURE__*/React.createElement("svg", {
+  viewBox: "0 0 512 512",
   width: size,
   height: size,
-  fill: "none",
-  stroke: color,
-  strokeWidth: "1.5",
-  strokeLinecap: "round",
-  strokeLinejoin: "round",
+  fill: color,
   style: { marginBottom: '8px' }
-}, /*#__PURE__*/React.createElement("path", { d: "M17.7 7.7A2.5 2.5 0 1 1 19 12H5" }),
-/*#__PURE__*/React.createElement("path", { d: "M9.6 4.6A2 2 0 1 1 11 8H5" }),
-/*#__PURE__*/React.createElement("path", { d: "M12.6 19.4A2 2 0 1 0 14 16H5" }));
+},
+/*#__PURE__*/React.createElement("path", { d: "m457.388 358.283c-2.91 0-5.767.233-8.555.672l-58.251-78.307c14.001-23.419 22.062-50.781 22.062-79.994 0-27.413-7.198-54.387-20.817-78.004-2.068-3.588-6.656-4.819-10.243-2.75-3.589 2.069-4.82 6.655-2.751 10.244 12.307 21.342 18.812 45.725 18.812 70.511 0 77.952-63.419 141.371-141.371 141.371s-141.374-63.42-141.374-141.372 63.419-141.371 141.371-141.371c39.161 0 75.582 15.649 102.554 44.064 2.853 3.005 7.601 3.128 10.603.277 3.005-2.852 3.128-7.599.276-10.603-29.831-31.429-70.116-48.738-113.433-48.738-86.223 0-156.371 70.147-156.371 156.371 0 29.109 8.004 56.38 21.914 79.744l-20.014 26.905c-2.473 3.324-1.782 8.022 1.541 10.494 1.345 1 2.914 1.483 4.471 1.483 2.29 0 4.552-1.045 6.023-3.024l16.81-22.598c4.242 5.715 8.867 11.128 13.832 16.209l-49.26 66.22c-4.695-5.119-10.344-9.349-16.667-12.398l14.823-19.927c2.473-3.324 1.782-8.022-1.541-10.494-3.322-2.472-8.022-1.782-10.494 1.541l-17.961 24.146c-2.789-.439-5.645-.672-8.555-.672-30.229 0-54.822 24.593-54.822 54.822s24.593 54.821 54.821 54.821c30.229 0 54.822-24.593 54.822-54.821 0-8.562-1.976-16.67-5.492-23.897l51.376-69.064c27.232 22.996 62.394 36.881 100.744 36.881 38.253 0 73.336-13.815 100.539-36.708l51.247 68.89c-3.515 7.227-5.492 15.335-5.492 23.897 0 30.229 24.593 54.821 54.822 54.821s54.821-24.593 54.821-54.821c.001-30.228-24.592-54.821-54.82-54.821zm-402.567 94.643c-21.958 0-39.821-17.864-39.821-39.821 0-21.958 17.863-39.822 39.821-39.822s39.822 17.864 39.822 39.822c.001 21.957-17.864 39.821-39.822 39.821zm313.055-142.865c4.971-5.07 9.606-10.471 13.856-16.176l51.926 69.804c-6.323 3.048-11.972 7.279-16.667 12.398zm89.512 142.865c-21.958 0-39.822-17.864-39.822-39.821 0-21.958 17.864-39.822 39.822-39.822s39.821 17.864 39.821 39.822c0 21.957-17.863 39.821-39.821 39.821z" }),
+/*#__PURE__*/React.createElement("path", { d: "m371.852 204.099c.788-3.897.663-7.92-.883-11.984-3.304-8.689-11.866-14.61-21.164-14.61-10.791 0-20.131 7.677-22.207 18.254-.798 4.064 1.85 8.006 5.914 8.804 4.072.797 8.007-1.851 8.805-5.915.699-3.56 3.849-6.144 7.488-6.144 3.869 0 7.349 3.102 7.618 7.008.289 4.191-2.971 8.251-5.234 11.484-9.344 13.35-14.921 20.651-17.917 24.575-3.758 4.92-5.644 7.39-4.38 11.498.748 2.432 2.587 4.296 5.046 5.116.99.33 24.187.582 32.6.477 4.143-.052 7.458-3.452 7.405-7.594-.051-4.11-3.398-7.406-7.497-7.406-.032 0-.064 0-.096 0-5.375.067-11.054.114-15.961.13 3.203-4.307 7.493-10.199 13.113-18.23 3.32-4.741 6.24-9.977 7.35-15.463z" }),
+/*#__PURE__*/React.createElement("path", { d: "m219.002 196.961c0 26.717 21.736 48.453 48.453 48.453s48.453-21.736 48.453-48.453-21.736-48.453-48.453-48.453-48.453 21.736-48.453 48.453zm81.906 0c0 18.446-15.007 33.453-33.453 33.453s-33.453-15.007-33.453-33.453 15.007-33.453 33.453-33.453 33.453 15.007 33.453 33.453z" }),
+/*#__PURE__*/React.createElement("path", { d: "m179.802 163.77c6.653 0 13.068 1.958 18.552 5.664 3.435 2.32 8.096 1.417 10.414-2.016s1.416-8.094-2.016-10.413c-7.974-5.387-17.293-8.235-26.95-8.235-26.572 0-48.19 21.618-48.19 48.191 0 26.572 21.618 48.19 48.19 48.19 12.024 0 23.615-4.904 31.383-14.169 2.661-3.175 2.244-7.905-.931-10.566-3.174-2.66-7.904-2.244-10.566.931-4.962 5.922-12.237 8.804-19.886 8.804-18.301 0-33.19-14.889-33.19-33.19-.001-18.302 14.889-33.191 33.19-33.191z" }));
 
 const Input = ({
   label,
@@ -1200,7 +1198,7 @@ const LandingScreen = ({
     padding: '20px 16px'
   },
   onClick: () => onSelect('traditional')
-}, /*#__PURE__*/React.createElement(BeakerIcon, { size: 36 }), /*#__PURE__*/React.createElement("div", {
+}, /*#__PURE__*/React.createElement(BeakerIcon, { size: 36, color: 'var(--accent)' }), /*#__PURE__*/React.createElement("div", {
   style: styles.optionTitle
 }, "Traditional"), /*#__PURE__*/React.createElement("div", {
   style: {
@@ -1262,7 +1260,7 @@ const LandingScreen = ({
     padding: '20px 16px'
   },
   onClick: () => onSelect('oxygenation')
-}, /*#__PURE__*/React.createElement(MoleculeIcon, { size: 36, color: 'var(--accent)' }), /*#__PURE__*/React.createElement("div", {
+}, /*#__PURE__*/React.createElement(OxygenIcon, { size: 36, color: 'var(--accent)' }), /*#__PURE__*/React.createElement("div", {
   style: styles.optionTitle
 }, "Oxygenation")), /*#__PURE__*/React.createElement("div", {
   style: {
@@ -1275,7 +1273,7 @@ const LandingScreen = ({
     padding: '20px 16px'
   },
   onClick: () => onSelect('ventRatio')
-}, /*#__PURE__*/React.createElement(WindIcon, { size: 36, color: 'var(--accent)' }), /*#__PURE__*/React.createElement("div", {
+}, /*#__PURE__*/React.createElement(CarbonDioxideIcon, { size: 36, color: 'var(--accent)' }), /*#__PURE__*/React.createElement("div", {
   style: styles.optionTitle
 }, "Ventilation")))), /*#__PURE__*/React.createElement("div", {
   style: {
@@ -2002,6 +2000,7 @@ const Step2_FullAnalysis = ({
   const albumin = data.albumin ? parseFloat(data.albumin) : DEFAULTS.albumin;
   const [timing, setTiming] = useState(data.timing || null); // null = not yet selected
   const [showVBGInfo, setShowVBGInfo] = useState(false);
+  const [showVBGRespInfo, setShowVBGRespInfo] = useState(false);
   const [showDeltaInfo, setShowDeltaInfo] = useState(false);
   const [chronicHypercapniaSelection, setChronicHypercapniaSelection] = useState(data.chronicHypercapniaSelection || null);
   const [showChronicGuidance, setShowChronicGuidance] = useState(false);
@@ -2466,7 +2465,35 @@ const Step2_FullAnalysis = ({
       maxWidth: '55%',
       lineHeight: '1.3'
     }
-  }, primaryDisorder)), compensationResult && !(
+  }, primaryDisorder)),
+  // VBG warning for respiratory disorders - pCO2 is the diagnosis, not just compensation
+  data.sampleType === 'vbg' && (primaryDisorder && primaryDisorder.toLowerCase().includes('respiratory') || isRespiratory) && /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'flex-start',
+      gap: '8px',
+      backgroundColor: 'rgba(255, 149, 0, 0.1)',
+      border: '1px solid rgba(255, 149, 0, 0.3)',
+      borderRadius: '8px',
+      padding: '10px 12px',
+      marginTop: '12px',
+      fontSize: '13px',
+      color: 'var(--text-secondary)'
+    }
+  }, /*#__PURE__*/React.createElement("span", { style: { fontSize: '14px' } }, "\u26A0\uFE0F"),
+  /*#__PURE__*/React.createElement("div", { style: { flex: 1 } },
+    /*#__PURE__*/React.createElement("strong", { style: { color: 'var(--warning)', display: 'block', marginBottom: '4px' } },
+      "VBG: Respiratory diagnosis uncertain"
+    ),
+    /*#__PURE__*/React.createElement("span", null,
+      "Venous pCO\u2082 is typically 3\u20138 mmHg higher than arterial, but this gap is unpredictable in critical illness. Consider ABG to confirm."
+    )
+  ),
+  /*#__PURE__*/React.createElement(InfoButton, {
+    onClick: () => setShowVBGRespInfo(true),
+    label: "\u24D8"
+  })),
+  compensationResult && !(
   (compensationResult.includes('Additional respiratory acidosis') && primaryDisorder && primaryDisorder.includes('respiratory acidosis')) ||
   (compensationResult.includes('Additional respiratory alkalosis') && primaryDisorder && primaryDisorder.includes('respiratory alkalosis'))
 ) && !showDualInterpretation && /*#__PURE__*/React.createElement("div", {
@@ -2497,7 +2524,23 @@ const Step2_FullAnalysis = ({
       color: 'var(--text-tertiary)',
       marginTop: '4px'
     }
-  }, compensationNote), compensationResult === 'Additional metabolic alkalosis' && isRespiratory && isAcidosis && chronicWouldFit && /*#__PURE__*/React.createElement("div", {
+  }, compensationNote),
+  // VBG warning for additional respiratory disorders identified via compensation
+  data.sampleType === 'vbg' && compensationResult && (compensationResult.includes('Additional respiratory acidosis') || compensationResult.includes('Additional respiratory alkalosis')) && /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'flex-start',
+      gap: '6px',
+      backgroundColor: 'rgba(255, 149, 0, 0.08)',
+      borderRadius: '6px',
+      padding: '8px 10px',
+      marginTop: '8px',
+      fontSize: '12px',
+      color: 'var(--text-tertiary)'
+    }
+  }, /*#__PURE__*/React.createElement("span", null, "\u26A0\uFE0F"),
+  /*#__PURE__*/React.createElement("span", null, "VBG pCO\u2082 may be unreliable \u2014 consider ABG to confirm respiratory component.")),
+  compensationResult === 'Additional metabolic alkalosis' && isRespiratory && isAcidosis && chronicWouldFit && /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: '10px',
       padding: '12px',
@@ -2964,6 +3007,37 @@ const Step2_FullAnalysis = ({
   }, "Venous pCO₂ is typically 3-8 mmHg higher than arterial, but this difference is ", /*#__PURE__*/React.createElement("strong", null, "unpredictable"), " in critical illness."), /*#__PURE__*/React.createElement("p", {
     style: { marginBottom: '12px' }
   }, "The compensation assessment above uses your entered pCO₂ value in formulas designed for arterial samples."), /*#__PURE__*/React.createElement("p", null, /*#__PURE__*/React.createElement("strong", null, "Consider ABG"), " if respiratory status is critical to management."))), /*#__PURE__*/React.createElement(BottomSheet, {
+    isOpen: showVBGRespInfo,
+    onClose: () => setShowVBGRespInfo(false),
+    title: "VBG and Respiratory Disorders"
+  }, /*#__PURE__*/React.createElement("div", {
+    style: { fontSize: '14px', lineHeight: '1.6', color: 'var(--text-secondary)' }
+  }, /*#__PURE__*/React.createElement("p", {
+    style: { marginBottom: '12px' }
+  }, "For respiratory disorders, pCO\u2082 is the ", /*#__PURE__*/React.createElement("strong", null, "primary diagnostic criterion"), " \u2014 not just a compensation marker. This makes sample type critical."),
+  /*#__PURE__*/React.createElement("p", {
+    style: { marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)' }
+  }, "VBG vs ABG pCO\u2082:"),
+  /*#__PURE__*/React.createElement("ul", {
+    style: { marginLeft: '16px', marginBottom: '12px' }
+  },
+    /*#__PURE__*/React.createElement("li", { style: { marginBottom: '4px' } }, "In stable patients, venous pCO\u2082 is typically 3\u20138 mmHg higher than arterial"),
+    /*#__PURE__*/React.createElement("li", { style: { marginBottom: '4px' } }, "In shock or critical illness, this gap becomes unpredictable"),
+    /*#__PURE__*/React.createElement("li", null, "A VBG pCO\u2082 of 50 could represent arterial pCO\u2082 of 42\u201347 (near-normal) or genuinely elevated")
+  ),
+  /*#__PURE__*/React.createElement("p", {
+    style: { marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)' }
+  }, "Clinical implications:"),
+  /*#__PURE__*/React.createElement("ul", {
+    style: { marginLeft: '16px', marginBottom: '12px' }
+  },
+    /*#__PURE__*/React.createElement("li", { style: { marginBottom: '4px' } }, "VBG can suggest respiratory disorder but cannot confirm it"),
+    /*#__PURE__*/React.createElement("li", { style: { marginBottom: '4px' } }, "If respiratory status is critical to management, obtain ABG"),
+    /*#__PURE__*/React.createElement("li", null, "VBG is more reliable for metabolic assessment (pH, HCO\u2083) than respiratory")
+  ),
+  /*#__PURE__*/React.createElement("p", {
+    style: { fontStyle: 'italic', color: 'var(--text-tertiary)', fontSize: '13px' }
+  }, "Bottom line: A \u201Crespiratory acidosis\u201D on VBG warrants clinical correlation and possibly ABG confirmation before making ventilation decisions."))), /*#__PURE__*/React.createElement(BottomSheet, {
     isOpen: showDeltaInfo,
     onClose: () => setShowDeltaInfo(false),
     title: "Delta Ratio Interpretation"
@@ -3960,13 +4034,16 @@ const Step3_OsmolarGap = ({
   const glucose = parseVal(data.glucose);
   const urea = parseVal(data.urea);
   const measuredOsm = parseVal(data.measuredOsm);
+  const bacVal = parseVal(data.bac) || 0;
+  const bacProvided = parseVal(data.bac) > 0;
   let osmGap = null;
   let canCalculate = glucose !== null && urea !== null && measuredOsm !== null;
   if (canCalculate) {
-    const calculatedOsm = 2 * na + glucose + urea;
+    const calculatedOsm = 2 * na + glucose + urea + bacVal;
     osmGap = measuredOsm - calculatedOsm;
   }
   const highOG = osmGap !== null && osmGap > 10;
+  const showBacWarning = highOG && !bacProvided;
   const highAG = data.isHAGMA;
   return /*#__PURE__*/React.createElement("div", {
     style: styles.container
@@ -4119,7 +4196,56 @@ const Step3_OsmolarGap = ({
       background: 'var(--bg-secondary)',
       outline: 'none'
     }
-  }))), canCalculate && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: '12px'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '14px',
+      fontWeight: '500',
+      marginBottom: '6px'
+    }
+  }, "BAC ", /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: '12px',
+      color: 'var(--text-tertiary)',
+      fontWeight: '400'
+    }
+  }, "mmol/L"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: '11px',
+      color: 'var(--text-tertiary)',
+      fontWeight: '400',
+      marginLeft: '6px'
+    }
+  }, "(optional)")), /*#__PURE__*/React.createElement("input", {
+    type: "text",
+    inputMode: "decimal",
+    value: data.bac || '',
+    onChange: e => setData(prev => ({
+      ...prev,
+      bac: e.target.value
+    })),
+    placeholder: "0",
+    style: {
+      width: '100%',
+      padding: '12px',
+      border: '1.5px solid var(--border-strong)',
+      borderRadius: '10px',
+      fontSize: '17px',
+      fontWeight: '500',
+      fontFamily: 'var(--font)',
+      background: 'var(--bg-secondary)',
+      outline: 'none'
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '11px',
+      color: 'var(--text-tertiary)',
+      marginTop: '4px'
+    }
+  }, "Leave blank if not measured"))), canCalculate && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     style: styles.card,
     className: "animate-in"
   }, /*#__PURE__*/React.createElement("div", {
@@ -4128,11 +4254,25 @@ const Step3_OsmolarGap = ({
     style: styles.resultLabel
   }, "Osmolar Gap"), /*#__PURE__*/React.createElement("span", {
     style: styles.statusBadge(highOG ? 'error' : 'success')
-  }, osmGap.toFixed(0), " mOsm/kg ", highOG ? '(Elevated)' : '(Normal)')), /*#__PURE__*/React.createElement(ExpandableWorking, null, /*#__PURE__*/React.createElement("p", null, /*#__PURE__*/React.createElement(Formula, null, "OG = Measured \u2212 Calculated")), /*#__PURE__*/React.createElement("p", null, "Calculated = (2 \xD7 Na) + Glucose + Urea"), /*#__PURE__*/React.createElement("p", null, "= (2 \xD7 ", na, ") + ", glucose, " + ", urea, " = ", (2 * na + glucose + urea).toFixed(0)), /*#__PURE__*/React.createElement("p", null, "OG = ", measuredOsm, " \u2212 ", (2 * na + glucose + urea).toFixed(0), " = ", osmGap.toFixed(0)), /*#__PURE__*/React.createElement(Divider, null), /*#__PURE__*/React.createElement("p", {
+  }, osmGap.toFixed(0), " mOsm/kg ", highOG ? '(Elevated)' : '(Normal)')), /*#__PURE__*/React.createElement(ExpandableWorking, null, /*#__PURE__*/React.createElement("p", null, /*#__PURE__*/React.createElement(Formula, null, "OG = Measured \u2212 Calculated")), /*#__PURE__*/React.createElement("p", null, "Calculated = (2 \xD7 Na) + Glucose + Urea", bacVal > 0 ? " + BAC" : ""), /*#__PURE__*/React.createElement("p", null, "= (2 \xD7 ", na, ") + ", glucose, " + ", urea, bacVal > 0 ? [" + ", bacVal] : "", " = ", (2 * na + glucose + urea + bacVal).toFixed(0)), /*#__PURE__*/React.createElement("p", null, "OG = ", measuredOsm, " \u2212 ", (2 * na + glucose + urea + bacVal).toFixed(0), " = ", osmGap.toFixed(0)), /*#__PURE__*/React.createElement(Divider, null), /*#__PURE__*/React.createElement("p", {
     style: {
       fontSize: '12px'
     }
-  }, "Normal ", "<", " 10 mOsm/kg"))), /*#__PURE__*/React.createElement("div", {
+  }, "Normal ", "<", " 10 mOsm/kg")), showBacWarning && /*#__PURE__*/React.createElement("div", {
+    style: {
+      backgroundColor: 'var(--warning-light)',
+      border: '1px solid var(--warning)',
+      borderRadius: '8px',
+      padding: '12px',
+      marginTop: '12px',
+      fontSize: '13px',
+      color: 'var(--text-secondary)'
+    }
+  }, /*#__PURE__*/React.createElement("strong", {
+    style: {
+      color: 'var(--warning)'
+    }
+  }, "Note: "), "Osmolar gap unreliable without BAC. Alcohol, if present, can fully explain an elevated gap.")), /*#__PURE__*/React.createElement("div", {
     style: styles.card,
     className: "animate-in stagger-2"
   }, /*#__PURE__*/React.createElement("div", {
@@ -4379,6 +4519,7 @@ const OsmolarGapBottomSheetContent = ({
   const [localOsm, setLocalOsm] = useState(data?.measuredOsm ? String(data.measuredOsm) : '');
   const [localGlucose, setLocalGlucose] = useState(data?.glucose ? String(data.glucose) : '');
   const [localUrea, setLocalUrea] = useState(data?.urea ? String(data.urea) : '');
+  const [localBac, setLocalBac] = useState(data?.bac ? String(data.bac) : '');
   const parseVal = v => {
     if (!v || v === '') return null;
     const n = parseFloat(v);
@@ -4387,10 +4528,13 @@ const OsmolarGapBottomSheetContent = ({
   const measOsm = parseVal(localOsm);
   const glucose = parseVal(localGlucose);
   const urea = parseVal(localUrea);
+  const bacVal = parseVal(localBac) || 0;
+  const bacProvided = parseVal(localBac) > 0;
   const canCalculate = measOsm !== null && glucose !== null && urea !== null;
-  const calcOsm = canCalculate ? 2 * na + glucose + urea : null;
+  const calcOsm = canCalculate ? 2 * na + glucose + urea + bacVal : null;
   const osmGap = canCalculate ? measOsm - calcOsm : null;
   const isElevated = osmGap !== null && osmGap > 10;
+  const showBacWarning = isElevated && !bacProvided;
   return /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: '14px',
@@ -4409,7 +4553,7 @@ const OsmolarGapBottomSheetContent = ({
       marginTop: '4px',
       color: 'var(--text-secondary)'
     }
-  }, "The difference between measured and calculated osmolality. Detects unmeasured osmotically active substances.")), /*#__PURE__*/React.createElement("div", {
+  }, "The difference between measured and calculated osmolality. Detects unmeasured osmotically active substances. Causes of elevated osmolar gap include toxic alcohols (methanol, ethylene glycol), ethanol, mannitol, propylene glycol, contrast agents, and lab error. Always check BAC before attributing an elevated gap to toxic alcohols.")), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'grid',
       gridTemplateColumns: '1fr 1fr',
@@ -4507,6 +4651,39 @@ const OsmolarGapBottomSheetContent = ({
       background: 'var(--bg-secondary)',
       outline: 'none'
     }
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: '12px'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '13px',
+      fontWeight: '500',
+      marginBottom: '4px'
+    }
+  }, "BAC ", /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: '12px',
+      color: 'var(--text-tertiary)',
+      fontWeight: '400'
+    }
+  }, "mmol/L (optional)")), /*#__PURE__*/React.createElement("input", {
+    type: "text",
+    inputMode: "decimal",
+    value: localBac,
+    onChange: e => setLocalBac(e.target.value),
+    placeholder: "0",
+    style: {
+      width: '100%',
+      padding: '10px',
+      border: '1.5px solid var(--border-strong)',
+      borderRadius: '8px',
+      fontSize: '16px',
+      fontWeight: '500',
+      fontFamily: 'var(--font)',
+      background: 'var(--bg-secondary)',
+      outline: 'none'
+    }
   })), canCalculate && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: '12px',
@@ -4515,7 +4692,7 @@ const OsmolarGapBottomSheetContent = ({
       borderRadius: '8px',
       fontSize: '12px'
     }
-  }, /*#__PURE__*/React.createElement("p", null, "Calc Osm = 2\xD7Na + Glucose + Urea = 2\xD7", na, " + ", glucose, " + ", urea, " = ", /*#__PURE__*/React.createElement("strong", null, calcOsm.toFixed(0)))), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("p", null, "Calc Osm = 2\xD7Na + Glucose + Urea", bacVal > 0 ? " + BAC" : "", " = 2\xD7", na, " + ", glucose, " + ", urea, bacVal > 0 ? [" + ", bacVal] : "", " = ", /*#__PURE__*/React.createElement("strong", null, calcOsm.toFixed(0)))), /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: '12px',
       padding: '12px',
@@ -4543,7 +4720,20 @@ const OsmolarGapBottomSheetContent = ({
       marginTop: '4px',
       color: 'var(--text-secondary)'
     }
-  }, "Normal: <10 mOsm/kg")), isElevated && /*#__PURE__*/React.createElement("div", {
+  }, "Normal: <10 mOsm/kg")), showBacWarning && /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: '12px',
+      padding: '10px',
+      backgroundColor: 'var(--warning-light)',
+      border: '1px solid var(--warning)',
+      borderRadius: '8px',
+      fontSize: '13px'
+    }
+  }, /*#__PURE__*/React.createElement("strong", {
+    style: {
+      color: 'var(--warning)'
+    }
+  }, "Note: "), "Osmolar gap unreliable without BAC. Alcohol, if present, can fully explain an elevated gap."), isElevated && /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: '12px',
       padding: '10px',
@@ -4593,6 +4783,7 @@ const OsmolarGapScreen = ({
   const [localOsm, setLocalOsm] = useState(data?.measuredOsm ? String(data.measuredOsm) : '');
   const [localGlucose, setLocalGlucose] = useState(data?.glucose ? String(data.glucose) : '');
   const [localUrea, setLocalUrea] = useState(data?.urea ? String(data.urea) : '');
+  const [localBac, setLocalBac] = useState(data?.bac ? String(data.bac) : '');
   const na = parseFloat(data?.na) || 140;
 
   // Robust parsing - only return number if valid
@@ -4604,10 +4795,13 @@ const OsmolarGapScreen = ({
   const measOsm = parseVal(localOsm);
   const glucose = parseVal(localGlucose);
   const urea = parseVal(localUrea);
+  const bacVal = parseVal(localBac) || 0;
+  const bacProvided = parseVal(localBac) > 0;
   const canCalculate = measOsm !== null && glucose !== null && urea !== null;
-  const calcOsm = canCalculate ? 2 * na + glucose + urea : null;
+  const calcOsm = canCalculate ? 2 * na + glucose + urea + bacVal : null;
   const osmGap = canCalculate ? measOsm - calcOsm : null;
   const isElevated = osmGap !== null && osmGap > 10;
+  const showBacWarning = isElevated && !bacProvided;
   const correctedAG = parseFloat(data?.correctedAG) || 12;
   const highAG = correctedAG > 12;
 
@@ -4619,6 +4813,7 @@ const OsmolarGapScreen = ({
         measuredOsm: localOsm,
         glucose: localGlucose,
         urea: localUrea,
+        bac: localBac,
         osmGapCalculated: canCalculate,
         osmGapValue: osmGap,
         osmGapElevated: isElevated
@@ -4645,7 +4840,7 @@ const OsmolarGapScreen = ({
       color: 'var(--text-secondary)',
       marginBottom: '12px'
     }
-  }, "Detects unmeasured osmotically active substances"), /*#__PURE__*/React.createElement("div", {
+  }, "Detects unmeasured osmotically active substances. Always check BAC before attributing elevated gap to toxic alcohols."), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'grid',
       gridTemplateColumns: '1fr 1fr',
@@ -4739,7 +4934,53 @@ const OsmolarGapScreen = ({
       background: 'var(--bg-secondary)',
       outline: 'none'
     }
-  })), canCalculate && /*#__PURE__*/React.createElement("div", {
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: '12px'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '14px',
+      fontWeight: '500',
+      marginBottom: '6px'
+    }
+  }, "BAC ", /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: '12px',
+      color: 'var(--text-tertiary)',
+      fontWeight: '400'
+    }
+  }, "mmol/L"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: '11px',
+      color: 'var(--text-tertiary)',
+      fontWeight: '400',
+      marginLeft: '6px'
+    }
+  }, "(optional)")), /*#__PURE__*/React.createElement("input", {
+    type: "text",
+    inputMode: "decimal",
+    value: localBac,
+    onChange: e => setLocalBac(e.target.value),
+    placeholder: "0",
+    style: {
+      width: '100%',
+      padding: '12px',
+      border: '1.5px solid var(--border-strong)',
+      borderRadius: '10px',
+      fontSize: '17px',
+      fontWeight: '500',
+      fontFamily: 'var(--font)',
+      background: 'var(--bg-secondary)',
+      outline: 'none'
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '11px',
+      color: 'var(--text-tertiary)',
+      marginTop: '4px'
+    }
+  }, "Leave blank if not measured")), canCalculate && /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       justifyContent: 'space-between',
@@ -4775,7 +5016,20 @@ const OsmolarGapScreen = ({
       color: 'var(--text-secondary)',
       marginBottom: '10px'
     }
-  }, "Calc Osm = 2\xD7", na, " + ", glucose, " + ", urea, " = ", calcOsm.toFixed(0)), isElevated && highAG && /*#__PURE__*/React.createElement("div", {
+  }, "Calc Osm = 2\xD7", na, " + ", glucose, " + ", urea, bacVal > 0 ? [" + ", bacVal] : "", " = ", calcOsm.toFixed(0)), showBacWarning && /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: '10px',
+      backgroundColor: 'var(--warning-light)',
+      border: '1px solid var(--warning)',
+      borderRadius: '8px',
+      marginBottom: '10px',
+      fontSize: '13px'
+    }
+  }, /*#__PURE__*/React.createElement("strong", {
+    style: {
+      color: 'var(--warning)'
+    }
+  }, "Note: "), "Osmolar gap unreliable without BAC. Alcohol, if present, can fully explain an elevated gap."), isElevated && highAG && /*#__PURE__*/React.createElement("div", {
     style: {
       padding: '10px',
       background: 'var(--error-light)',
@@ -7293,20 +7547,70 @@ const AdvancedHybridScreen = ({
         if (pCO2Val > expPCO2 + 5) disorders.push('Respiratory acidosis');else if (pCO2Val < expPCO2 - 5) disorders.push('Respiratory alkalosis');
       }
     } else {
-      // Normal pH - check for compensated states
-      if (hco3Val < 22 && pCO2Val < 35) {
-        if (canCalcAG && hasHAGMA) {
-          disorders.push('Compensated HAGMA');
-          if (hasAdditionalNAGMA) disorders.push('NAGMA');else if (hasAdditionalMetAlk) disorders.push('Metabolic alkalosis');
-        } else if (canCalcAG) {
-          disorders.push('Compensated NAGMA');
+      // Normal pH cases - could be compensation OR mixed disorders
+      // Must consider both respiratory and metabolic primaries
+
+      if (hco3Val >= 22 && hco3Val <= 26 && pCO2Val >= 35 && pCO2Val <= 45) {
+        // All values normal
+        disorders.push('Normal acid-base status');
+      } else if (hco3Val < 22 && pCO2Val < 35) {
+        // Low HCO3, low PaCO2 - could be:
+        // 1. Compensated metabolic acidosis (primary met acid with resp compensation)
+        // 2. Compensated respiratory alkalosis (primary resp alk with renal compensation)
+        // 3. Mixed metabolic acidosis + respiratory alkalosis
+
+        // Check if AG elevated for HAGMA vs NAGMA
+        if (agCorrected > 12) {
+          disorders.push('HAGMA (with normal pH)');
+          interpretations.push('Elevated AG despite normal pH suggests mixed disorder or compensation');
         } else {
-          disorders.push('Compensated metabolic acidosis');
+          disorders.push('NAGMA or compensated respiratory alkalosis');
+          interpretations.push('Low HCO₃ + low PaCO₂ with normal pH — consider metabolic acidosis vs chronic respiratory alkalosis. Clinical context needed.');
         }
       } else if (hco3Val > 26 && pCO2Val > 45) {
-        disorders.push('Compensated metabolic alkalosis');
+        // High HCO3, high PaCO2 - could be:
+        // 1. Chronic respiratory acidosis with renal compensation
+        // 2. Metabolic alkalosis with respiratory compensation
+        // 3. Mixed respiratory acidosis + metabolic alkalosis
+
+        // Use expected HCO3 for chronic respiratory acidosis to differentiate
+        // Chronic resp acidosis: expected HCO3 = 24 + 4 * ((PaCO2 - 40) / 10)
+        const expectedHCO3Chronic = 24 + 4 * ((pCO2Val - 40) / 10);
+        const hco3Diff = hco3Val - expectedHCO3Chronic;
+
+        if (Math.abs(hco3Diff) <= 3) {
+          disorders.push('Chronic respiratory acidosis (compensated)');
+          interpretations.push('HCO₃ consistent with renal compensation for chronic hypercapnia');
+        } else if (hco3Diff > 3) {
+          disorders.push('Mixed: Respiratory acidosis + Metabolic alkalosis');
+          interpretations.push('HCO₃ higher than expected for chronic respiratory acidosis alone');
+        } else {
+          disorders.push('Respiratory acidosis with incomplete compensation');
+          interpretations.push('HCO₃ lower than expected — may be acute-on-chronic or additional metabolic acidosis');
+        }
+      } else if (hco3Val > 26 && pCO2Val >= 35 && pCO2Val <= 45) {
+        // High HCO3, normal PaCO2
+        disorders.push('Metabolic alkalosis');
+        interpretations.push('Elevated HCO₃ with normal PaCO₂ — consider vomiting, diuretics, or contraction alkalosis');
+      } else if (hco3Val < 22 && pCO2Val >= 35 && pCO2Val <= 45) {
+        // Low HCO3, normal PaCO2
+        if (agCorrected > 12) {
+          disorders.push('HAGMA (with incomplete respiratory compensation)');
+        } else {
+          disorders.push('NAGMA (with incomplete respiratory compensation)');
+        }
+        interpretations.push('Low HCO₃ without expected respiratory compensation — may be acute or mixed');
+      } else if (hco3Val >= 22 && hco3Val <= 26 && pCO2Val < 35) {
+        // Normal HCO3, low PaCO2
+        disorders.push('Acute respiratory alkalosis');
+        interpretations.push('Low PaCO₂ without renal compensation suggests acute process');
+      } else if (hco3Val >= 22 && hco3Val <= 26 && pCO2Val > 45) {
+        // Normal HCO3, high PaCO2
+        disorders.push('Acute respiratory acidosis');
+        interpretations.push('High PaCO₂ without renal compensation suggests acute process');
       } else {
-        disorders.push('Normal');
+        disorders.push('Complex pattern');
+        interpretations.push('Unusual combination — verify values and consider mixed disorder');
       }
     }
   }
@@ -8273,13 +8577,13 @@ const FindCauseScreen = ({
     if (data.isAcidosis || data.pHStatus === 'acidaemia' || data.primaryDisorder && data.primaryDisorder.toLowerCase().includes('acidosis')) {
       processes.push({
         type: 'respacidosis',
-        label: timingPrefix + 'respiratory acidosis'
+        label: timingPrefix ? timingPrefix + 'respiratory acidosis' : 'Respiratory acidosis'
       });
     }
     if (data.isAlkalosis || data.pHStatus === 'alkalaemia' || data.primaryDisorder && data.primaryDisorder.toLowerCase().includes('alkalosis')) {
       processes.push({
         type: 'respalkalosis',
-        label: timingPrefix + 'respiratory alkalosis'
+        label: timingPrefix ? timingPrefix + 'respiratory alkalosis' : 'Respiratory alkalosis'
       });
     }
   }
