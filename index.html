@@ -7043,7 +7043,7 @@ const AdvancedHybridScreen = ({
     const deltaHCO3 = 24 - hco3Val;
     if (deltaHCO3 > 0) {
       deltaRatio = deltaAG / deltaHCO3;
-      if (deltaRatio < 1) hasAdditionalNAGMA = true;else if (deltaRatio > 2) hasAdditionalMetAlk = true;
+      if (deltaRatio < 0.8) hasAdditionalNAGMA = true;else if (deltaRatio > 2) hasAdditionalMetAlk = true;
     }
   }
 
