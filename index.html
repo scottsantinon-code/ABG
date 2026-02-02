@@ -6002,20 +6002,20 @@ const NAGMAScreen = ({
     display: 'flex',
     alignItems: 'center',
     gap: '10px',
-    padding: '10px 0',
-    marginBottom: '2px',
+    padding: '7px 0',
+    marginBottom: '1px',
     background: checked ? 'var(--accent-light)' : 'transparent',
     borderRadius: checked ? '8px' : '0',
     paddingLeft: checked ? '12px' : '0',
     paddingRight: checked ? '12px' : '0',
     cursor: 'pointer',
-    fontSize: '15px',
-    lineHeight: '1.2'
+    fontSize: '16px',
+    lineHeight: '1.25'
   });
   const checkMark = checked => /*#__PURE__*/React.createElement("span", {
     style: {
-      width: '18px',
-      height: '18px',
+      width: '20px',
+      height: '20px',
       borderRadius: '4px',
       border: checked ? 'none' : '2px solid #888',
       background: checked ? 'var(--accent)' : 'transparent',
@@ -6023,7 +6023,7 @@ const NAGMAScreen = ({
       alignItems: 'center',
       justifyContent: 'center',
       color: 'white',
-      fontSize: '12px',
+      fontSize: '13px',
       flexShrink: 0
     }
   }, checked && '✓');
@@ -6051,25 +6051,25 @@ const NAGMAScreen = ({
     className: "animate-in stagger-2"
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: '11px',
+      fontSize: '12px',
       fontWeight: '600',
       textTransform: 'uppercase',
       letterSpacing: '0.5px',
       color: 'var(--text-tertiary)',
-      marginBottom: '6px'
+      marginBottom: '4px'
     }
   }, "GI bicarbonate loss"), /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('diarrhoea')),
     onClick: () => toggleCause('diarrhoea')
   }, checkMark(causes.includes('diarrhoea')), /*#__PURE__*/React.createElement("span", null, "Diarrhoea / fistulae / high-output ileostomy")), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: '11px',
+      fontSize: '12px',
       fontWeight: '600',
       textTransform: 'uppercase',
       letterSpacing: '0.5px',
       color: 'var(--text-tertiary)',
-      marginBottom: '6px',
-      marginTop: '16px',
+      marginBottom: '4px',
+      marginTop: '10px',
       display: 'flex',
       alignItems: 'center',
       gap: '6px'
@@ -6082,13 +6082,13 @@ const NAGMAScreen = ({
     onClick: () => toggleCause('rta')
   }, checkMark(causes.includes('rta')), /*#__PURE__*/React.createElement("span", null, "RTA (Type 1, 2, or 4)")), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: '11px',
+      fontSize: '12px',
       fontWeight: '600',
       textTransform: 'uppercase',
       letterSpacing: '0.5px',
       color: 'var(--text-tertiary)',
-      marginBottom: '6px',
-      marginTop: '16px'
+      marginBottom: '4px',
+      marginTop: '10px'
     }
   }, "Chloride excess"), /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('saline')),
@@ -6099,19 +6099,19 @@ const NAGMAScreen = ({
     }
   }, /*#__PURE__*/React.createElement("span", null, "0.9% saline / TPN / hyperchloraemia"), isHyperchloraemic && /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: '10px',
+      fontSize: '12px',
       color: 'var(--warning)',
       marginTop: '2px'
     }
   }, "\u2191 Corrected Cl\u207B ", correctedCl.toFixed(0), " mmol/L (normal \u2264106)"))), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: '11px',
+      fontSize: '12px',
       fontWeight: '600',
       textTransform: 'uppercase',
       letterSpacing: '0.5px',
       color: 'var(--text-tertiary)',
-      marginBottom: '6px',
-      marginTop: '16px'
+      marginBottom: '4px',
+      marginTop: '10px'
     }
   }, "Other"), /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('ckd')),
@@ -6134,11 +6134,11 @@ const NAGMAScreen = ({
   }, checkMark(causes.includes('acetazolamide')), /*#__PURE__*/React.createElement("span", null, "Acetazolamide")), /*#__PURE__*/React.createElement("button", {
     style: {
       ...styles.buttonSmall,
-      marginTop: '12px',
+      marginTop: '10px',
       width: '100%',
       justifyContent: 'center',
-      fontSize: '11px',
-      padding: '6px'
+      fontSize: '13px',
+      padding: '8px'
     },
     onClick: () => setShowUAG(!showUAG)
   }, showUAG ? 'Hide' : 'How to differentiate GI vs renal cause'), showUAG && /*#__PURE__*/React.createElement("div", {
@@ -6552,20 +6552,20 @@ const MetAlkalosisScreen = ({
     display: 'flex',
     alignItems: 'center',
     gap: '10px',
-    padding: '10px 0',
-    marginBottom: '2px',
+    padding: '7px 0',
+    marginBottom: '1px',
     background: checked ? 'var(--accent-light)' : 'transparent',
     borderRadius: checked ? '8px' : '0',
     paddingLeft: checked ? '12px' : '0',
     paddingRight: checked ? '12px' : '0',
     cursor: 'pointer',
-    fontSize: '15px',
-    lineHeight: '1.2'
+    fontSize: '16px',
+    lineHeight: '1.25'
   });
   const checkMark = checked => /*#__PURE__*/React.createElement("span", {
     style: {
-      width: '18px',
-      height: '18px',
+      width: '20px',
+      height: '20px',
       borderRadius: '4px',
       border: checked ? 'none' : '2px solid #888',
       background: checked ? 'var(--accent)' : 'transparent',
@@ -6573,7 +6573,7 @@ const MetAlkalosisScreen = ({
       alignItems: 'center',
       justifyContent: 'center',
       color: 'white',
-      fontSize: '12px',
+      fontSize: '13px',
       flexShrink: 0
     }
   }, checked && '✓');
@@ -6601,25 +6601,25 @@ const MetAlkalosisScreen = ({
     className: "animate-in stagger-2"
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: '11px',
+      fontSize: '12px',
       fontWeight: '600',
       textTransform: 'uppercase',
       letterSpacing: '0.5px',
       color: 'var(--text-tertiary)',
-      marginBottom: '6px'
+      marginBottom: '4px'
     }
   }, "Loss of H\u207A from GIT"), /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('vomiting')),
     onClick: () => toggleCause('vomiting')
   }, checkMark(causes.includes('vomiting')), /*#__PURE__*/React.createElement("span", null, "Vomiting / NG suction")), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: '11px',
+      fontSize: '12px',
       fontWeight: '600',
       textTransform: 'uppercase',
       letterSpacing: '0.5px',
       color: 'var(--text-tertiary)',
-      marginBottom: '6px',
-      marginTop: '16px'
+      marginBottom: '4px',
+      marginTop: '10px'
     }
   }, "Loss of H\u207A from kidneys"), /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('diuretics')),
@@ -6629,26 +6629,26 @@ const MetAlkalosisScreen = ({
     onClick: () => toggleCause('mineralocorticoid')
   }, checkMark(causes.includes('mineralocorticoid')), /*#__PURE__*/React.createElement("span", null, "Mineralocorticoid excess (Conn's, Cushing's, steroids)")), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: '11px',
+      fontSize: '12px',
       fontWeight: '600',
       textTransform: 'uppercase',
       letterSpacing: '0.5px',
       color: 'var(--text-tertiary)',
-      marginBottom: '6px',
-      marginTop: '16px'
+      marginBottom: '4px',
+      marginTop: '10px'
     }
   }, "Gain of HCO\u2083\u207B"), /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('bicarb')),
     onClick: () => toggleCause('bicarb')
   }, checkMark(causes.includes('bicarb')), /*#__PURE__*/React.createElement("span", null, "NaHCO\u2083 / citrate (CRRT, transfusion)")), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: '11px',
+      fontSize: '12px',
       fontWeight: '600',
       textTransform: 'uppercase',
       letterSpacing: '0.5px',
       color: 'var(--text-tertiary)',
-      marginBottom: '6px',
-      marginTop: '16px'
+      marginBottom: '4px',
+      marginTop: '10px'
     }
   }, "Other"), /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('hypokalaemia')),
@@ -6700,7 +6700,7 @@ const MetAlkalosisScreen = ({
       padding: '8px',
       background: 'var(--bg-tertiary)',
       borderRadius: '6px',
-      fontSize: '11px'
+      fontSize: '13px'
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -6717,7 +6717,7 @@ const MetAlkalosisScreen = ({
       padding: '8px',
       background: 'var(--bg-tertiary)',
       borderRadius: '6px',
-      fontSize: '11px'
+      fontSize: '13px'
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -6840,20 +6840,20 @@ const RespAcidosisScreen = ({
     display: 'flex',
     alignItems: 'center',
     gap: '10px',
-    padding: '10px 0',
-    marginBottom: '2px',
+    padding: '7px 0',
+    marginBottom: '1px',
     background: checked ? 'var(--accent-light)' : 'transparent',
     borderRadius: checked ? '8px' : '0',
     paddingLeft: checked ? '12px' : '0',
     paddingRight: checked ? '12px' : '0',
     cursor: 'pointer',
-    fontSize: '15px',
-    lineHeight: '1.2'
+    fontSize: '16px',
+    lineHeight: '1.25'
   });
   const checkMark = checked => /*#__PURE__*/React.createElement("span", {
     style: {
-      width: '18px',
-      height: '18px',
+      width: '20px',
+      height: '20px',
       borderRadius: '4px',
       border: checked ? 'none' : '2px solid #888',
       background: checked ? 'var(--accent)' : 'transparent',
@@ -6861,7 +6861,7 @@ const RespAcidosisScreen = ({
       alignItems: 'center',
       justifyContent: 'center',
       color: 'white',
-      fontSize: '12px',
+      fontSize: '13px',
       flexShrink: 0
     }
   }, checked && '✓');
@@ -6889,12 +6889,12 @@ const RespAcidosisScreen = ({
     className: "animate-in stagger-2"
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: '11px',
+      fontSize: '12px',
       fontWeight: '600',
       textTransform: 'uppercase',
       letterSpacing: '0.5px',
       color: 'var(--text-tertiary)',
-      marginBottom: '6px'
+      marginBottom: '4px'
     }
   }, "Reduced central drive"), /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('opioids')),
@@ -6904,52 +6904,52 @@ const RespAcidosisScreen = ({
     onClick: () => toggleCause('ohs')
   }, checkMark(causes.includes('ohs')), /*#__PURE__*/React.createElement("span", null, "OHS / brainstem pathology / severe hypothyroidism")), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: '11px',
+      fontSize: '12px',
       fontWeight: '600',
       textTransform: 'uppercase',
       letterSpacing: '0.5px',
       color: 'var(--text-tertiary)',
-      marginBottom: '6px',
-      marginTop: '16px'
+      marginBottom: '4px',
+      marginTop: '10px'
     }
   }, "Neuromuscular weakness"), /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('neuro')),
     onClick: () => toggleCause('neuro')
   }, checkMark(causes.includes('neuro')), /*#__PURE__*/React.createElement("span", null, "GBS, MG, MND, critical illness myopathy, spinal injury")), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: '11px',
+      fontSize: '12px',
       fontWeight: '600',
       textTransform: 'uppercase',
       letterSpacing: '0.5px',
       color: 'var(--text-tertiary)',
-      marginBottom: '6px',
-      marginTop: '16px'
+      marginBottom: '4px',
+      marginTop: '10px'
     }
   }, "Chest wall / pleural"), /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('chest_wall')),
     onClick: () => toggleCause('chest_wall')
   }, checkMark(causes.includes('chest_wall')), /*#__PURE__*/React.createElement("span", null, "Flail chest, kyphoscoliosis, effusion, pneumothorax")), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: '11px',
+      fontSize: '12px',
       fontWeight: '600',
       textTransform: 'uppercase',
       letterSpacing: '0.5px',
       color: 'var(--text-tertiary)',
-      marginBottom: '6px',
-      marginTop: '16px'
+      marginBottom: '4px',
+      marginTop: '10px'
     }
   }, "Airways / parenchyma"), /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('copd')),
     onClick: () => toggleCause('copd')
   }, checkMark(causes.includes('copd')), /*#__PURE__*/React.createElement("span", null, "COPD / severe asthma / severe pneumonia / ARDS (late)")), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: '11px',
+      fontSize: '12px',
       fontWeight: '600',
       textTransform: 'uppercase',
       letterSpacing: '0.5px',
       color: 'var(--text-tertiary)',
-      marginBottom: '6px',
-      marginTop: '16px'
+      marginBottom: '4px',
+      marginTop: '10px'
     }
   }, "Iatrogenic"), /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('vent')),
@@ -6987,20 +6987,20 @@ const RespAlkalosisScreen = ({
     display: 'flex',
     alignItems: 'center',
     gap: '10px',
-    padding: '10px 0',
-    marginBottom: '2px',
+    padding: '7px 0',
+    marginBottom: '1px',
     background: checked ? 'var(--accent-light)' : 'transparent',
     borderRadius: checked ? '8px' : '0',
     paddingLeft: checked ? '12px' : '0',
     paddingRight: checked ? '12px' : '0',
     cursor: 'pointer',
-    fontSize: '15px',
-    lineHeight: '1.2'
+    fontSize: '16px',
+    lineHeight: '1.25'
   });
   const checkMark = checked => /*#__PURE__*/React.createElement("span", {
     style: {
-      width: '18px',
-      height: '18px',
+      width: '20px',
+      height: '20px',
       borderRadius: '4px',
       border: checked ? 'none' : '2px solid #888',
       background: checked ? 'var(--accent)' : 'transparent',
@@ -7008,7 +7008,7 @@ const RespAlkalosisScreen = ({
       alignItems: 'center',
       justifyContent: 'center',
       color: 'white',
-      fontSize: '12px',
+      fontSize: '13px',
       flexShrink: 0
     }
   }, checked && '✓');
@@ -7036,25 +7036,25 @@ const RespAlkalosisScreen = ({
     className: "animate-in stagger-2"
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: '11px',
+      fontSize: '12px',
       fontWeight: '600',
       textTransform: 'uppercase',
       letterSpacing: '0.5px',
       color: 'var(--text-tertiary)',
-      marginBottom: '6px'
+      marginBottom: '4px'
     }
   }, "Hypoxaemia-driven"), /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('hypoxia')),
     onClick: () => toggleCause('hypoxia')
   }, checkMark(causes.includes('hypoxia')), /*#__PURE__*/React.createElement("span", null, "Pneumonia, PE, pulmonary oedema, ILD, altitude, anaemia")), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: '11px',
+      fontSize: '12px',
       fontWeight: '600',
       textTransform: 'uppercase',
       letterSpacing: '0.5px',
       color: 'var(--text-tertiary)',
-      marginBottom: '6px',
-      marginTop: '16px'
+      marginBottom: '4px',
+      marginTop: '10px'
     }
   }, "Central stimulation"), /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('anxiety')),
@@ -7067,13 +7067,13 @@ const RespAlkalosisScreen = ({
     onClick: () => toggleCause('cns')
   }, checkMark(causes.includes('cns')), /*#__PURE__*/React.createElement("span", null, "CNS pathology (stroke, infection, tumour)")), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: '11px',
+      fontSize: '12px',
       fontWeight: '600',
       textTransform: 'uppercase',
       letterSpacing: '0.5px',
       color: 'var(--text-tertiary)',
-      marginBottom: '6px',
-      marginTop: '16px'
+      marginBottom: '4px',
+      marginTop: '10px'
     }
   }, "Hormonal / metabolic"), /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('liver')),
@@ -7083,13 +7083,13 @@ const RespAlkalosisScreen = ({
     onClick: () => toggleCause('pregnancy')
   }, checkMark(causes.includes('pregnancy')), /*#__PURE__*/React.createElement("span", null, "Pregnancy")), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: '11px',
+      fontSize: '12px',
       fontWeight: '600',
       textTransform: 'uppercase',
       letterSpacing: '0.5px',
       color: 'var(--text-tertiary)',
-      marginBottom: '6px',
-      marginTop: '16px'
+      marginBottom: '4px',
+      marginTop: '10px'
     }
   }, "Iatrogenic"), /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('ventilation')),
