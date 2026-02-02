@@ -1948,6 +1948,39 @@ const Step2_FullAnalysis = ({
   }
   const showDualInterpretation = analysisPathway === 'C';
 
+  // Compute dual interpretation fit results for Pathway C
+  let dualRespFits = false;
+  let dualMetFits = false;
+  let dualNeitherFits = false;
+
+  if (showDualInterpretation) {
+    const deltaCO2 = Math.abs(paCO2 - 40) / 10;
+
+    // Respiratory interpretation - check if HCO3 fits expected for respiratory primary
+    let respExpectedHCO3Acute, respExpectedHCO3Chronic;
+    if (paCO2 > 40) {
+      respExpectedHCO3Acute = 24 + 1 * deltaCO2;
+      respExpectedHCO3Chronic = 24 + 4 * deltaCO2;
+    } else {
+      respExpectedHCO3Acute = 24 - 2 * deltaCO2;
+      respExpectedHCO3Chronic = 24 - 5 * deltaCO2;
+    }
+    dualRespFits = Math.abs(hco3 - respExpectedHCO3Acute) <= 3 || Math.abs(hco3 - respExpectedHCO3Chronic) <= 3;
+
+    // Metabolic interpretation - check if PaCO2 fits expected for metabolic primary
+    let metExpectedPaCO2, metTolerance;
+    if (hco3 < 24) {
+      metExpectedPaCO2 = 1.5 * hco3 + 8;
+      metTolerance = 2;
+    } else {
+      metExpectedPaCO2 = 0.7 * hco3 + 21;
+      metTolerance = 5;
+    }
+    dualMetFits = Math.abs(paCO2 - metExpectedPaCO2) <= metTolerance;
+
+    dualNeitherFits = !dualRespFits && !dualMetFits;
+  }
+
   // Primary disorder - determined by pathway
   let primaryDisorder = '';
   let isMetabolic = false;
@@ -2255,6 +2288,9 @@ const Step2_FullAnalysis = ({
       showDualInterpretation,
       dualRespTiming,
       dualSelectedInterpretation,
+      dualRespFits,
+      dualMetFits,
+      dualNeitherFits,
       additionalProcess,
       compensationVerdict,
       confirmedMixed: additionalProcess !== null
@@ -8004,8 +8040,7 @@ const FindCauseScreen = ({
       });
     }
   } else if (data.showDualInterpretation) {
-    // Pathway C: Dual interpretation needed - don't queue contradictory processes
-    // Queue based on value directions, favoring one interpretation
+    // Pathway C: Normal pH, normal AG, abnormal values
     const hco3 = parseFloat(data.hco3);
     const paCO2 = parseFloat(data.paCO2);
     const lowHCO3 = hco3 < 22;
@@ -8013,36 +8048,39 @@ const FindCauseScreen = ({
     const lowPaCO2 = paCO2 < 35;
     const highPaCO2 = paCO2 > 45;
 
-    // Determine primary direction from the more abnormal value
-    // Compare deviation from normal for each
-    const hco3Deviation = lowHCO3 ? (22 - hco3) : highHCO3 ? (hco3 - 26) : 0;
-    const paCO2Deviation = lowPaCO2 ? (35 - paCO2) : highPaCO2 ? (paCO2 - 45) : 0;
-
-    if (hco3Deviation >= paCO2Deviation && hco3Deviation > 0) {
-      // Metabolic process is primary
+    if (data.dualNeitherFits) {
+      // Neither interpretation fits compensation formulas — true mixed disorder
+      // Queue both processes without "compensated" label
       if (lowHCO3) {
-        processes.push({
-          type: 'nagma',
-          label: 'Normal anion gap metabolic acidosis (compensated)'
-        });
+        processes.push({ type: 'nagma', label: 'Metabolic acidosis' });
       } else if (highHCO3) {
-        processes.push({
-          type: 'metalkalosis',
-          label: 'Metabolic alkalosis (compensated)'
-        });
+        processes.push({ type: 'metalkalosis', label: 'Metabolic alkalosis' });
       }
-    } else if (paCO2Deviation > 0) {
-      // Respiratory process is primary
       if (highPaCO2) {
-        processes.push({
-          type: 'respacidosis',
-          label: 'Respiratory acidosis (compensated)'
-        });
+        processes.push({ type: 'respacidosis', label: 'Respiratory acidosis' });
       } else if (lowPaCO2) {
-        processes.push({
-          type: 'respalkalosis',
-          label: 'Respiratory alkalosis (compensated)'
-        });
+        processes.push({ type: 'respalkalosis', label: 'Respiratory alkalosis' });
+      }
+    } else if (data.dualRespFits && !data.dualMetFits) {
+      // Respiratory primary with appropriate metabolic compensation
+      if (highPaCO2) {
+        processes.push({ type: 'respacidosis', label: 'Respiratory acidosis (compensated)' });
+      } else if (lowPaCO2) {
+        processes.push({ type: 'respalkalosis', label: 'Respiratory alkalosis (compensated)' });
+      }
+    } else if (data.dualMetFits && !data.dualRespFits) {
+      // Metabolic primary with appropriate respiratory compensation
+      if (lowHCO3) {
+        processes.push({ type: 'nagma', label: 'Metabolic acidosis (compensated)' });
+      } else if (highHCO3) {
+        processes.push({ type: 'metalkalosis', label: 'Metabolic alkalosis (compensated)' });
+      }
+    } else {
+      // Both fit — ambiguous, favour metabolic interpretation
+      if (lowHCO3) {
+        processes.push({ type: 'nagma', label: 'Metabolic acidosis (compensated)' });
+      } else if (highHCO3) {
+        processes.push({ type: 'metalkalosis', label: 'Metabolic alkalosis (compensated)' });
       }
     }
   } else if (data.isMetabolic && data.isAcidosis) {
