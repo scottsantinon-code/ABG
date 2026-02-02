@@ -6207,7 +6207,7 @@ const NAGMAScreen = ({
       lineHeight: '1.5',
       marginBottom: '8px'
     }
-  }, /*#__PURE__*/React.createElement("strong", null, "RTA types:"), " Type 1 (distal): urine pH >5.5, ↓K⁺ • Type 2 (proximal): variable pH, ↓K⁺ • Type 4: urine pH <5.5, ", /*#__PURE__*/React.createElement("strong", null, "↑K⁺")), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("strong", null, "RTA types:"), " Type 1 (distal): urine pH >5.5, \u2193K\u207A • Type 2 (proximal): variable pH, \u2193K\u207A • Type 4: ", /*#__PURE__*/React.createElement("strong", null, "\u2191K\u207A"), ", \u2193NH\u2084\u207A excretion"), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: '10px',
       color: 'var(--text-tertiary)',
@@ -7082,7 +7082,7 @@ const RespAlkalosisScreen = ({
     style: {
       color: 'var(--text-primary)'
     }
-  }, "Tip:"), " If hypoxaemic, respiratory alkalosis may be appropriate compensation. If normoxic, look for central causes.")), /*#__PURE__*/React.createElement("button", {
+  }, "Tip:"), " If hypoxaemic, respiratory alkalosis may be a physiological response. If normoxic, look for central causes.")), /*#__PURE__*/React.createElement("button", {
     className: "animate-in stagger-3",
     style: styles.button,
     onClick: onNext
@@ -9271,7 +9271,7 @@ const OxygenationScreen = ({
     style: {
       marginTop: '4px'
     }
-  }, "\u2022 V/Q mismatch: PE, pneumonia, asthma"), /*#__PURE__*/React.createElement("p", null, "\u2022 Shunt: ARDS, ASD/VSD, hepatopulmonary"), /*#__PURE__*/React.createElement("p", null, "\u2022 Diffusion defect: ILD, pulmonary oedema")) : /*#__PURE__*/React.createElement("div", {
+  }, "\u2022 V/Q mismatch: PE, pneumonia, asthma"), /*#__PURE__*/React.createElement("p", null, "\u2022 R\u2192L shunt: ARDS, intracardiac, hepatopulmonary"), /*#__PURE__*/React.createElement("p", null, "\u2022 Diffusion defect: ILD, pulmonary oedema")) : /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: '12px',
       padding: '10px',
@@ -9992,14 +9992,14 @@ const DDxReferenceScreen = ({
       subtitle: 'Normal anion gap metabolic acidosis',
       sections: [
         { header: 'GI bicarbonate loss', items: ['Diarrhoea / fistulae / high-output ileostomy'] },
-        { header: 'Renal tubular acidosis', items: ['RTA Type 1 (distal) — urine pH >5.5, hypokalaemia', 'RTA Type 2 (proximal) — urine pH variable, hypokalaemia', 'RTA Type 4 (hyperkalaemic) — urine pH <5.5, hyperkalaemia'] },
+        { header: 'Renal tubular acidosis', items: ['RTA Type 1 (distal) — urine pH >5.5, hypokalaemia', 'RTA Type 2 (proximal) — urine pH variable, hypokalaemia', 'RTA Type 4 (hyperkalaemic) — hyperkalaemia, impaired NH₄⁺ excretion'] },
         { header: 'Chloride excess', items: ['0.9% saline infusion', 'TPN', 'Hyperchloraemia'] },
         { header: 'Other', items: ['Early renal failure', 'Post-DKA (recovery phase)', 'Ureteric diversion (ileal conduit)'] }
       ],
       infoBoxes: [
         { title: 'RTA Type 1 (Distal)', content: 'Cannot secrete H\u207A in collecting duct. Urine pH >5.5 (inappropriately alkaline), hypokalaemia. Causes: Sjögren\'s, SLE, amphotericin B, lithium, nephrocalcinosis. Complications: kidney stones, osteomalacia.' },
         { title: 'RTA Type 2 (Proximal)', content: 'Cannot reabsorb HCO\u2083\u207B in proximal tubule. Urine pH variable, hypokalaemia. Causes: Fanconi syndrome, multiple myeloma, carbonic anhydrase inhibitors.' },
-        { title: 'RTA Type 4 (Hyperkalaemic)', content: 'Aldosterone deficiency or resistance. Urine pH <5.5 (appropriately acidic), hyperkalaemia. Causes: diabetic nephropathy, ACEi/ARB, spironolactone, Addison\'s, trimethoprim.' },
+        { title: 'RTA Type 4 (Hyperkalaemic)', content: 'Aldosterone deficiency or resistance. Hyperkalaemia is the hallmark — it suppresses renal ammoniagenesis, impairing NH₄⁺ excretion. Urine pH may be acidic. Causes: diabetic nephropathy, ACEi/ARB, spironolactone, Addison\'s, trimethoprim.' },
         { title: 'Post-DKA NAGMA', content: 'During DKA treatment, ketones are metabolised and regenerate HCO\u2083\u207B. Saline resuscitation adds chloride. The combination produces a transient NAGMA as the patient recovers — this is expected and resolves spontaneously.' }
       ]
     },
@@ -10038,7 +10038,7 @@ const DDxReferenceScreen = ({
         { header: 'Drugs', items: ['Salicylates (early)', 'Progesterone', 'Catecholamines'] },
         { header: 'Iatrogenic', items: ['Mechanical overventilation'] }
       ],
-      tips: [{ title: 'Clinical tip', content: 'If hypoxaemic, respiratory alkalosis may be appropriate compensation. If normoxic, look for central causes.' }]
+      tips: [{ title: 'Clinical tip', content: 'If hypoxaemic, respiratory alkalosis may be a physiological response. If normoxic, look for central causes.' }]
     },
     lactate: {
       title: 'High Lactate Causes',
