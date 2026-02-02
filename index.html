@@ -2549,8 +2549,8 @@ const Step2_FullAnalysis = ({
       marginTop: '4px'
     }
   }, compensationNote),
-  // VBG warning for additional respiratory disorders identified via compensation
-  data.sampleType === 'vbg' && compensationResult && (compensationResult.includes('Additional respiratory acidosis') || compensationResult.includes('Additional respiratory alkalosis')) && /*#__PURE__*/React.createElement("div", {
+  // VBG warning for additional respiratory disorders identified via compensation (only if primary warning not already shown)
+  data.sampleType === 'vbg' && compensationResult && (compensationResult.includes('Additional respiratory acidosis') || compensationResult.includes('Additional respiratory alkalosis')) && !(primaryDisorder && primaryDisorder.toLowerCase().includes('respiratory')) && !isRespiratory && /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       alignItems: 'flex-start',
