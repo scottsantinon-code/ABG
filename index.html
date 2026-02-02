@@ -1715,10 +1715,10 @@ const DualInterpretationCard = ({ hco3, paCO2 }) => {
   // Single verdict for respiratory card
   let respVerdict, respVerdictDetail;
   if (respChronicFits) {
-    respVerdict = 'Fits chronic compensation';
+    respVerdict = 'Consistent with chronic OR acute mixed';
     respVerdictDetail = null;
   } else if (respAcuteFits) {
-    respVerdict = 'Fits acute compensation';
+    respVerdict = 'Consistent with acute process';
     respVerdictDetail = null;
   } else {
     respVerdict = hco3 > respExpectedHCO3Chronic + 3 ? 'Additional metabolic alkalosis' : 'Additional metabolic acidosis';
@@ -1863,6 +1863,15 @@ const DualInterpretationCard = ({ hco3, paCO2 }) => {
         )
       )
     ),
+    // Hint about differentiating
+    /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: '11px',
+        color: 'var(--text-tertiary)',
+        marginTop: '8px',
+        textAlign: 'center'
+      }
+    }, "Check AG and clinical context to differentiate"),
     // Footer if neither fits - amber/advisory style (less alarming)
     neitherFitsWell && /*#__PURE__*/React.createElement("div", {
       style: {
@@ -2083,8 +2092,8 @@ const Step2_FullAnalysis = ({
 
   // Calculate expected values based on primary process
   // For metabolic disorders: calculate expected PaCO2 (respiratory compensation)
-  if (isMetabolic && isAcidosis && !isRespiratory) {
-    // Pure metabolic acidosis - Winter's formula
+  if (isMetabolic && isAcidosis && !isRespiratory && hco3 < 22) {
+    // Pure metabolic acidosis with low HCO3 - Winter's formula
     expectedPaCO2 = 1.5 * hco3 + 8;
     if (expectedPaCO2 < 10) {
       compensationNote = 'Maximal respiratory compensation reached (PaCO₂ floor ~10 mmHg)';
@@ -2185,8 +2194,29 @@ const Step2_FullAnalysis = ({
     }
   }
 
+  // For Pathway B (HAGMA with normal pH) and normal HCO3, don't apply standard compensation formulas
+  // The normal pH indicates metabolic alkalosis is offsetting the HAGMA, not respiratory compensation
+  if (analysisPathway === 'B' && hco3 >= 22) {
+    // Only flag respiratory disorder if pCO2 is actually abnormal
+    if (paCO2 < 35) {
+      compensationResult = 'Additional respiratory alkalosis';
+      compensationVerdict = 'Mixed disorder';
+      additionalProcess = 'respalkalosis';
+    } else if (paCO2 > 45) {
+      compensationResult = 'Additional respiratory acidosis';
+      compensationVerdict = 'Mixed disorder';
+      additionalProcess = 'respacidosis';
+    } else {
+      // pCO2 is normal - the offsetting process is metabolic alkalosis (identified via delta ratio)
+      compensationResult = 'Metabolic alkalosis component';
+      compensationVerdict = 'Mixed metabolic disorder';
+      additionalProcess = 'metalkalosis';
+    }
+    expectedPaCO2 = null; // Don't show expected pCO2 for this pathway
+  }
+
   // Compare actual vs expected to determine compensation adequacy
-  if (expectedPaCO2 !== null && !needsCompensationAnalysis) {
+  if (expectedPaCO2 !== null && !needsCompensationAnalysis && analysisPathway !== 'B') {
     const diff = paCO2 - expectedPaCO2;
     const tolerance = isAcidosis ? 2 : 5;
     if (Math.abs(diff) <= tolerance) {
@@ -8141,16 +8171,17 @@ const FindCauseScreen = ({
   }
   // Respiratory processes - skip if Pathway C (already handled above)
   if (data.isRespiratory && !data.showDualInterpretation) {
+    const timingPrefix = data.timing ? (data.timing.charAt(0).toUpperCase() + data.timing.slice(1) + ' ') : '';
     if (data.isAcidosis || data.pHStatus === 'acidaemia' || data.primaryDisorder && data.primaryDisorder.toLowerCase().includes('acidosis')) {
       processes.push({
         type: 'respacidosis',
-        label: 'Respiratory acidosis'
+        label: timingPrefix + 'respiratory acidosis'
       });
     }
     if (data.isAlkalosis || data.pHStatus === 'alkalaemia' || data.primaryDisorder && data.primaryDisorder.toLowerCase().includes('alkalosis')) {
       processes.push({
         type: 'respalkalosis',
-        label: 'Respiratory alkalosis'
+        label: timingPrefix + 'respiratory alkalosis'
       });
     }
   }
