@@ -10004,8 +10004,6 @@ const DDxReferenceScreen = ({
   ddxType,
   onBack
 }) => {
-  const [expandedItems, setExpandedItems] = React.useState({});
-  const toggleItem = (key) => setExpandedItems(prev => ({ ...prev, [key]: !prev[key] }));
   const ddxContent = {
     hagma: {
       title: 'HAGMA Causes',
@@ -10055,21 +10053,30 @@ const DDxReferenceScreen = ({
       title: 'Respiratory Acidosis Causes',
       subtitle: 'Hypoventilation — elevated pCO\u2082',
       sections: [
-        { header: 'Reduced central drive', items: ['Opioids / sedatives / anaesthesia', { text: 'Other central causes', details: 'OHS (obesity hypoventilation syndrome), brainstem pathology, severe hypothyroidism' }] },
-        { header: null, items: [{ text: 'Neuromuscular weakness', details: 'Guillain-Barré syndrome, myasthenia gravis, motor neurone disease, critical illness myopathy, spinal cord injury' }, { text: 'Chest wall / pleural disease', details: 'Flail chest, kyphoscoliosis, large pleural effusion, tension pneumothorax' }] },
+        { header: 'Reduced central drive', items: ['Opioids / sedatives / anaesthesia'] },
+        { header: 'Neuromuscular / chest wall', items: ['Neuromuscular weakness', 'Chest wall / pleural disease'] },
         { header: 'Airways / parenchyma', items: ['COPD / asthma exacerbation', 'Severe pneumonia / ARDS'] },
         { header: 'Iatrogenic', items: ['Inadequate mechanical ventilation', 'Permissive hypercapnia'] }
+      ],
+      infoBoxes: [
+        { title: 'Other central causes', content: 'OHS (obesity hypoventilation syndrome), brainstem pathology, severe hypothyroidism' },
+        { title: 'Neuromuscular weakness', content: 'Guillain-Barré syndrome, myasthenia gravis, motor neurone disease, critical illness myopathy, spinal cord injury' },
+        { title: 'Chest wall / pleural', content: 'Flail chest, kyphoscoliosis, large pleural effusion, tension pneumothorax' }
       ]
     },
     respalkalosis: {
       title: 'Respiratory Alkalosis Causes',
       subtitle: 'Hyperventilation — low pCO\u2082',
       sections: [
-        { header: 'Hypoxaemia-driven', items: ['Pneumonia / PE / pulmonary oedema', { text: 'Other hypoxic causes', details: 'Interstitial lung disease, high altitude, severe anaemia' }] },
-        { header: 'Central stimulation', items: ['Pain / anxiety', 'Sepsis / fever', { text: 'CNS pathology', details: 'Stroke, meningitis/encephalitis, brain tumour' }] },
-        { header: null, items: ['Hepatic encephalopathy', { text: 'Other hormonal / metabolic', details: 'Pregnancy (progesterone effect), hyperthyroidism' }] },
-        { header: 'Drugs', items: ['Salicylates (early)', { text: 'Other drugs', details: 'Progesterone, catecholamines' }] },
-        { header: 'Iatrogenic', items: ['Mechanical overventilation'] }
+        { header: 'Hypoxaemia-driven', items: ['Pneumonia / PE / pulmonary oedema'] },
+        { header: 'Central stimulation', items: ['Pain / anxiety', 'Sepsis / fever'] },
+        { header: 'Other causes', items: ['Hepatic encephalopathy', 'Salicylates (early)', 'Mechanical overventilation'] }
+      ],
+      infoBoxes: [
+        { title: 'Other hypoxic causes', content: 'Interstitial lung disease, high altitude, severe anaemia' },
+        { title: 'CNS pathology', content: 'Stroke, meningitis/encephalitis, brain tumour' },
+        { title: 'Hormonal / metabolic', content: 'Pregnancy (progesterone effect), hyperthyroidism' },
+        { title: 'Other drugs', content: 'Progesterone, catecholamines' }
       ],
       tips: [{ title: 'Clinical tip', content: 'If hypoxaemic, respiratory alkalosis may be a physiological response. If normoxic, look for central causes.' }]
     },
@@ -10109,7 +10116,7 @@ const DDxReferenceScreen = ({
     key: sectionIdx,
     style: styles.card,
     className: `animate-in stagger-${sectionIdx + 1}`
-  }, section.header && /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: '11px',
       fontWeight: '600',
@@ -10124,38 +10131,20 @@ const DDxReferenceScreen = ({
       color: 'var(--text-secondary)',
       lineHeight: '1.8'
     }
-  }, section.items.map((item, itemIdx) => {
-    const isExpandable = typeof item === 'object' && item.details;
-    const itemKey = `${sectionIdx}-${itemIdx}`;
-    const isExpanded = expandedItems[itemKey];
-    return /*#__PURE__*/React.createElement("div", {
-      key: itemIdx,
-      style: {
-        paddingLeft: '12px',
-        position: 'relative',
-        marginBottom: isExpanded ? '8px' : '4px'
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        position: 'absolute',
-        left: '0',
-        color: 'var(--text-tertiary)'
-      }
-    }, "\u2022"), isExpandable ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", {
-      style: { cursor: 'pointer' },
-      onClick: () => toggleItem(itemKey)
-    }, item.text, " ", /*#__PURE__*/React.createElement("span", {
-      style: { color: 'var(--accent)', fontSize: '14px' }
-    }, "\u24D8")), isExpanded && /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: '12px',
-        color: 'var(--text-tertiary)',
-        marginTop: '4px',
-        paddingLeft: '4px',
-        lineHeight: '1.5'
-      }
-    }, item.details)) : item);
-  }))))), content.infoBoxes && /*#__PURE__*/React.createElement("div", {
+  }, section.items.map((item, itemIdx) => /*#__PURE__*/React.createElement("div", {
+    key: itemIdx,
+    style: {
+      paddingLeft: '12px',
+      position: 'relative',
+      marginBottom: '4px'
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      position: 'absolute',
+      left: '0',
+      color: 'var(--text-tertiary)'
+    }
+  }, "\u2022"), item)))))), content.infoBoxes && /*#__PURE__*/React.createElement("div", {
     style: styles.card,
     className: `animate-in stagger-${content.sections.length + 1}`
   }, /*#__PURE__*/React.createElement("div", {
