@@ -6841,6 +6841,10 @@ const RespAcidosisScreen = ({
     }));
   };
 
+  // Info sheet states
+  const [showNeuroInfo, setShowNeuroInfo] = useState(false);
+  const [showChestInfo, setShowChestInfo] = useState(false);
+
   // Selectable item style
   const itemStyle = checked => ({
     display: 'flex',
@@ -6919,10 +6923,10 @@ const RespAcidosisScreen = ({
   }, "Peripheral / mechanical"), /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('neuro')),
     onClick: () => toggleCause('neuro')
-  }, checkMark(causes.includes('neuro')), /*#__PURE__*/React.createElement("span", null, "Neuromuscular weakness")), /*#__PURE__*/React.createElement("div", {
+  }, checkMark(causes.includes('neuro')), /*#__PURE__*/React.createElement("span", { style: { flex: 1 } }, "Neuromuscular weakness"), /*#__PURE__*/React.createElement(InfoButton, { onClick: (e) => { e.stopPropagation(); setShowNeuroInfo(true); } })), /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('chest_wall')),
     onClick: () => toggleCause('chest_wall')
-  }, checkMark(causes.includes('chest_wall')), /*#__PURE__*/React.createElement("span", null, "Chest wall / pleural disease")), /*#__PURE__*/React.createElement("div", {
+  }, checkMark(causes.includes('chest_wall')), /*#__PURE__*/React.createElement("span", { style: { flex: 1 } }, "Chest wall / pleural disease"), /*#__PURE__*/React.createElement(InfoButton, { onClick: (e) => { e.stopPropagation(); setShowChestInfo(true); } })), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: '12px',
       fontWeight: '600',
@@ -6955,7 +6959,15 @@ const RespAcidosisScreen = ({
     className: "animate-in stagger-2",
     style: styles.button,
     onClick: onNext
-  }, "Continue \u2192"), /*#__PURE__*/React.createElement(ReportBugLink, { data: data, screenName: "Resp Acidosis Differential" }));
+  }, "Continue \u2192"), /*#__PURE__*/React.createElement(ReportBugLink, { data: data, screenName: "Resp Acidosis Differential" }), /*#__PURE__*/React.createElement(BottomSheet, {
+    isOpen: showNeuroInfo,
+    onClose: () => setShowNeuroInfo(false),
+    title: "Neuromuscular Weakness"
+  }, /*#__PURE__*/React.createElement("p", { style: { color: 'var(--text-secondary)', lineHeight: '1.6' } }, "Guillain-Barr\u00E9 syndrome, myasthenia gravis, motor neurone disease, critical illness myopathy, spinal cord injury")), /*#__PURE__*/React.createElement(BottomSheet, {
+    isOpen: showChestInfo,
+    onClose: () => setShowChestInfo(false),
+    title: "Chest Wall / Pleural Disease"
+  }, /*#__PURE__*/React.createElement("p", { style: { color: 'var(--text-secondary)', lineHeight: '1.6' } }, "Flail chest, kyphoscoliosis, large pleural effusion, tension pneumothorax")));
 };
 
 // Process Screen: Respiratory Alkalosis
@@ -6978,6 +6990,10 @@ const RespAlkalosisScreen = ({
       }
     }));
   };
+
+  // Info sheet states
+  const [showHypoxiaInfo, setShowHypoxiaInfo] = useState(false);
+  const [showCNSInfo, setShowCNSInfo] = useState(false);
 
   // Selectable item style
   const itemStyle = checked => ({
@@ -7044,7 +7060,7 @@ const RespAlkalosisScreen = ({
   }, "Hypoxaemia-driven"), /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('hypoxia')),
     onClick: () => toggleCause('hypoxia')
-  }, checkMark(causes.includes('hypoxia')), /*#__PURE__*/React.createElement("span", null, "Pneumonia / PE / pulmonary oedema")), /*#__PURE__*/React.createElement("div", {
+  }, checkMark(causes.includes('hypoxia')), /*#__PURE__*/React.createElement("span", { style: { flex: 1 } }, "Pneumonia / PE / pulmonary oedema"), /*#__PURE__*/React.createElement(InfoButton, { onClick: (e) => { e.stopPropagation(); setShowHypoxiaInfo(true); } })), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: '12px',
       fontWeight: '600',
@@ -7063,7 +7079,7 @@ const RespAlkalosisScreen = ({
   }, checkMark(causes.includes('sepsis')), /*#__PURE__*/React.createElement("span", null, "Sepsis / fever")), /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('cns')),
     onClick: () => toggleCause('cns')
-  }, checkMark(causes.includes('cns')), /*#__PURE__*/React.createElement("span", null, "CNS pathology")), /*#__PURE__*/React.createElement("div", {
+  }, checkMark(causes.includes('cns')), /*#__PURE__*/React.createElement("span", { style: { flex: 1 } }, "CNS pathology"), /*#__PURE__*/React.createElement(InfoButton, { onClick: (e) => { e.stopPropagation(); setShowCNSInfo(true); } })), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: '12px',
       fontWeight: '600',
@@ -7098,7 +7114,15 @@ const RespAlkalosisScreen = ({
     className: "animate-in stagger-3",
     style: styles.button,
     onClick: onNext
-  }, "Continue \u2192"), /*#__PURE__*/React.createElement(ReportBugLink, { data: data, screenName: "Resp Alkalosis Differential" }));
+  }, "Continue \u2192"), /*#__PURE__*/React.createElement(ReportBugLink, { data: data, screenName: "Resp Alkalosis Differential" }), /*#__PURE__*/React.createElement(BottomSheet, {
+    isOpen: showHypoxiaInfo,
+    onClose: () => setShowHypoxiaInfo(false),
+    title: "Other Hypoxic Causes"
+  }, /*#__PURE__*/React.createElement("p", { style: { color: 'var(--text-secondary)', lineHeight: '1.6' } }, "Interstitial lung disease, high altitude, severe anaemia")), /*#__PURE__*/React.createElement(BottomSheet, {
+    isOpen: showCNSInfo,
+    onClose: () => setShowCNSInfo(false),
+    title: "CNS Pathology"
+  }, /*#__PURE__*/React.createElement("p", { style: { color: 'var(--text-secondary)', lineHeight: '1.6' } }, "Stroke, meningitis/encephalitis, brain tumour")));
 };
 
 // Summary Screen
