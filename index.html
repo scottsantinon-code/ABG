@@ -7044,7 +7044,7 @@ const RespAlkalosisScreen = ({
   }, "Hypoxaemia-driven"), /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('hypoxia')),
     onClick: () => toggleCause('hypoxia')
-  }, checkMark(causes.includes('hypoxia')), /*#__PURE__*/React.createElement("span", null, "Pneumonia, PE, pulmonary oedema, ILD, altitude, anaemia")), /*#__PURE__*/React.createElement("div", {
+  }, checkMark(causes.includes('hypoxia')), /*#__PURE__*/React.createElement("span", null, "Pneumonia / PE / pulmonary oedema")), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: '12px',
       fontWeight: '600',
@@ -7063,7 +7063,7 @@ const RespAlkalosisScreen = ({
   }, checkMark(causes.includes('sepsis')), /*#__PURE__*/React.createElement("span", null, "Sepsis / fever")), /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('cns')),
     onClick: () => toggleCause('cns')
-  }, checkMark(causes.includes('cns')), /*#__PURE__*/React.createElement("span", null, "CNS pathology (stroke, infection, tumour)")), /*#__PURE__*/React.createElement("div", {
+  }, checkMark(causes.includes('cns')), /*#__PURE__*/React.createElement("span", null, "CNS pathology")), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: '12px',
       fontWeight: '600',
@@ -7073,23 +7073,13 @@ const RespAlkalosisScreen = ({
       marginBottom: '4px',
       marginTop: '10px'
     }
-  }, "Hormonal / metabolic"), /*#__PURE__*/React.createElement("div", {
+  }, "Other causes"), /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('liver')),
     onClick: () => toggleCause('liver')
   }, checkMark(causes.includes('liver')), /*#__PURE__*/React.createElement("span", null, "Hepatic encephalopathy")), /*#__PURE__*/React.createElement("div", {
-    style: itemStyle(causes.includes('pregnancy')),
-    onClick: () => toggleCause('pregnancy')
-  }, checkMark(causes.includes('pregnancy')), /*#__PURE__*/React.createElement("span", null, "Pregnancy")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: '12px',
-      fontWeight: '600',
-      textTransform: 'uppercase',
-      letterSpacing: '0.5px',
-      color: 'var(--text-primary)',
-      marginBottom: '4px',
-      marginTop: '10px'
-    }
-  }, "Iatrogenic"), /*#__PURE__*/React.createElement("div", {
+    style: itemStyle(causes.includes('salicylates')),
+    onClick: () => toggleCause('salicylates')
+  }, checkMark(causes.includes('salicylates')), /*#__PURE__*/React.createElement("span", null, "Salicylates")), /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('ventilation')),
     onClick: () => toggleCause('ventilation')
   }, checkMark(causes.includes('ventilation')), /*#__PURE__*/React.createElement("span", null, "Mechanical overventilation"))), /*#__PURE__*/React.createElement("div", {
