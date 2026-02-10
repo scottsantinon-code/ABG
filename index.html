@@ -6907,9 +6907,6 @@ const RespAcidosisScreen = ({
     style: itemStyle(causes.includes('opioids')),
     onClick: () => toggleCause('opioids')
   }, checkMark(causes.includes('opioids')), /*#__PURE__*/React.createElement("span", null, "Opioids / sedatives / anaesthesia")), /*#__PURE__*/React.createElement("div", {
-    style: itemStyle(causes.includes('ohs')),
-    onClick: () => toggleCause('ohs')
-  }, checkMark(causes.includes('ohs')), /*#__PURE__*/React.createElement("span", null, "OHS / brainstem pathology / severe hypothyroidism")), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: '12px',
       fontWeight: '600',
@@ -6919,23 +6916,13 @@ const RespAcidosisScreen = ({
       marginBottom: '4px',
       marginTop: '10px'
     }
-  }, "Neuromuscular weakness"), /*#__PURE__*/React.createElement("div", {
+  }, "Peripheral / mechanical"), /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('neuro')),
     onClick: () => toggleCause('neuro')
-  }, checkMark(causes.includes('neuro')), /*#__PURE__*/React.createElement("span", null, "GBS, MG, MND, critical illness myopathy, spinal injury")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: '12px',
-      fontWeight: '600',
-      textTransform: 'uppercase',
-      letterSpacing: '0.5px',
-      color: 'var(--text-primary)',
-      marginBottom: '4px',
-      marginTop: '10px'
-    }
-  }, "Chest wall / pleural"), /*#__PURE__*/React.createElement("div", {
+  }, checkMark(causes.includes('neuro')), /*#__PURE__*/React.createElement("span", null, "Neuromuscular weakness")), /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('chest_wall')),
     onClick: () => toggleCause('chest_wall')
-  }, checkMark(causes.includes('chest_wall')), /*#__PURE__*/React.createElement("span", null, "Flail chest, kyphoscoliosis, effusion, pneumothorax")), /*#__PURE__*/React.createElement("div", {
+  }, checkMark(causes.includes('chest_wall')), /*#__PURE__*/React.createElement("span", null, "Chest wall / pleural disease")), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: '12px',
       fontWeight: '600',
@@ -6948,7 +6935,10 @@ const RespAcidosisScreen = ({
   }, "Airways / parenchyma"), /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('copd')),
     onClick: () => toggleCause('copd')
-  }, checkMark(causes.includes('copd')), /*#__PURE__*/React.createElement("span", null, "COPD / severe asthma / severe pneumonia / ARDS (late)")), /*#__PURE__*/React.createElement("div", {
+  }, checkMark(causes.includes('copd')), /*#__PURE__*/React.createElement("span", null, "COPD / asthma exacerbation")), /*#__PURE__*/React.createElement("div", {
+    style: itemStyle(causes.includes('pneumonia')),
+    onClick: () => toggleCause('pneumonia')
+  }, checkMark(causes.includes('pneumonia')), /*#__PURE__*/React.createElement("span", null, "Severe pneumonia / ARDS")), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: '12px',
       fontWeight: '600',
