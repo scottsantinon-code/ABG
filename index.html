@@ -8823,22 +8823,22 @@ const FindCauseScreen = ({
     return null;
   }
 
-  // Wrap process screens with progress bar
-  const ProcessWrapper = ({
-    children
-  }) => /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(ProgressBar, {
-    percent: getProgressPercent()
-  }), children);
+  // Render process screens with progress bar (inline to avoid remount on re-render)
+  const progressPercent = getProgressPercent();
   switch (currentProcess.type) {
     case 'hagma':
-      return /*#__PURE__*/React.createElement(ProcessWrapper, null, /*#__PURE__*/React.createElement(HAGMAWorkupScreen, {
+      return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(ProgressBar, {
+        percent: progressPercent
+      }), /*#__PURE__*/React.createElement(HAGMAWorkupScreen, {
         data: data,
         setData: setData,
         onNext: () => goToNextProcess(processIndex),
         onBack: () => goToPrevProcess(processIndex)
       }));
     case 'nagma':
-      return /*#__PURE__*/React.createElement(ProcessWrapper, null, /*#__PURE__*/React.createElement(NAGMAScreen, {
+      return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(ProgressBar, {
+        percent: progressPercent
+      }), /*#__PURE__*/React.createElement(NAGMAScreen, {
         data: data,
         setData: setData,
         processNumber: processNumber,
@@ -8846,7 +8846,9 @@ const FindCauseScreen = ({
         onBack: () => goToPrevProcess(processIndex)
       }));
     case 'metalkalosis':
-      return /*#__PURE__*/React.createElement(ProcessWrapper, null, /*#__PURE__*/React.createElement(MetAlkalosisScreen, {
+      return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(ProgressBar, {
+        percent: progressPercent
+      }), /*#__PURE__*/React.createElement(MetAlkalosisScreen, {
         data: data,
         setData: setData,
         processNumber: processNumber,
@@ -8854,7 +8856,9 @@ const FindCauseScreen = ({
         onBack: () => goToPrevProcess(processIndex)
       }));
     case 'respacidosis':
-      return /*#__PURE__*/React.createElement(ProcessWrapper, null, /*#__PURE__*/React.createElement(RespAcidosisScreen, {
+      return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(ProgressBar, {
+        percent: progressPercent
+      }), /*#__PURE__*/React.createElement(RespAcidosisScreen, {
         data: data,
         setData: setData,
         processNumber: processNumber,
@@ -8862,7 +8866,9 @@ const FindCauseScreen = ({
         onBack: () => goToPrevProcess(processIndex)
       }));
     case 'respalkalosis':
-      return /*#__PURE__*/React.createElement(ProcessWrapper, null, /*#__PURE__*/React.createElement(RespAlkalosisScreen, {
+      return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(ProgressBar, {
+        percent: progressPercent
+      }), /*#__PURE__*/React.createElement(RespAlkalosisScreen, {
         data: data,
         setData: setData,
         processNumber: processNumber,
