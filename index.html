@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Blood Gas Pro</title>
-  <meta name="author" content="Scott Santinon">
+  <meta name="author" content="Critical Condition">
   <meta name="description" content="Systematic arterial blood gas interpretation tool supporting Traditional (Henderson-Hasselbalch) and Physicochemical (Stewart) approaches">
-  <meta name="copyright" content="© 2025 Scott Santinon">
+  <meta name="copyright" content="© 2026 Critical Condition">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="theme-color" content="#FAFAFA">
@@ -759,7 +759,7 @@ const ReportBugLink = ({ data, screenName }) => {
 
     const body = `[Describe the bug here]\n\n\n\n--- Debug Info (do not edit) ---\n${stateLines.join('\n')}\nTimestamp: ${timestamp}\nDevice: ${userAgent}\nApp: Blood Gas Pro v1.0\n`;
 
-    const mailtoUrl = `mailto:scott.santinon@gmail.com?subject=${encodeURIComponent('Blood Gas Pro Bug Report')}&body=${encodeURIComponent(body)}`;
+    const mailtoUrl = `mailto:support@criticalcondition.com.au?subject=${encodeURIComponent('Blood Gas Pro Bug Report')}&body=${encodeURIComponent(body)}`;
     window.location.href = mailtoUrl;
   };
 
@@ -1311,7 +1311,7 @@ const LandingScreen = ({
   /*#__PURE__*/React.createElement("div", {
     style: { textAlign: 'center', marginTop: '32px', fontSize: '11px', color: 'var(--text-tertiary)', opacity: 0.6 },
     className: "animate-in stagger-3"
-  }, "\xA9 2025 Scott Santinon")
+  }, "\xA9 2026 Critical Condition")
 );
 
 // Step 1: All Values (Traditional)
@@ -3772,7 +3772,7 @@ const Step2_StewartAnalysis = ({
       fontSize: '13px',
       fontWeight: '500'
     }
-  }, "\xA9 2025 Scott Santinon")), /*#__PURE__*/React.createElement(BottomSheet, {
+  }, "\xA9 2026 Critical Condition")), /*#__PURE__*/React.createElement(BottomSheet, {
     isOpen: showSheet === 'sid',
     onClose: () => setShowSheet(null),
     title: "Strong Ion Difference (SID)"
@@ -7449,7 +7449,7 @@ const SummaryScreen = ({
       fontSize: '13px',
       fontWeight: '500'
     }
-  }, "\xA9 2025 Scott Santinon"), /*#__PURE__*/React.createElement(ReportBugLink, { data: data, screenName: "Summary" })));
+  }, "\xA9 2026 Critical Condition"), /*#__PURE__*/React.createElement(ReportBugLink, { data: data, screenName: "Summary" })));
 };
 
 // ============================================
@@ -9920,7 +9920,7 @@ const FullTermsScreen = ({
     style: {
       marginBottom: '12px'
     }
-  }, "To the fullest extent permitted by law, the developers shall not be liable for any damages arising from use of this application."), /*#__PURE__*/React.createElement("h3", {
+  }, "To the fullest extent permitted by law, Critical Condition shall not be liable for any damages arising from use of this application."), /*#__PURE__*/React.createElement("h3", {
     style: {
       fontSize: '13px',
       fontWeight: '600',
@@ -9944,7 +9944,7 @@ const FullTermsScreen = ({
     style: {
       marginBottom: '12px'
     }
-  }, "You agree to indemnify and hold harmless the developers from all claims arising from your use of this application."), /*#__PURE__*/React.createElement("h3", {
+  }, "You agree to indemnify and hold harmless Critical Condition from all claims arising from your use of this application."), /*#__PURE__*/React.createElement("h3", {
     style: {
       fontSize: '13px',
       fontWeight: '600',
@@ -9996,14 +9996,66 @@ const FullTermsScreen = ({
     style: {
       marginBottom: '12px'
     }
-  }, "If any provision is found unenforceable, remaining provisions remain in effect.")), /*#__PURE__*/React.createElement("div", {
+  }, "If any provision is found unenforceable, remaining provisions remain in effect."), /*#__PURE__*/React.createElement("h3", {
+    style: {
+      fontSize: '13px',
+      fontWeight: '600',
+      color: 'var(--text-primary)',
+      marginTop: '16px',
+      marginBottom: '6px'
+    }
+  }, "14. PRIVACY POLICY"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: '12px',
+      padding: '10px',
+      background: 'var(--bg-tertiary)',
+      borderRadius: '8px',
+      fontSize: '12px'
+    }
+  }, /*#__PURE__*/React.createElement("p", null, /*#__PURE__*/React.createElement("strong", null, "Data Collection:"), " This application does not collect, store, transmit, or share any personal data or usage analytics."), /*#__PURE__*/React.createElement("p", {style: {marginTop: '6px'}}, /*#__PURE__*/React.createElement("strong", null, "Local Storage:"), " All data is stored locally on your device only."), /*#__PURE__*/React.createElement("p", {style: {marginTop: '6px'}}, /*#__PURE__*/React.createElement("strong", null, "Network Access:"), " This application functions entirely offline.")), /*#__PURE__*/React.createElement("h3", {
+    style: {
+      fontSize: '13px',
+      fontWeight: '600',
+      color: 'var(--text-primary)',
+      marginTop: '16px',
+      marginBottom: '6px'
+    }
+  }, "15. GOVERNING LAW"), /*#__PURE__*/React.createElement("p", {
+    style: {
+      marginBottom: '12px'
+    }
+  }, "These terms shall be governed by and construed in accordance with the laws of Victoria, Australia. Any disputes shall be subject to the exclusive jurisdiction of the courts of Victoria, Australia."), /*#__PURE__*/React.createElement("h3", {
+    style: {
+      fontSize: '13px',
+      fontWeight: '600',
+      color: 'var(--text-primary)',
+      marginTop: '16px',
+      marginBottom: '6px'
+    }
+  }, "16. CONTACT"), /*#__PURE__*/React.createElement("p", {
+    style: {
+      marginBottom: '12px'
+    }
+  }, "For questions about these terms: support@criticalcondition.com.au")), /*#__PURE__*/React.createElement("div", {
     style: {
       textAlign: 'center',
       padding: '16px',
       fontSize: '12px',
       color: 'var(--text-tertiary)'
     }
-  }, "\xA9 2025 Scott Santinon. All rights reserved."));
+  }, "\xA9 2026 Critical Condition. All rights reserved."), /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: 'center',
+      fontSize: '11px',
+      color: 'var(--text-tertiary)',
+      paddingBottom: '16px'
+    }
+  }, /*#__PURE__*/React.createElement("a", {
+    href: "https://www.criticalcondition.com.au",
+    style: {
+      color: 'inherit'
+    }
+  }, "www.criticalcondition.com.au")));
 };
 
 // ============================================
@@ -10349,7 +10401,7 @@ const SettingsScreen = ({
       fontSize: '12px',
       color: 'var(--text-tertiary)'
     }
-  }, "\xA9 2025 Scott Santinon"))));
+  }, "\xA9 2026 Critical Condition"))));
 };
 const App = () => {
   // Check localStorage for previous acceptance
