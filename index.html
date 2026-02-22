@@ -1149,9 +1149,13 @@ const LandingScreen = ({
     ...styles.container,
     padding: '20px',
     maxWidth: '400px',
-    margin: '0 auto'
+    margin: '0 auto',
+    minHeight: '100vh',
+    display: 'flex',
+    flexDirection: 'column'
   }
 },
+  /*#__PURE__*/React.createElement("div", { style: { flex: 1 } },
   // Info button
   /*#__PURE__*/React.createElement("button", {
     onClick: () => onOpenSettings && onOpenSettings(),
@@ -1305,20 +1309,24 @@ const LandingScreen = ({
         /*#__PURE__*/React.createElement("span", { style: { fontWeight: '600', fontSize: '14px', color: 'var(--text-primary)', marginTop: '4px' } }, "Ventilation")
       )
     )
-  ),
+  )),
 
-  // Footer
+  // Footer - bottom justified
   /*#__PURE__*/React.createElement("div", {
-    style: { textAlign: 'center', marginTop: '32px', fontSize: '11px', color: 'var(--text-tertiary)', opacity: 0.6 },
-    className: "animate-in stagger-3"
-  }, "\xA9 2026 Critical Condition"),
-  /*#__PURE__*/React.createElement("a", {
-    href: "https://www.criticalcondition.com.au",
-    target: "_blank",
-    rel: "noopener",
-    style: { display: 'block', textAlign: 'center', marginTop: '8px', fontSize: '11px', color: 'var(--accent)', opacity: 0.7, textDecoration: 'none' },
-    className: "animate-in stagger-4"
-  }, "More apps from Critical Condition \u203A")
+    style: { textAlign: 'center', paddingTop: '24px', paddingBottom: '20px' }
+  },
+    /*#__PURE__*/React.createElement("div", {
+      style: { fontSize: '11px', color: 'var(--text-tertiary)', opacity: 0.6 },
+      className: "animate-in stagger-3"
+    }, "\xA9 2026 Critical Condition"),
+    /*#__PURE__*/React.createElement("a", {
+      href: "https://www.criticalcondition.com.au",
+      target: "_blank",
+      rel: "noopener",
+      style: { display: 'block', marginTop: '8px', fontSize: '11px', color: 'var(--accent)', opacity: 0.7, textDecoration: 'none' },
+      className: "animate-in stagger-4"
+    }, "More apps from Critical Condition \u203A")
+  )
 );
 
 // Step 1: All Values (Traditional)
