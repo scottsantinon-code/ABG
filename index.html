@@ -759,6 +759,9 @@ const ProgressBar = ({
   }));
 };
 const ReportBugLink = ({ data, screenName }) => {
+  // Only show on Summary screen
+  if (screenName !== 'Summary') return null;
+
   const handleClick = () => {
     const timestamp = new Date().toISOString();
     const userAgent = navigator.userAgent;
