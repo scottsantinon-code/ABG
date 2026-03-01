@@ -1503,19 +1503,19 @@ const Step1_AllValues = ({
     if (isNaN(v)) return null;
     switch (field) {
       case 'pH':
-        if (v < 6.8 || v > 7.8) return 'Severe derangement, confirm value';
+        if (v < 6.8 || v > 7.8) return 'Extreme derangement, confirm value';
         if (v < 7.1 || v > 7.6) return 'Severe derangement, confirm value';
         break;
       case 'paCO2':
-        if (v < 10 || v > 120) return 'Severe derangement, confirm value';
+        if (v < 10 || v > 120) return 'Extreme derangement, confirm value';
         if (v < 15 || v > 80) return 'Severe derangement, confirm value';
         break;
       case 'hco3':
-        if (v < 3 || v > 50) return 'Severe derangement, confirm value';
+        if (v < 3 || v > 50) return 'Extreme derangement, confirm value';
         if (v < 8 || v > 40) return 'Severe derangement, confirm value';
         break;
       case 'na':
-        if (v < 100 || v > 180) return 'Severe derangement, confirm value';
+        if (v < 100 || v > 180) return 'Extreme derangement, confirm value';
         if (v < 120 || v > 160) return 'Severe derangement, confirm value';
         break;
       case 'cl':
