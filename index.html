@@ -429,6 +429,92 @@ const DEFAULTS = {
 };
 
 // ============================================
+// MEDICAL VALUE BOUNDS
+// ============================================
+
+const MEDICAL_BOUNDS = {
+  pH: { min: 6.5, max: 8.0, name: 'pH' },
+  paCO2: { min: 10, max: 150, name: 'pCO2' },
+  hco3: { min: 1, max: 60, name: 'HCO3' },
+  na: { min: 80, max: 200, name: 'Sodium' },
+  cl: { min: 50, max: 160, name: 'Chloride' },
+  k: { min: 1.0, max: 10.0, name: 'Potassium' },
+  albumin: { min: 1, max: 80, name: 'Albumin' },
+  phosphate: { min: 0.1, max: 5.0, name: 'Phosphate' },
+  ca: { min: 0.5, max: 3.0, name: 'Calcium' },
+  mg: { min: 0.1, max: 3.0, name: 'Magnesium' },
+  lactate: { min: 0.1, max: 30, name: 'Lactate' },
+  ketones: { min: 0, max: 20, name: 'Ketones' },
+  glucose: { min: 0.5, max: 50, name: 'Glucose' },
+  fiO2: { min: 21, max: 100, name: 'FiO2' },
+  paO2: { min: 10, max: 700, name: 'PaO2' },
+  age: { min: 0, max: 120, name: 'Age' },
+  height: { min: 50, max: 250, name: 'Height' },
+  minuteVent: { min: 0.5, max: 30, name: 'Minute Ventilation' }
+};
+
+// ============================================
+// UTILITY FUNCTIONS
+// ============================================
+
+// Safe localStorage access (handles private browsing, quota errors)
+const safeLocalStorage = {
+  getItem: (key) => {
+    try {
+      return localStorage.getItem(key);
+    } catch (e) {
+      console.warn('localStorage not available:', e);
+      return null;
+    }
+  },
+  setItem: (key, value) => {
+    try {
+      localStorage.setItem(key, value);
+      return true;
+    } catch (e) {
+      console.warn('localStorage not available:', e);
+      return false;
+    }
+  }
+};
+
+// Safe parseFloat with validation and bounds checking
+const safeParseFloat = (value, field, defaultValue = null) => {
+  if (value === null || value === undefined || value === '') {
+    return defaultValue;
+  }
+  const parsed = parseFloat(value);
+  if (isNaN(parsed)) {
+    return defaultValue;
+  }
+  // Check bounds if field is specified
+  if (field && MEDICAL_BOUNDS[field]) {
+    const bounds = MEDICAL_BOUNDS[field];
+    if (parsed < bounds.min || parsed > bounds.max) {
+      console.warn(`${bounds.name} value ${parsed} outside expected range [${bounds.min}, ${bounds.max}]`);
+      // Still return the value, but log warning
+    }
+  }
+  return parsed;
+};
+
+// Safe clipboard write with error handling
+const safeClipboardWrite = (text, onSuccess, onError) => {
+  if (!navigator.clipboard) {
+    if (onError) onError(new Error('Clipboard API not available'));
+    return;
+  }
+  navigator.clipboard.writeText(text)
+    .then(() => {
+      if (onSuccess) onSuccess();
+    })
+    .catch((err) => {
+      console.warn('Clipboard write failed:', err);
+      if (onError) onError(err);
+    });
+};
+
+// ============================================
 // STYLES
 // ============================================
 
@@ -697,6 +783,34 @@ const styles = {
     alignItems: 'center',
     padding: '8px 0',
     borderBottom: '1px solid var(--border)'
+  },
+  // Additional common styles to reduce inline duplication
+  textSecondary: {
+    fontSize: '14px',
+    lineHeight: '1.6',
+    color: 'var(--text-secondary)'
+  },
+  textTertiary: {
+    fontSize: '14px',
+    color: 'var(--text-tertiary)'
+  },
+  textSmall: {
+    fontSize: '12px',
+    color: 'var(--text-tertiary)'
+  },
+  centeredPadded: {
+    textAlign: 'center',
+    padding: '12px'
+  },
+  flexCenter: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  flexBetween: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center'
   }
 };
 
@@ -704,7 +818,8 @@ const styles = {
 // COMPONENTS
 // ============================================
 
-const ChevronIcon = () => /*#__PURE__*/React.createElement("svg", {
+// Memoized icon components - these never need to re-render
+const ChevronIcon = React.memo(() => /*#__PURE__*/React.createElement("svg", {
   width: "10",
   height: "6",
   viewBox: "0 0 10 6",
@@ -715,8 +830,10 @@ const ChevronIcon = () => /*#__PURE__*/React.createElement("svg", {
   strokeWidth: "1.5",
   strokeLinecap: "round",
   strokeLinejoin: "round"
-}));
-const BackIcon = () => /*#__PURE__*/React.createElement("svg", {
+})));
+ChevronIcon.displayName = 'ChevronIcon';
+
+const BackIcon = React.memo(() => /*#__PURE__*/React.createElement("svg", {
   width: "8",
   height: "14",
   viewBox: "0 0 8 14",
@@ -727,10 +844,11 @@ const BackIcon = () => /*#__PURE__*/React.createElement("svg", {
   strokeWidth: "2",
   strokeLinecap: "round",
   strokeLinejoin: "round"
-}));
+})));
+BackIcon.displayName = 'BackIcon';
 
-// Progress bar component - accepts either percent or current/total
-const ProgressBar = ({
+// Progress bar component - memoized, only re-renders when props change
+const ProgressBar = React.memo(({
   percent,
   current,
   total
@@ -757,7 +875,8 @@ const ProgressBar = ({
       boxShadow: '0 0 8px rgba(139, 92, 246, 0.4)'
     }
   }));
-};
+});
+ProgressBar.displayName = 'ProgressBar';
 const ReportBugLink = ({ data, screenName }) => {
   // Only show on Summary screen
   if (screenName !== 'Summary') return null;
@@ -2061,12 +2180,13 @@ const Step2_FullAnalysis = ({
   onSwitchToStewart,
   onRestart
 }) => {
-  const pH = parseFloat(data.pH);
-  const paCO2 = parseFloat(data.paCO2);
-  const hco3 = parseFloat(data.hco3);
-  const na = parseFloat(data.na);
-  const cl = parseFloat(data.cl);
-  const albumin = data.albumin ? parseFloat(data.albumin) : DEFAULTS.albumin;
+  // Safe parsing with bounds validation
+  const pH = safeParseFloat(data.pH, 'pH', 7.4);
+  const paCO2 = safeParseFloat(data.paCO2, 'paCO2', 40);
+  const hco3 = safeParseFloat(data.hco3, 'hco3', 24);
+  const na = safeParseFloat(data.na, 'na', 140);
+  const cl = safeParseFloat(data.cl, 'cl', 102);
+  const albumin = safeParseFloat(data.albumin, 'albumin', DEFAULTS.albumin);
   const [timing, setTiming] = useState(data.timing || null); // null = not yet selected
   const [showVBGInfo, setShowVBGInfo] = useState(false);
   const [showVBGRespInfo, setShowVBGRespInfo] = useState(false);
@@ -3137,17 +3257,18 @@ const Step2_StewartAnalysis = ({
 }) => {
   const [showSheet, setShowSheet] = useState(null); // 'sid', 'sig', 'atot', 'components'
   const [copied, setCopied] = useState(false);
-  const pH = parseFloat(data.pH);
-  const paCO2 = parseFloat(data.paCO2);
-  const hco3 = parseFloat(data.hco3);
-  const na = parseFloat(data.na);
-  const cl = parseFloat(data.cl);
-  const k = data.k ? parseFloat(data.k) : DEFAULTS.k;
-  const ca = data.ca ? parseFloat(data.ca) : 1.15; // ionised calcium mmol/L
-  const mg = data.mg ? parseFloat(data.mg) : DEFAULTS.magnesium;
-  const lactate = data.lactate ? parseFloat(data.lactate) : 1.0;
-  const albumin = data.albumin ? parseFloat(data.albumin) : DEFAULTS.albumin;
-  const phosphate = data.phosphate ? parseFloat(data.phosphate) : 1.1;
+  // Safe parsing with bounds validation
+  const pH = safeParseFloat(data.pH, 'pH', 7.4);
+  const paCO2 = safeParseFloat(data.paCO2, 'paCO2', 40);
+  const hco3 = safeParseFloat(data.hco3, 'hco3', 24);
+  const na = safeParseFloat(data.na, 'na', 140);
+  const cl = safeParseFloat(data.cl, 'cl', 102);
+  const k = safeParseFloat(data.k, 'k', DEFAULTS.k);
+  const ca = safeParseFloat(data.ca, 'ca', 1.15); // ionised calcium mmol/L
+  const mg = safeParseFloat(data.mg, 'mg', DEFAULTS.magnesium);
+  const lactate = safeParseFloat(data.lactate, 'lactate', 1.0);
+  const albumin = safeParseFloat(data.albumin, 'albumin', DEFAULTS.albumin);
+  const phosphate = safeParseFloat(data.phosphate, 'phosphate', 1.1);
 
   // pH Status (for display only)
   const pHStatus = pH < 7.35 ? 'acidaemia' : pH > 7.45 ? 'alkalaemia' : 'normal';
@@ -3789,10 +3910,17 @@ const Step2_StewartAnalysis = ({
       if (disorders.length > 0) {
         text += ` Interpretation: ${disorders.map(d => d.source).join(', ')}.`;
       }
-      navigator.clipboard.writeText(text).then(() => {
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      });
+      safeClipboardWrite(
+        text,
+        () => {
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        },
+        (err) => {
+          console.warn('Failed to copy to clipboard:', err);
+          // Optionally show user feedback for clipboard failure
+        }
+      );
     }
   }, copied ? '✓ Copied to clipboard' : '📋 Copy summary'), /*#__PURE__*/React.createElement("button", {
     className: "animate-in stagger-4",
@@ -7258,10 +7386,17 @@ const SummaryScreen = ({
     return text;
   };
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(generateRecordText()).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
+    safeClipboardWrite(
+      generateRecordText(),
+      () => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      },
+      (err) => {
+        console.warn('Failed to copy to clipboard:', err);
+        // Optionally show user feedback for clipboard failure
+      }
+    );
   };
 
   // Check if any causes have been identified
@@ -7515,19 +7650,19 @@ const AdvancedHybridScreen = ({
   const [ketones, setKetones] = useState('');
   const [showStewartDetail, setShowStewartDetail] = useState(false);
 
-  // Parse values
-  const pHVal = parseFloat(pH) || null;
-  const pCO2Val = parseFloat(pCO2) || null;
-  const hco3Val = parseFloat(hco3) || null;
-  const naVal = parseFloat(na) || null;
-  const kVal = parseFloat(k) || null;
-  const clVal = parseFloat(cl) || null;
-  const albVal = parseFloat(albumin) || null;
-  const phoVal = parseFloat(phosphate) || null;
-  const caVal = parseFloat(ca) || null;
-  const mgVal = parseFloat(mg) || null;
-  const lacVal = parseFloat(lactate) || null;
-  const ketVal = parseFloat(ketones) || null;
+  // Parse values with safe bounds validation
+  const pHVal = safeParseFloat(pH, 'pH', null);
+  const pCO2Val = safeParseFloat(pCO2, 'paCO2', null);
+  const hco3Val = safeParseFloat(hco3, 'hco3', null);
+  const naVal = safeParseFloat(na, 'na', null);
+  const kVal = safeParseFloat(k, 'k', null);
+  const clVal = safeParseFloat(cl, 'cl', null);
+  const albVal = safeParseFloat(albumin, 'albumin', null);
+  const phoVal = safeParseFloat(phosphate, 'phosphate', null);
+  const caVal = safeParseFloat(ca, 'ca', null);
+  const mgVal = safeParseFloat(mg, 'mg', null);
+  const lacVal = safeParseFloat(lactate, 'lactate', null);
+  const ketVal = safeParseFloat(ketones, 'ketones', null);
 
   // ========== TRADITIONAL CALCULATIONS ==========
   const canCalcTraditional = pHVal && pCO2Val && hco3Val;
@@ -8935,9 +9070,9 @@ const OxygenationScreen = ({
   const [age, setAge] = useState('');
   const [showSheet, setShowSheet] = useState(null); // 'pf' or 'aa'
 
-  // P/F Ratio calculation
-  const fiO2Decimal = fiO2 ? parseFloat(fiO2) / 100 : null;
-  const paO2Val = paO2 ? parseFloat(paO2) : null;
+  // P/F Ratio calculation with safe parsing
+  const fiO2Decimal = fiO2 ? safeParseFloat(fiO2, 'fiO2', null) / 100 : null;
+  const paO2Val = safeParseFloat(paO2, 'paO2', null);
   const pfRatio = paO2Val && fiO2Decimal && fiO2Decimal > 0 ? paO2Val / fiO2Decimal : null;
 
   // P/F interpretation (Berlin ARDS criteria)
@@ -8965,9 +9100,9 @@ const OxygenationScreen = ({
     };
   };
 
-  // A-a gradient calculation (sea level)
-  const paCO2Val = paCO2 ? parseFloat(paCO2) : null;
-  const ageVal = age ? parseFloat(age) : null;
+  // A-a gradient calculation (sea level) with safe parsing
+  const paCO2Val = safeParseFloat(paCO2, 'paCO2', null);
+  const ageVal = safeParseFloat(age, 'age', null);
   const patm = 760; // sea level
   const ph2o = 47;
   const R = 0.8;
@@ -9384,9 +9519,10 @@ const VentilatoryRatioScreen = ({
   const [sex, setSex] = useState('male');
   const [showSheet, setShowSheet] = useState(null); // 'calc' or 'interp'
 
-  const minuteVentVal = minuteVent ? parseFloat(minuteVent) : null;
-  const paCO2Val = paCO2 ? parseFloat(paCO2) : null;
-  const heightVal = height ? parseFloat(height) : null;
+  // Safe parsing with bounds validation
+  const minuteVentVal = safeParseFloat(minuteVent, 'minuteVent', null);
+  const paCO2Val = safeParseFloat(paCO2, 'paCO2', null);
+  const heightVal = safeParseFloat(height, 'height', null);
 
   // Predicted body weight (ARDSnet formula)
   const pbw = heightVal ? sex === 'male' ? 50 + 0.91 * (heightVal - 152.4) : 45.5 + 0.91 * (heightVal - 152.4) : null;
@@ -10476,21 +10612,13 @@ const SettingsScreen = ({
   }, "\xA9 2026 Critical Condition"))));
 };
 const App = () => {
-  // Check localStorage for previous acceptance
+  // Check localStorage for previous acceptance (using safe wrapper)
   const [hasAcceptedDisclaimer, setHasAcceptedDisclaimer] = useState(() => {
-    try {
-      return localStorage.getItem('acidbasepro_disclaimer_accepted') === 'true';
-    } catch (e) {
-      return false;
-    }
+    return safeLocalStorage.getItem('acidbasepro_disclaimer_accepted') === 'true';
   });
   const handleAcceptDisclaimer = () => {
-    try {
-      localStorage.setItem('acidbasepro_disclaimer_accepted', 'true');
-      localStorage.setItem('acidbasepro_disclaimer_date', new Date().toISOString());
-    } catch (e) {
-      // localStorage not available, continue anyway
-    }
+    safeLocalStorage.setItem('acidbasepro_disclaimer_accepted', 'true');
+    safeLocalStorage.setItem('acidbasepro_disclaimer_date', new Date().toISOString());
     setHasAcceptedDisclaimer(true);
   };
   const [approach, setApproach] = useState(null);
