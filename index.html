@@ -993,7 +993,7 @@ const CarbonDioxideIcon = ({ size = 36, color = '#8B5CF6' }) => /*#__PURE__*/Rea
 /*#__PURE__*/React.createElement("path", { d: "m219.002 196.961c0 26.717 21.736 48.453 48.453 48.453s48.453-21.736 48.453-48.453-21.736-48.453-48.453-48.453-48.453 21.736-48.453 48.453zm81.906 0c0 18.446-15.007 33.453-33.453 33.453s-33.453-15.007-33.453-33.453 15.007-33.453 33.453-33.453 33.453 15.007 33.453 33.453z" }),
 /*#__PURE__*/React.createElement("path", { d: "m179.802 163.77c6.653 0 13.068 1.958 18.552 5.664 3.435 2.32 8.096 1.417 10.414-2.016s1.416-8.094-2.016-10.413c-7.974-5.387-17.293-8.235-26.95-8.235-26.572 0-48.19 21.618-48.19 48.191 0 26.572 21.618 48.19 48.19 48.19 12.024 0 23.615-4.904 31.383-14.169 2.661-3.175 2.244-7.905-.931-10.566-3.174-2.66-7.904-2.244-10.566.931-4.962 5.922-12.237 8.804-19.886 8.804-18.301 0-33.19-14.889-33.19-33.19-.001-18.302 14.889-33.191 33.19-33.191z" }));
 
-const Input = ({
+const Input = React.memo(function Input({
   label,
   unit,
   value,
@@ -1006,7 +1006,7 @@ const Input = ({
   expectedLength,
   onComplete,
   inputRef
-}) => {
+}) {
   const [focused, setFocused] = useState(false);
   const [touched, setTouched] = useState(false);
   const strValue = value ? String(value) : '';
@@ -1083,7 +1083,7 @@ const Input = ({
       marginLeft: '65px'
     }
   }, "\u26A0\uFE0F ", warning));
-};
+});
 const ExpandableWorking = ({
   children,
   label = "Show working"
@@ -1256,30 +1256,32 @@ const Formula = ({
 const Divider = () => /*#__PURE__*/React.createElement("div", {
   style: styles.divider
 });
-const ValueRow = ({
+const ValueRow = React.memo(function ValueRow({
   label,
   value,
   isDefault,
   highlight
-}) => /*#__PURE__*/React.createElement("div", {
-  style: {
-    ...styles.valueRow,
-    background: highlight ? 'rgba(139, 92, 246, 0.04)' : 'transparent',
-    margin: highlight ? '0 -8px' : '0',
-    padding: highlight ? '6px 8px' : '6px 0',
-    borderRadius: highlight ? '4px' : '0'
-  }
-}, /*#__PURE__*/React.createElement("span", null, label), /*#__PURE__*/React.createElement("span", {
-  style: {
-    fontWeight: '500',
-    color: 'var(--text-primary)'
-  }
-}, value, isDefault && /*#__PURE__*/React.createElement("span", {
-  style: {
-    ...styles.defaultBadge,
-    marginLeft: '6px'
-  }
-}, "default")));
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...styles.valueRow,
+      background: highlight ? 'rgba(139, 92, 246, 0.04)' : 'transparent',
+      margin: highlight ? '0 -8px' : '0',
+      padding: highlight ? '6px 8px' : '6px 0',
+      borderRadius: highlight ? '4px' : '0'
+    }
+  }, /*#__PURE__*/React.createElement("span", null, label), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontWeight: '500',
+      color: 'var(--text-primary)'
+    }
+  }, value, isDefault && /*#__PURE__*/React.createElement("span", {
+    style: {
+      ...styles.defaultBadge,
+      marginLeft: '6px'
+    }
+  }, "default")));
+});
 
 // ============================================
 // SCREENS
@@ -4561,149 +4563,153 @@ const Step3_OsmolarGap = ({
 
 // Sub-screen: Lactate Causes
 // Lactic Acidosis Bottom Sheet Content
-const LactateCausesContent = () => /*#__PURE__*/React.createElement("div", {
-  style: {
-    fontSize: '13px',
-    color: 'var(--text-secondary)',
-    lineHeight: '1.8'
-  }
-}, /*#__PURE__*/React.createElement("div", {
-  style: {
-    marginBottom: '16px'
-  }
-}, /*#__PURE__*/React.createElement("div", {
-  style: {
-    fontSize: '14px',
-    fontWeight: '600',
-    color: 'var(--text-primary)',
-    marginBottom: '6px'
-  }
-}, "Tissue Hypoxia"), /*#__PURE__*/React.createElement("div", {
-  style: {
-    paddingLeft: '12px'
-  }
-}, "Hypoxaemia, insufficient cardiac output, anaemia, regional ischaemia (limb, mesenteric), COHb, MetHb")), /*#__PURE__*/React.createElement("div", {
-  style: {
-    marginBottom: '16px'
-  }
-}, /*#__PURE__*/React.createElement("div", {
-  style: {
-    fontSize: '14px',
-    fontWeight: '600',
-    color: 'var(--text-primary)',
-    marginBottom: '6px'
-  }
-}, "Metabolic"), /*#__PURE__*/React.createElement("div", {
-  style: {
-    paddingLeft: '12px'
-  }
-}, "Ketoacidosis, hyperglycaemia, thiamine deficiency, liver failure, sepsis, malignancy, inborn errors of metabolism")), /*#__PURE__*/React.createElement("div", {
-  style: {
-    marginBottom: '16px'
-  }
-}, /*#__PURE__*/React.createElement("div", {
-  style: {
-    fontSize: '14px',
-    fontWeight: '600',
-    color: 'var(--text-primary)',
-    marginBottom: '6px'
-  }
-}, "Drugs & Toxins"), /*#__PURE__*/React.createElement("div", {
-  style: {
-    paddingLeft: '12px'
-  }
-}, "Toxic alcohols, metformin, cyanide, propofol infusion syndrome, paracetamol, salicylates")), /*#__PURE__*/React.createElement("div", {
-  style: {
-    marginBottom: '16px'
-  }
-}, /*#__PURE__*/React.createElement("div", {
-  style: {
-    fontSize: '14px',
-    fontWeight: '600',
-    color: 'var(--text-primary)',
-    marginBottom: '6px'
-  }
-}, "Other"), /*#__PURE__*/React.createElement("div", {
-  style: {
-    paddingLeft: '12px'
-  }
-}, "Beta-2 agonism, seizures, strenuous exercise")), /*#__PURE__*/React.createElement("div", {
-  style: {
-    padding: '12px',
-    background: 'var(--bg-tertiary)',
-    borderRadius: '8px',
-    marginTop: '8px'
-  }
-}, /*#__PURE__*/React.createElement("div", {
-  style: {
-    fontSize: '12px',
-    fontWeight: '600',
-    marginBottom: '4px'
-  }
-}, "Lactate Gap"), /*#__PURE__*/React.createElement("div", {
-  style: {
-    fontSize: '12px',
-    lineHeight: '1.5'
-  }
-}, "If ", /*#__PURE__*/React.createElement("strong", null, "POC lactate \u2212 Lab lactate >5"), ", suspect ", /*#__PURE__*/React.createElement("strong", {
-  style: {
-    color: 'var(--error)'
-  }
-}, "ethylene glycol"), " poisoning (POC assay cross-reacts with glycolate).")));
+const LactateCausesContent = React.memo(function LactateCausesContent() {
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '13px',
+      color: 'var(--text-secondary)',
+      lineHeight: '1.8'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: '16px'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '14px',
+      fontWeight: '600',
+      color: 'var(--text-primary)',
+      marginBottom: '6px'
+    }
+  }, "Tissue Hypoxia"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      paddingLeft: '12px'
+    }
+  }, "Hypoxaemia, insufficient cardiac output, anaemia, regional ischaemia (limb, mesenteric), COHb, MetHb")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: '16px'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '14px',
+      fontWeight: '600',
+      color: 'var(--text-primary)',
+      marginBottom: '6px'
+    }
+  }, "Metabolic"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      paddingLeft: '12px'
+    }
+  }, "Ketoacidosis, hyperglycaemia, thiamine deficiency, liver failure, sepsis, malignancy, inborn errors of metabolism")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: '16px'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '14px',
+      fontWeight: '600',
+      color: 'var(--text-primary)',
+      marginBottom: '6px'
+    }
+  }, "Drugs & Toxins"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      paddingLeft: '12px'
+    }
+  }, "Toxic alcohols, metformin, cyanide, propofol infusion syndrome, paracetamol, salicylates")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: '16px'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '14px',
+      fontWeight: '600',
+      color: 'var(--text-primary)',
+      marginBottom: '6px'
+    }
+  }, "Other"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      paddingLeft: '12px'
+    }
+  }, "Beta-2 agonism, seizures, strenuous exercise")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: '12px',
+      background: 'var(--bg-tertiary)',
+      borderRadius: '8px',
+      marginTop: '8px'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '12px',
+      fontWeight: '600',
+      marginBottom: '4px'
+    }
+  }, "Lactate Gap"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '12px',
+      lineHeight: '1.5'
+    }
+  }, "If ", /*#__PURE__*/React.createElement("strong", null, "POC lactate \u2212 Lab lactate >5"), ", suspect ", /*#__PURE__*/React.createElement("strong", {
+    style: {
+      color: 'var(--error)'
+    }
+  }, "ethylene glycol"), " poisoning (POC assay cross-reacts with glycolate).")));
+});
 
 // Ketoacidosis Bottom Sheet Content
-const KetoacidosisCausesContent = () => /*#__PURE__*/React.createElement("div", {
-  style: {
-    fontSize: '13px',
-    color: 'var(--text-secondary)',
-    lineHeight: '1.8'
-  }
-}, /*#__PURE__*/React.createElement("div", {
-  style: {
-    marginBottom: '16px'
-  }
-}, /*#__PURE__*/React.createElement("div", {
-  style: {
-    fontSize: '14px',
-    fontWeight: '600',
-    color: 'var(--text-primary)',
-    marginBottom: '6px'
-  }
-}, "Diabetic Ketoacidosis"), /*#__PURE__*/React.createElement("div", {
-  style: {
-    paddingLeft: '12px'
-  }
-}, "Insulin deficiency + counter-regulatory hormones. Usually glucose >14 mmol/L but euglycaemic DKA exists (especially with SGLT2 inhibitors).")), /*#__PURE__*/React.createElement("div", {
-  style: {
-    marginBottom: '16px'
-  }
-}, /*#__PURE__*/React.createElement("div", {
-  style: {
-    fontSize: '14px',
-    fontWeight: '600',
-    color: 'var(--text-primary)',
-    marginBottom: '6px'
-  }
-}, "Alcoholic Ketoacidosis"), /*#__PURE__*/React.createElement("div", {
-  style: {
-    paddingLeft: '12px'
-  }
-}, "Binge drinking + poor nutrition + vomiting. Glucose often low-normal. \u03B2-hydroxybutyrate predominates (nitroprusside test may be negative).")), /*#__PURE__*/React.createElement("div", {
-  style: {
-    marginBottom: '16px'
-  }
-}, /*#__PURE__*/React.createElement("div", {
-  style: {
-    fontSize: '14px',
-    fontWeight: '600',
-    color: 'var(--text-primary)',
-    marginBottom: '6px'
-  }
-}, "Starvation Ketosis"), /*#__PURE__*/React.createElement("div", {
-  style: {
-    paddingLeft: '12px'
-  }
-}, "Prolonged fasting, anorexia, hyperemesis gravidarum. Ketones rarely high enough to cause significant acidosis.")));
+const KetoacidosisCausesContent = React.memo(function KetoacidosisCausesContent() {
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '13px',
+      color: 'var(--text-secondary)',
+      lineHeight: '1.8'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: '16px'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '14px',
+      fontWeight: '600',
+      color: 'var(--text-primary)',
+      marginBottom: '6px'
+    }
+  }, "Diabetic Ketoacidosis"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      paddingLeft: '12px'
+    }
+  }, "Insulin deficiency + counter-regulatory hormones. Usually glucose >14 mmol/L but euglycaemic DKA exists (especially with SGLT2 inhibitors).")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: '16px'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '14px',
+      fontWeight: '600',
+      color: 'var(--text-primary)',
+      marginBottom: '6px'
+    }
+  }, "Alcoholic Ketoacidosis"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      paddingLeft: '12px'
+    }
+  }, "Binge drinking + poor nutrition + vomiting. Glucose often low-normal. \u03B2-hydroxybutyrate predominates (nitroprusside test may be negative).")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: '16px'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '14px',
+      fontWeight: '600',
+      color: 'var(--text-primary)',
+      marginBottom: '6px'
+    }
+  }, "Starvation Ketosis"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      paddingLeft: '12px'
+    }
+  }, "Prolonged fasting, anorexia, hyperemesis gravidarum. Ketones rarely high enough to cause significant acidosis.")));
+});
 
 // Osmolar Gap Calculator for BottomSheet (with local state for stability)
 const OsmolarGapBottomSheetContent = ({
