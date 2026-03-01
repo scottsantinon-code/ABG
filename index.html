@@ -1497,7 +1497,7 @@ const Step1_AllValues = ({
   }));
 
   // Input validation - returns warning message or null
-  const getWarning = (field, value) => {
+  const getWarning = React.useCallback((field, value) => {
     if (!value || value === '') return null;
     const v = parseFloat(value);
     if (isNaN(v)) return null;
@@ -1526,7 +1526,7 @@ const Step1_AllValues = ({
         break;
     }
     return null;
-  };
+  }, []);
 
   // Only show warning if field has been touched
   const phWarning = touched.pH ? getWarning('pH', data.pH) : null;
@@ -1974,66 +1974,113 @@ const DualInterpretationCard = ({ hco3, paCO2 }) => {
   const [showRespWorking, setShowRespWorking] = React.useState(false);
   const [showMetWorking, setShowMetWorking] = React.useState(false);
 
-  // Calculate respiratory interpretation
-  const deltaCO2 = Math.abs(paCO2 - 40) / 10;
-  const isRespAcidosis = paCO2 > 40;
-  const isRespAlkalosis = paCO2 < 40;
+  // Memoized calculations for respiratory and metabolic interpretation
+  const calculations = React.useMemo(() => {
+    // Calculate respiratory interpretation
+    const deltaCO2 = Math.abs(paCO2 - 40) / 10;
+    const isRespAcidosis = paCO2 > 40;
+    const isRespAlkalosis = paCO2 < 40;
 
-  // Respiratory card calculations - expected HCO3 for acute and chronic
-  let respExpectedHCO3Acute, respExpectedHCO3Chronic, respDirection;
-  if (isRespAcidosis) {
-    respExpectedHCO3Acute = 24 + 1 * deltaCO2;
-    respExpectedHCO3Chronic = 24 + 4 * deltaCO2;
-    respDirection = 'acidosis';
-  } else if (isRespAlkalosis) {
-    respExpectedHCO3Acute = 24 - 2 * deltaCO2;
-    respExpectedHCO3Chronic = 24 - 5 * deltaCO2;
-    respDirection = 'alkalosis';
-  } else {
-    respExpectedHCO3Acute = 24;
-    respExpectedHCO3Chronic = 24;
-    respDirection = null;
-  }
+    // Respiratory card calculations - expected HCO3 for acute and chronic
+    let respExpectedHCO3Acute, respExpectedHCO3Chronic, respDirection;
+    if (isRespAcidosis) {
+      respExpectedHCO3Acute = 24 + 1 * deltaCO2;
+      respExpectedHCO3Chronic = 24 + 4 * deltaCO2;
+      respDirection = 'acidosis';
+    } else if (isRespAlkalosis) {
+      respExpectedHCO3Acute = 24 - 2 * deltaCO2;
+      respExpectedHCO3Chronic = 24 - 5 * deltaCO2;
+      respDirection = 'alkalosis';
+    } else {
+      respExpectedHCO3Acute = 24;
+      respExpectedHCO3Chronic = 24;
+      respDirection = null;
+    }
 
-  const respAcuteFits = Math.abs(hco3 - respExpectedHCO3Acute) <= 3;
-  const respChronicFits = Math.abs(hco3 - respExpectedHCO3Chronic) <= 3;
-  const respFits = respAcuteFits || respChronicFits;
-  // Single verdict for respiratory card
-  let respVerdict, respVerdictDetail;
-  if (respChronicFits) {
-    respVerdict = 'Consistent with chronic OR acute mixed';
-    respVerdictDetail = null;
-  } else if (respAcuteFits) {
-    respVerdict = 'Consistent with acute process';
-    respVerdictDetail = null;
-  } else {
-    respVerdict = hco3 > respExpectedHCO3Chronic + 3 ? 'Additional metabolic alkalosis' : 'Additional metabolic acidosis';
-    respVerdictDetail = null;
-  }
+    const respAcuteFits = Math.abs(hco3 - respExpectedHCO3Acute) <= 3;
+    const respChronicFits = Math.abs(hco3 - respExpectedHCO3Chronic) <= 3;
+    const respFits = respAcuteFits || respChronicFits;
+    // Single verdict for respiratory card
+    let respVerdict, respVerdictDetail;
+    if (respChronicFits) {
+      respVerdict = 'Consistent with chronic OR acute mixed';
+      respVerdictDetail = null;
+    } else if (respAcuteFits) {
+      respVerdict = 'Consistent with acute process';
+      respVerdictDetail = null;
+    } else {
+      respVerdict = hco3 > respExpectedHCO3Chronic + 3 ? 'Additional metabolic alkalosis' : 'Additional metabolic acidosis';
+      respVerdictDetail = null;
+    }
 
-  // Metabolic card calculations - expected PaCO2
-  const isMetAcidosis = hco3 < 24;
-  const isMetAlkalosis = hco3 > 24;
-  let metExpectedPaCO2, metTolerance, metDirection;
-  if (isMetAcidosis) {
-    metExpectedPaCO2 = 1.5 * hco3 + 8;
-    metTolerance = 2;
-    metDirection = 'acidosis';
-  } else if (isMetAlkalosis) {
-    metExpectedPaCO2 = 0.7 * hco3 + 21;
-    metTolerance = 5;
-    metDirection = 'alkalosis';
-  } else {
-    metExpectedPaCO2 = 40;
-    metTolerance = 2;
-    metDirection = null;
-  }
-  const metFits = Math.abs(paCO2 - metExpectedPaCO2) <= metTolerance;
-  const metVerdict = metFits ? 'Fits compensation' :
-    (paCO2 > metExpectedPaCO2 + metTolerance ? 'Additional respiratory acidosis' : 'Additional respiratory alkalosis');
+    // Metabolic card calculations - expected PaCO2
+    const isMetAcidosis = hco3 < 24;
+    const isMetAlkalosis = hco3 > 24;
+    let metExpectedPaCO2, metTolerance, metDirection;
+    if (isMetAcidosis) {
+      metExpectedPaCO2 = 1.5 * hco3 + 8;
+      metTolerance = 2;
+      metDirection = 'acidosis';
+    } else if (isMetAlkalosis) {
+      metExpectedPaCO2 = 0.7 * hco3 + 21;
+      metTolerance = 5;
+      metDirection = 'alkalosis';
+    } else {
+      metExpectedPaCO2 = 40;
+      metTolerance = 2;
+      metDirection = null;
+    }
+    const metFits = Math.abs(paCO2 - metExpectedPaCO2) <= metTolerance;
+    const metVerdict = metFits ? 'Fits compensation' :
+      (paCO2 > metExpectedPaCO2 + metTolerance ? 'Additional respiratory acidosis' : 'Additional respiratory alkalosis');
 
-  // Check if neither fits well
-  const neitherFitsWell = !respFits && !metFits;
+    // Check if neither fits well
+    const neitherFitsWell = !respFits && !metFits;
+
+    return {
+      deltaCO2,
+      isRespAcidosis,
+      isRespAlkalosis,
+      respExpectedHCO3Acute,
+      respExpectedHCO3Chronic,
+      respDirection,
+      respAcuteFits,
+      respChronicFits,
+      respFits,
+      respVerdict,
+      respVerdictDetail,
+      isMetAcidosis,
+      isMetAlkalosis,
+      metExpectedPaCO2,
+      metTolerance,
+      metDirection,
+      metFits,
+      metVerdict,
+      neitherFitsWell
+    };
+  }, [paCO2, hco3]);
+
+  const {
+    deltaCO2,
+    isRespAcidosis,
+    isRespAlkalosis,
+    respExpectedHCO3Acute,
+    respExpectedHCO3Chronic,
+    respDirection,
+    respAcuteFits,
+    respChronicFits,
+    respFits,
+    respVerdict,
+    respVerdictDetail,
+    isMetAcidosis,
+    isMetAlkalosis,
+    metExpectedPaCO2,
+    metTolerance,
+    metDirection,
+    metFits,
+    metVerdict,
+    neitherFitsWell
+  } = calculations;
 
   // Card style with "better fit" indicator
   const cardStyle = (isBlue, fits) => ({
