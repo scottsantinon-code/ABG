@@ -5520,10 +5520,7 @@ const HAGMAWorkupScreen = ({
       data: data,
       setData: setData,
       onBack: () => setSubScreen(null),
-      onNext: () => {
-        updateInvestigatedUnexplained(true);
-        onNext();
-      }
+      onNext: () => setSubScreen(null)
     });
   }
   if (subScreen === 'unexplained') {
