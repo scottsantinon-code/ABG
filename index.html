@@ -3261,14 +3261,7 @@ const Step2_FullAnalysis = ({
     className: "animate-in stagger-2",
     style: styles.button,
     onClick: handleNext
-  }, "Next \u2192"), onSwitchToStewart && /*#__PURE__*/React.createElement("button", {
-    className: "animate-in stagger-3",
-    style: {
-      ...styles.button,
-      marginTop: '8px'
-    },
-    onClick: onSwitchToStewart
-  }, "Analyse with physicochemical model \u2192"), /*#__PURE__*/React.createElement(BottomSheet, {
+  }, "Next \u2192"), /*#__PURE__*/React.createElement(BottomSheet, {
     isOpen: showVBGInfo,
     onClose: () => setShowVBGInfo(false),
     title: "VBG Limitation"
@@ -4006,11 +3999,27 @@ const Step2_StewartAnalysis = ({
         }
       );
     }
-  }, copied ? '✓ Copied to clipboard' : '📋 Copy summary'), onSwitchToTraditional && /*#__PURE__*/React.createElement("button", {
+  }, copied ? '✓ Copied to clipboard' : '📋 Copy summary')), /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: 'fixed',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      maxWidth: '440px',
+      margin: '0 auto',
+      padding: '12px',
+      paddingBottom: 'calc(12px + env(safe-area-inset-bottom))',
+      background: 'var(--bg-primary)',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '8px'
+    }
+  }, onSwitchToTraditional && /*#__PURE__*/React.createElement("button", {
     className: "animate-in stagger-4",
     style: {
       ...styles.button,
-      marginTop: '8px'
+      position: 'static',
+      borderRadius: 'var(--radius-sm)'
     },
     onClick: onSwitchToTraditional
   }, "Analyse with traditional model \u2192"), /*#__PURE__*/React.createElement("button", {
@@ -4018,10 +4027,11 @@ const Step2_StewartAnalysis = ({
     style: {
       ...styles.button,
       ...styles.buttonSecondary,
-      marginTop: '8px'
+      position: 'static',
+      borderRadius: 'var(--radius-sm)'
     },
     onClick: onRestart
-  }, "New Analysis"), /*#__PURE__*/React.createElement("div", {
+  }, "New Analysis")), /*#__PURE__*/React.createElement("div", {
     style: {
       textAlign: 'center',
       padding: '12px 16px 8px',
@@ -7692,18 +7702,35 @@ const SummaryScreen = ({
       gap: '8px'
     },
     onClick: copyToClipboard
-  }, copied ? '✓ Copied to clipboard' : '📋 Copy summary'), approach === 'traditional' && onSwitchToStewart && /*#__PURE__*/React.createElement("button", {
+  }, copied ? '✓ Copied to clipboard' : '📋 Copy summary')), /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: 'fixed',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      maxWidth: '440px',
+      margin: '0 auto',
+      padding: '12px',
+      paddingBottom: 'calc(12px + env(safe-area-inset-bottom))',
+      background: 'var(--bg-primary)',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '8px'
+    }
+  }, approach === 'traditional' && onSwitchToStewart && /*#__PURE__*/React.createElement("button", {
     className: "animate-in stagger-2",
     style: {
       ...styles.button,
-      marginTop: '8px'
+      position: 'static',
+      borderRadius: 'var(--radius-sm)'
     },
     onClick: onSwitchToStewart
   }, "Analyse with physicochemical model \u2192"), approach === 'stewart' && onSwitchToTraditional && /*#__PURE__*/React.createElement("button", {
     className: "animate-in stagger-2",
     style: {
       ...styles.button,
-      marginTop: '8px'
+      position: 'static',
+      borderRadius: 'var(--radius-sm)'
     },
     onClick: onSwitchToTraditional
   }, "Analyse with traditional model \u2192"), /*#__PURE__*/React.createElement("button", {
@@ -7711,10 +7738,11 @@ const SummaryScreen = ({
     style: {
       ...styles.button,
       ...styles.buttonSecondary,
-      marginTop: '8px'
+      position: 'static',
+      borderRadius: 'var(--radius-sm)'
     },
     onClick: onRestart
-  }, "New Analysis"), /*#__PURE__*/React.createElement("div", {
+  }, "New Analysis")), /*#__PURE__*/React.createElement("div", {
     style: {
       textAlign: 'center',
       padding: '12px 16px 8px',
