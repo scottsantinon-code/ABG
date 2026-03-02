@@ -4014,15 +4014,7 @@ const Step2_StewartAnalysis = ({
       flexDirection: 'column',
       gap: '8px'
     }
-  }, onSwitchToTraditional && /*#__PURE__*/React.createElement("button", {
-    className: "animate-in stagger-4",
-    style: {
-      ...styles.button,
-      position: 'static',
-      borderRadius: 'var(--radius-sm)'
-    },
-    onClick: onSwitchToTraditional
-  }, "Analyse with traditional model \u2192"), /*#__PURE__*/React.createElement("button", {
+  }, /*#__PURE__*/React.createElement("button", {
     className: "animate-in stagger-4",
     style: {
       ...styles.button,
@@ -7689,20 +7681,7 @@ const SummaryScreen = ({
         paddingLeft: '24px'
       }
     }, renderHAGMABreakdown()));
-  }))), /*#__PURE__*/React.createElement("button", {
-    className: "animate-in stagger-2",
-    style: {
-      ...styles.button,
-      marginTop: '12px',
-      background: 'var(--bg-tertiary)',
-      color: 'var(--text-primary)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: '8px'
-    },
-    onClick: copyToClipboard
-  }, copied ? '✓ Copied to clipboard' : '📋 Copy summary'), /*#__PURE__*/React.createElement("div", {
+  }))), /*#__PURE__*/React.createElement("div", {
     style: {
       position: 'fixed',
       bottom: 0,
@@ -7717,7 +7696,21 @@ const SummaryScreen = ({
       flexDirection: 'column',
       gap: '8px'
     }
-  }, approach === 'traditional' && onSwitchToStewart && /*#__PURE__*/React.createElement("button", {
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "animate-in stagger-2",
+    style: {
+      ...styles.button,
+      position: 'static',
+      borderRadius: 'var(--radius-sm)',
+      background: 'var(--bg-tertiary)',
+      color: 'var(--text-primary)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '8px'
+    },
+    onClick: copyToClipboard
+  }, copied ? '✓ Copied to clipboard' : '📋 Copy summary'), approach === 'traditional' && onSwitchToStewart && /*#__PURE__*/React.createElement("button", {
     className: "animate-in stagger-2",
     style: {
       ...styles.button,
@@ -7725,15 +7718,7 @@ const SummaryScreen = ({
       borderRadius: 'var(--radius-sm)'
     },
     onClick: onSwitchToStewart
-  }, "Analyse with physicochemical model \u2192"), approach === 'stewart' && onSwitchToTraditional && /*#__PURE__*/React.createElement("button", {
-    className: "animate-in stagger-2",
-    style: {
-      ...styles.button,
-      position: 'static',
-      borderRadius: 'var(--radius-sm)'
-    },
-    onClick: onSwitchToTraditional
-  }, "Analyse with traditional model \u2192"), /*#__PURE__*/React.createElement("button", {
+  }, "Analyse with physicochemical model \u2192"), /*#__PURE__*/React.createElement("button", {
     className: "animate-in stagger-2",
     style: {
       ...styles.button,
@@ -10768,12 +10753,7 @@ const App = () => {
   const handleSwitchToStewart = () => {
     setApproach('stewart');
     setShowFindCause(false);
-    // Stay on step 2 to show analysis with new approach
-  };
-  const handleSwitchToTraditional = () => {
-    setApproach('traditional');
-    setShowFindCause(false);
-    // Stay on step 2 to show analysis with new approach
+    setStep(1); // Go to input screen to fill in Stewart-specific fields (K, Lactate, Ca, Mg, PO4)
   };
   const handleBackFromFindCause = () => {
     setShowFindCause(false);
