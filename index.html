@@ -3261,7 +3261,14 @@ const Step2_FullAnalysis = ({
     className: "animate-in stagger-2",
     style: styles.button,
     onClick: handleNext
-  }, "Next \u2192"), /*#__PURE__*/React.createElement(BottomSheet, {
+  }, "Next \u2192"), onSwitchToStewart && /*#__PURE__*/React.createElement("button", {
+    className: "animate-in stagger-3",
+    style: {
+      ...styles.button,
+      marginTop: '8px'
+    },
+    onClick: onSwitchToStewart
+  }, "Analyse with physicochemical model \u2192"), /*#__PURE__*/React.createElement(BottomSheet, {
     isOpen: showVBGInfo,
     onClose: () => setShowVBGInfo(false),
     title: "VBG Limitation"
