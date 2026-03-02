@@ -3302,7 +3302,8 @@ const Step2_StewartAnalysis = ({
   setData,
   onNext,
   onBack,
-  onRestart
+  onRestart,
+  onSwitchToTraditional
 }) => {
   const [showSheet, setShowSheet] = useState(null); // 'sid', 'sig', 'atot', 'components'
   const [copied, setCopied] = useState(false);
@@ -3971,7 +3972,14 @@ const Step2_StewartAnalysis = ({
         }
       );
     }
-  }, copied ? '✓ Copied to clipboard' : '📋 Copy summary'), /*#__PURE__*/React.createElement("button", {
+  }, copied ? '✓ Copied to clipboard' : '📋 Copy summary'), onSwitchToTraditional && /*#__PURE__*/React.createElement("button", {
+    className: "animate-in stagger-4",
+    style: {
+      ...styles.button,
+      marginTop: '8px'
+    },
+    onClick: onSwitchToTraditional
+  }, "Analyse with traditional model \u2192"), /*#__PURE__*/React.createElement("button", {
     className: "animate-in stagger-4",
     style: {
       ...styles.button,
@@ -7352,6 +7360,7 @@ const SummaryScreen = ({
   approach,
   onRestart,
   onSwitchToStewart,
+  onSwitchToTraditional,
   onBack
 }) => {
   const [copied, setCopied] = useState(false);
@@ -7656,7 +7665,14 @@ const SummaryScreen = ({
       marginTop: '8px'
     },
     onClick: onSwitchToStewart
-  }, "Analyse with physicochemical model \u2192"), /*#__PURE__*/React.createElement("button", {
+  }, "Analyse with physicochemical model \u2192"), approach === 'stewart' && onSwitchToTraditional && /*#__PURE__*/React.createElement("button", {
+    className: "animate-in stagger-2",
+    style: {
+      ...styles.button,
+      marginTop: '8px'
+    },
+    onClick: onSwitchToTraditional
+  }, "Analyse with traditional model \u2192"), /*#__PURE__*/React.createElement("button", {
     className: "animate-in stagger-2",
     style: {
       ...styles.button,
@@ -8739,7 +8755,8 @@ const FindCauseScreen = ({
   approach,
   onBack,
   onRestart,
-  onSwitchToStewart
+  onSwitchToStewart,
+  onSwitchToTraditional
 }) => {
   // For Stewart pathway, skip directly to summary - the analysis IS the endpoint
   const initialStep = approach === 'stewart' ? 'summary' : 'syndromes';
@@ -9037,6 +9054,7 @@ const FindCauseScreen = ({
       approach: approach,
       onRestart: onRestart,
       onSwitchToStewart: onSwitchToStewart,
+      onSwitchToTraditional: onSwitchToTraditional,
       onBack: () => lastProcessIndex >= 0 ? setCurrentStep(`process-${lastProcessIndex}`) : setCurrentStep('overview')
     }));
   }
@@ -10690,6 +10708,11 @@ const App = () => {
     setShowFindCause(false);
     setStep(1);
   };
+  const handleSwitchToTraditional = () => {
+    setApproach('traditional');
+    setShowFindCause(false);
+    setStep(1);
+  };
   const handleBackFromFindCause = () => {
     setShowFindCause(false);
     setStep(2);
@@ -10776,7 +10799,8 @@ const App = () => {
       approach: approach,
       onBack: handleBackFromFindCause,
       onRestart: handleRestart,
-      onSwitchToStewart: handleSwitchToStewart
+      onSwitchToStewart: handleSwitchToStewart,
+      onSwitchToTraditional: handleSwitchToTraditional
     });
   }
 
@@ -10828,7 +10852,8 @@ const App = () => {
           setData: setData,
           onNext: () => {},
           onBack: () => setStep(1),
-          onRestart: handleRestart
+          onRestart: handleRestart,
+          onSwitchToTraditional: handleSwitchToTraditional
         }));
     }
   }
