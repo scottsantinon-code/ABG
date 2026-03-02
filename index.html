@@ -5586,7 +5586,7 @@ const HAGMAWorkupScreen = ({
       marginBottom: '2px',
       background: checked ? 'var(--accent-light)' : 'transparent',
       borderRadius: checked ? '8px' : '0',
-      paddingLeft: checked ? '12px' : '0',
+      paddingLeft: '12px',
       paddingRight: checked ? '12px' : '0',
       cursor: 'pointer',
       fontSize: '15px',
@@ -6265,7 +6265,7 @@ const NAGMAScreen = ({
     marginBottom: '1px',
     background: checked ? 'var(--accent-light)' : 'transparent',
     borderRadius: checked ? '8px' : '0',
-    paddingLeft: checked ? '12px' : '0',
+    paddingLeft: '12px',
     paddingRight: checked ? '12px' : '0',
     cursor: 'pointer',
     fontSize: '16px',
@@ -6816,7 +6816,7 @@ const MetAlkalosisScreen = ({
     marginBottom: '1px',
     background: checked ? 'var(--accent-light)' : 'transparent',
     borderRadius: checked ? '8px' : '0',
-    paddingLeft: checked ? '12px' : '0',
+    paddingLeft: '12px',
     paddingRight: checked ? '12px' : '0',
     cursor: 'pointer',
     fontSize: '16px',
@@ -7109,7 +7109,7 @@ const RespAcidosisScreen = ({
     marginBottom: '1px',
     background: checked ? 'var(--accent-light)' : 'transparent',
     borderRadius: checked ? '8px' : '0',
-    paddingLeft: checked ? '12px' : '0',
+    paddingLeft: '12px',
     paddingRight: checked ? '12px' : '0',
     cursor: 'pointer',
     fontSize: '16px',
@@ -7259,7 +7259,7 @@ const RespAlkalosisScreen = ({
     marginBottom: '1px',
     background: checked ? 'var(--accent-light)' : 'transparent',
     borderRadius: checked ? '8px' : '0',
-    paddingLeft: checked ? '12px' : '0',
+    paddingLeft: '12px',
     paddingRight: checked ? '12px' : '0',
     cursor: 'pointer',
     fontSize: '16px',
@@ -10733,12 +10733,12 @@ const App = () => {
   const handleSwitchToStewart = () => {
     setApproach('stewart');
     setShowFindCause(false);
-    setStep(1);
+    // Stay on step 2 to show analysis with new approach
   };
   const handleSwitchToTraditional = () => {
     setApproach('traditional');
     setShowFindCause(false);
-    setStep(1);
+    // Stay on step 2 to show analysis with new approach
   };
   const handleBackFromFindCause = () => {
     setShowFindCause(false);
