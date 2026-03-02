@@ -1496,6 +1496,55 @@ const Step1_AllValues = ({
     [field]: true
   }));
 
+  // Refs for auto-advance functionality
+  const inputRefs = {
+    pH: React.useRef(null),
+    paCO2: React.useRef(null),
+    hco3: React.useRef(null),
+    na: React.useRef(null),
+    cl: React.useRef(null),
+    albumin: React.useRef(null),
+    k: React.useRef(null),
+    lactate: React.useRef(null),
+    ca: React.useRef(null),
+    mg: React.useRef(null),
+    phosphate: React.useRef(null)
+  };
+
+  // Field configuration for auto-advance (key, maxLength)
+  const fieldOrder = needsStewart
+    ? ['pH', 'paCO2', 'hco3', 'na', 'cl', 'albumin', 'k', 'lactate', 'ca', 'mg', 'phosphate']
+    : ['pH', 'paCO2', 'hco3', 'na', 'cl', 'albumin'];
+
+  const fieldMaxLength = {
+    pH: 4,      // e.g., "7.40"
+    paCO2: 2,   // e.g., "40"
+    hco3: 2,    // e.g., "24"
+    na: 3,      // e.g., "140"
+    cl: 3,      // e.g., "100"
+    albumin: 2, // e.g., "40"
+    k: 3,       // e.g., "4.0"
+    lactate: 3, // e.g., "1.0"
+    ca: 4,      // e.g., "1.15"
+    mg: 4,      // e.g., "0.85"
+    phosphate: 3 // e.g., "1.1"
+  };
+
+  // Auto-advance handler
+  const handleInputChange = (field, value) => {
+    setData({ ...data, [field]: value });
+
+    // Auto-advance if value reaches expected length
+    const maxLen = fieldMaxLength[field];
+    if (value.length >= maxLen) {
+      const currentIndex = fieldOrder.indexOf(field);
+      const nextField = fieldOrder[currentIndex + 1];
+      if (nextField && inputRefs[nextField]?.current) {
+        inputRefs[nextField].current.focus();
+      }
+    }
+  };
+
   // Input validation - returns warning message or null
   const getWarning = React.useCallback((field, value) => {
     if (!value || value === '') return null;
@@ -1584,14 +1633,12 @@ const Step1_AllValues = ({
       marginBottom: '4px'
     }
   }, "pH"), /*#__PURE__*/React.createElement("input", {
+    ref: inputRefs.pH,
     type: "text",
     inputMode: "decimal",
     autoFocus: true,
     value: data.pH || '',
-    onChange: e => setData({
-      ...data,
-      pH: e.target.value
-    }),
+    onChange: e => handleInputChange('pH', e.target.value),
     onBlur: () => markTouched('pH'),
     placeholder: "7.40",
     style: inputStyle(phWarning)
@@ -1610,13 +1657,11 @@ const Step1_AllValues = ({
       fontWeight: '400'
     }
   }, "mmHg")), /*#__PURE__*/React.createElement("input", {
+    ref: inputRefs.paCO2,
     type: "text",
     inputMode: "decimal",
     value: data.paCO2 || '',
-    onChange: e => setData({
-      ...data,
-      paCO2: e.target.value
-    }),
+    onChange: e => handleInputChange('paCO2', e.target.value),
     onBlur: () => markTouched('paCO2'),
     placeholder: "40",
     style: inputStyle(pco2Warning)
@@ -1635,13 +1680,11 @@ const Step1_AllValues = ({
       fontWeight: '400'
     }
   }, "mmol/L")), /*#__PURE__*/React.createElement("input", {
+    ref: inputRefs.hco3,
     type: "text",
     inputMode: "decimal",
     value: data.hco3 || '',
-    onChange: e => setData({
-      ...data,
-      hco3: e.target.value
-    }),
+    onChange: e => handleInputChange('hco3', e.target.value),
     onBlur: () => markTouched('hco3'),
     placeholder: "24",
     style: inputStyle(hco3Warning)
@@ -1666,13 +1709,11 @@ const Step1_AllValues = ({
       fontWeight: '400'
     }
   }, "mmol/L")), /*#__PURE__*/React.createElement("input", {
+    ref: inputRefs.na,
     type: "text",
     inputMode: "decimal",
     value: data.na || '',
-    onChange: e => setData({
-      ...data,
-      na: e.target.value
-    }),
+    onChange: e => handleInputChange('na', e.target.value),
     onBlur: () => markTouched('na'),
     placeholder: "140",
     style: inputStyle(naWarning)
@@ -1691,13 +1732,11 @@ const Step1_AllValues = ({
       fontWeight: '400'
     }
   }, "mmol/L")), /*#__PURE__*/React.createElement("input", {
+    ref: inputRefs.cl,
     type: "text",
     inputMode: "decimal",
     value: data.cl || '',
-    onChange: e => setData({
-      ...data,
-      cl: e.target.value
-    }),
+    onChange: e => handleInputChange('cl', e.target.value),
     onBlur: () => markTouched('cl'),
     placeholder: "100",
     style: inputStyle(clWarning)
@@ -1716,13 +1755,11 @@ const Step1_AllValues = ({
       fontWeight: '400'
     }
   }, "g/L")), /*#__PURE__*/React.createElement("input", {
+    ref: inputRefs.albumin,
     type: "text",
     inputMode: "decimal",
     value: data.albumin || '',
-    onChange: e => setData({
-      ...data,
-      albumin: e.target.value
-    }),
+    onChange: e => handleInputChange('albumin', e.target.value),
     onBlur: () => markTouched('albumin'),
     placeholder: "40",
     style: inputStyle(albWarning)
@@ -1742,13 +1779,11 @@ const Step1_AllValues = ({
       marginBottom: '4px'
     }
   }, "K\u207A"), /*#__PURE__*/React.createElement("input", {
+    ref: inputRefs.k,
     type: "text",
     inputMode: "decimal",
     value: data.k || '',
-    onChange: e => setData({
-      ...data,
-      k: e.target.value
-    }),
+    onChange: e => handleInputChange('k', e.target.value),
     placeholder: "4.0",
     style: {
       width: '100%',
@@ -1768,13 +1803,11 @@ const Step1_AllValues = ({
       marginBottom: '4px'
     }
   }, "Lactate"), /*#__PURE__*/React.createElement("input", {
+    ref: inputRefs.lactate,
     type: "text",
     inputMode: "decimal",
     value: data.lactate || '',
-    onChange: e => setData({
-      ...data,
-      lactate: e.target.value
-    }),
+    onChange: e => handleInputChange('lactate', e.target.value),
     placeholder: "1.0",
     style: {
       width: '100%',
@@ -1794,13 +1827,11 @@ const Step1_AllValues = ({
       marginBottom: '4px'
     }
   }, "Ca\xB2\u207A"), /*#__PURE__*/React.createElement("input", {
+    ref: inputRefs.ca,
     type: "text",
     inputMode: "decimal",
     value: data.ca || '',
-    onChange: e => setData({
-      ...data,
-      ca: e.target.value
-    }),
+    onChange: e => handleInputChange('ca', e.target.value),
     placeholder: "1.15",
     style: {
       width: '100%',
@@ -1820,13 +1851,11 @@ const Step1_AllValues = ({
       marginBottom: '4px'
     }
   }, "Mg\xB2\u207A"), /*#__PURE__*/React.createElement("input", {
+    ref: inputRefs.mg,
     type: "text",
     inputMode: "decimal",
     value: data.mg || '',
-    onChange: e => setData({
-      ...data,
-      mg: e.target.value
-    }),
+    onChange: e => handleInputChange('mg', e.target.value),
     placeholder: "0.85",
     style: {
       width: '100%',
@@ -1846,13 +1875,11 @@ const Step1_AllValues = ({
       marginBottom: '4px'
     }
   }, "PO\u2084"), /*#__PURE__*/React.createElement("input", {
+    ref: inputRefs.phosphate,
     type: "text",
     inputMode: "decimal",
     value: data.phosphate || '',
-    onChange: e => setData({
-      ...data,
-      phosphate: e.target.value
-    }),
+    onChange: e => handleInputChange('phosphate', e.target.value),
     placeholder: "1.1",
     style: {
       width: '100%',
