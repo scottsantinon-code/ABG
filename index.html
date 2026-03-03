@@ -3694,7 +3694,7 @@ const Step2_StewartAnalysis = ({
   }, pCO2Status === 'high' ? '↑ Acidosis' : pCO2Status === 'low' ? '↓ Alkalosis' : 'Normal')))), /*#__PURE__*/React.createElement("div", {
     style: styles.card,
     className: "animate-in stagger-2"
-  }, /*#__PURE__*/React.createElement("div", {
+  }, sidStatus !== 'normal' && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: '12px',
       fontWeight: '600',
@@ -3772,7 +3772,7 @@ const Step2_StewartAnalysis = ({
         flexShrink: 0
       }
     }, c.value)));
-  })(), /*#__PURE__*/React.createElement("div", {
+  })()), atotStatus !== 'normal' && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: '12px',
       fontWeight: '600',
@@ -3863,7 +3863,7 @@ const Step2_StewartAnalysis = ({
         flexShrink: 0
       }
     }, c.value)));
-  })(), /*#__PURE__*/React.createElement("div", {
+  })()), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: '12px',
       fontWeight: '600',
@@ -8454,7 +8454,7 @@ const AdvancedHybridScreen = ({
       background: pCO2Status === 'high' ? 'var(--error-light)' : pCO2Status === 'low' ? 'var(--warning-light)' : 'var(--success-light)',
       color: pCO2Status === 'high' ? 'var(--error)' : pCO2Status === 'low' ? 'var(--warning)' : 'var(--success)'
     }
-  }, pCO2Status === 'high' ? '↑ Acidosis' : pCO2Status === 'low' ? '↓ Alkalosis' : 'Normal')))), sidComponents.length > 0 && /*#__PURE__*/React.createElement("div", {
+  }, pCO2Status === 'high' ? '↑ Acidosis' : pCO2Status === 'low' ? '↓ Alkalosis' : 'Normal')))), sidComponents.length > 0 && sidStatus !== 'normal' && /*#__PURE__*/React.createElement("div", {
     style: {
       marginBottom: '16px'
     }
@@ -8536,7 +8536,7 @@ const AdvancedHybridScreen = ({
         flexShrink: 0
       }
     }, typeof c.value === 'number' ? c.value.toFixed(1) : c.value)));
-  })()), atotComponents.length > 0 && /*#__PURE__*/React.createElement("div", {
+  })()), atotComponents.length > 0 && atotStatus !== 'normal' && /*#__PURE__*/React.createElement("div", {
     style: {
       marginBottom: '16px'
     }
