@@ -3329,8 +3329,7 @@ const Step2_StewartAnalysis = ({
   setData,
   onNext,
   onBack,
-  onRestart,
-  onSwitchToTraditional
+  onRestart
 }) => {
   const [showSheet, setShowSheet] = useState(null); // 'sid', 'sig', 'atot', 'components'
   const [copied, setCopied] = useState(false);
@@ -7396,7 +7395,6 @@ const SummaryScreen = ({
   approach,
   onRestart,
   onSwitchToStewart,
-  onSwitchToTraditional,
   onBack
 }) => {
   const [copied, setCopied] = useState(false);
@@ -8802,8 +8800,7 @@ const FindCauseScreen = ({
   approach,
   onBack,
   onRestart,
-  onSwitchToStewart,
-  onSwitchToTraditional
+  onSwitchToStewart
 }) => {
   // For Stewart pathway, skip directly to summary - the analysis IS the endpoint
   const initialStep = approach === 'stewart' ? 'summary' : 'syndromes';
@@ -9101,7 +9098,6 @@ const FindCauseScreen = ({
       approach: approach,
       onRestart: onRestart,
       onSwitchToStewart: onSwitchToStewart,
-      onSwitchToTraditional: onSwitchToTraditional,
       onBack: () => lastProcessIndex >= 0 ? setCurrentStep(`process-${lastProcessIndex}`) : setCurrentStep('overview')
     }));
   }
