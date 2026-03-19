@@ -475,15 +475,6 @@ const safeLocalStorage = {
       console.warn('localStorage not available:', e);
       return false;
     }
-  },
-  removeItem: (key) => {
-    try {
-      localStorage.removeItem(key);
-      return true;
-    } catch (e) {
-      console.warn('localStorage not available:', e);
-      return false;
-    }
   }
 };
 
@@ -1299,9 +1290,7 @@ const ValueRow = React.memo(function ValueRow({
 // Landing Screen
 const LandingScreen = ({
   onSelect,
-  onOpenSettings,
-  showDemoTooltip = false,
-  onDismissDemoTooltip = () => {}
+  onOpenSettings
 }) => /*#__PURE__*/React.createElement("div", {
   style: {
     ...styles.container,
@@ -1369,54 +1358,44 @@ const LandingScreen = ({
       style: { fontSize: '13px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--accent)', marginBottom: '12px' }
     }, "Acid-Base Analysis"),
     /*#__PURE__*/React.createElement("div", {
-      style: { position: 'relative' }
+      style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }
     },
-      /*#__PURE__*/React.createElement("div", {
-        style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }
+      /*#__PURE__*/React.createElement("button", {
+        onClick: () => onSelect('traditional'),
+        style: {
+          backgroundColor: 'var(--bg-primary)',
+          border: 'none',
+          borderRadius: '12px',
+          padding: '20px 16px',
+          cursor: 'pointer',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+          fontFamily: 'var(--font)'
+        }
       },
-        /*#__PURE__*/React.createElement("button", {
-          onClick: () => onSelect('traditional'),
-          style: {
-            backgroundColor: 'var(--bg-primary)',
-            border: 'none',
-            borderRadius: '12px',
-            padding: '20px 16px',
-            cursor: 'pointer',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-            fontFamily: 'var(--font)'
-          }
-        },
-          /*#__PURE__*/React.createElement(BeakerIcon, { size: 38, color: 'var(--accent)' }),
-          /*#__PURE__*/React.createElement("span", { style: { fontWeight: '600', fontSize: '15px', color: 'var(--text-primary)', marginTop: '4px' } }, "Traditional")
-        ),
-        /*#__PURE__*/React.createElement("button", {
-          onClick: () => onSelect('stewart'),
-          style: {
-            backgroundColor: 'var(--bg-primary)',
-            border: 'none',
-            borderRadius: '12px',
-            padding: '20px 16px',
-            cursor: 'pointer',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-            fontFamily: 'var(--font)'
-          }
-        },
-          /*#__PURE__*/React.createElement(AtomIcon, { size: 38, color: 'var(--accent)' }),
-          /*#__PURE__*/React.createElement("span", { style: { fontWeight: '600', fontSize: '15px', color: 'var(--text-primary)', marginTop: '4px' } }, "Physicochemical")
-        )
+        /*#__PURE__*/React.createElement(BeakerIcon, { size: 38, color: 'var(--accent)' }),
+        /*#__PURE__*/React.createElement("span", { style: { fontWeight: '600', fontSize: '15px', color: 'var(--text-primary)', marginTop: '4px' } }, "Traditional")
       ),
-      /*#__PURE__*/React.createElement(DemoTooltip, {
-        visible: showDemoTooltip,
-        message: "Most ABG analysis uses the traditional approach. Tap Traditional to continue with the example case.",
-        position: "bottom",
-        onDismiss: onDismissDemoTooltip
-      })
+      /*#__PURE__*/React.createElement("button", {
+        onClick: () => onSelect('stewart'),
+        style: {
+          backgroundColor: 'var(--bg-primary)',
+          border: 'none',
+          borderRadius: '12px',
+          padding: '20px 16px',
+          cursor: 'pointer',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+          fontFamily: 'var(--font)'
+        }
+      },
+        /*#__PURE__*/React.createElement(AtomIcon, { size: 38, color: 'var(--accent)' }),
+        /*#__PURE__*/React.createElement("span", { style: { fontWeight: '600', fontSize: '15px', color: 'var(--text-primary)', marginTop: '4px' } }, "Physicochemical")
+      )
     ),
     /*#__PURE__*/React.createElement("div", { style: { textAlign: 'center' } },
       /*#__PURE__*/React.createElement("button", {
@@ -1520,11 +1499,11 @@ const Step1_AllValues = ({
 
   // Demo tooltip state
   const [showDemoStep1Tooltip, setShowDemoStep1Tooltip] = useState(() => {
-    return isDemoMode && !safeLocalStorage.getItem('demoDismissed_step1');
+    return isDemoMode && !localStorage.getItem('demoDismissed_step1');
   });
   const dismissDemoStep1Tooltip = () => {
     setShowDemoStep1Tooltip(false);
-    safeLocalStorage.setItem('demoDismissed_step1', 'true');
+    localStorage.setItem('demoDismissed_step1', 'true');
   };
 
   // Refs for auto-advance functionality
@@ -1643,15 +1622,20 @@ const Step1_AllValues = ({
     style: styles.backButton,
     onClick: onBack
   }, /*#__PURE__*/React.createElement(BackIcon, null), " Back"), isDemoMode && /*#__PURE__*/React.createElement(DemoBanner, null)), /*#__PURE__*/React.createElement("div", {
+    style: { position: 'relative', marginBottom: '16px' }
+  }, /*#__PURE__*/React.createElement("div", {
     style: styles.header,
     className: "animate-in"
   }, /*#__PURE__*/React.createElement("div", {
     style: styles.stepIndicator
   }, "Step 1"), /*#__PURE__*/React.createElement("h1", {
     style: styles.title
-  }, "Enter Values")), /*#__PURE__*/React.createElement("div", {
-    style: { position: 'relative' }
-  }, /*#__PURE__*/React.createElement("div", {
+  }, "Enter Values")), /*#__PURE__*/React.createElement(DemoTooltip, {
+    visible: showDemoStep1Tooltip,
+    message: "These are the values from the patient's ABG. Tap Analyse below to see the interpretation.",
+    position: "bottom",
+    onDismiss: dismissDemoStep1Tooltip
+  })), /*#__PURE__*/React.createElement("div", {
     style: styles.card,
     className: "animate-in stagger-1"
   }, /*#__PURE__*/React.createElement("div", {
@@ -1927,12 +1911,7 @@ const Step1_AllValues = ({
       background: 'var(--bg-secondary)',
       outline: 'none'
     }
-  }))), /*#__PURE__*/React.createElement(DemoTooltip, {
-    visible: showDemoStep1Tooltip,
-    message: "These are the values from the patient's ABG. Tap Analyse below to see the interpretation.",
-    position: "top",
-    onDismiss: dismissDemoStep1Tooltip
-  })), /*#__PURE__*/React.createElement("button", {
+  })))), /*#__PURE__*/React.createElement("button", {
     className: "animate-in stagger-2",
     style: {
       ...styles.button,
@@ -2742,15 +2721,20 @@ const Step2_FullAnalysis = ({
     style: styles.backButton,
     onClick: onBack
   }, /*#__PURE__*/React.createElement(BackIcon, null), " Back"), isDemoMode && /*#__PURE__*/React.createElement(DemoBanner, null)), /*#__PURE__*/React.createElement("div", {
+    style: { position: 'relative', marginBottom: '16px' }
+  }, /*#__PURE__*/React.createElement("div", {
     style: styles.header,
     className: "animate-in"
   }, /*#__PURE__*/React.createElement("div", {
     style: styles.stepIndicator
   }, "Step 2"), /*#__PURE__*/React.createElement("h1", {
     style: styles.title
-  }, "Analysis")), /*#__PURE__*/React.createElement("div", {
-    style: { position: 'relative' }
-  }, /*#__PURE__*/React.createElement("div", {
+  }, "Analysis")), /*#__PURE__*/React.createElement(DemoTooltip, {
+    visible: showDemoInfoTooltip,
+    message: "This page shows the key numbers. Tap Show working to see how each calculation was made.",
+    position: "bottom",
+    onDismiss: dismissDemoInfoTooltip
+  })), /*#__PURE__*/React.createElement("div", {
     style: styles.card,
     className: "animate-in stagger-1"
   }, /*#__PURE__*/React.createElement("div", {
@@ -3311,12 +3295,7 @@ const Step2_FullAnalysis = ({
       fontSize: '12px',
       color: 'var(--text-tertiary)'
     }
-  }, "<", "0.4 NAGMA | 0.4-0.8 mixed | 0.8-2 pure | ", ">", "2 met alk")))), /*#__PURE__*/React.createElement(DemoTooltip, {
-    visible: showDemoInfoTooltip,
-    message: "This page shows the key numbers. Tap Show working to see how each calculation was made.",
-    position: "top",
-    onDismiss: dismissDemoInfoTooltip
-  })), /*#__PURE__*/React.createElement("button", {
+  }, "<", "0.4 NAGMA | 0.4-0.8 mixed | 0.8-2 pure | ", ">", "2 met alk")))), /*#__PURE__*/React.createElement("button", {
     className: "animate-in stagger-2",
     style: styles.button,
     onClick: handleNext
@@ -6048,15 +6027,20 @@ const HAGMAWorkupScreen = ({
     style: styles.backButton,
     onClick: onBack
   }, /*#__PURE__*/React.createElement(BackIcon, null), " Back"), /*#__PURE__*/React.createElement("div", {
+    style: { position: 'relative', marginBottom: '16px' }
+  }, /*#__PURE__*/React.createElement("div", {
     style: styles.header,
     className: "animate-in"
   }, /*#__PURE__*/React.createElement("div", {
     style: styles.stepIndicator
   }, "Process 1"), /*#__PURE__*/React.createElement("h1", {
     style: styles.title
-  }, "HAGMA Workup")), /*#__PURE__*/React.createElement("div", {
-    style: { position: 'relative' }
-  }, /*#__PURE__*/React.createElement("div", {
+  }, "HAGMA Workup")), /*#__PURE__*/React.createElement(DemoTooltip, {
+    visible: showDemoHAGMAIntroTooltip,
+    message: "This patient's lactate is 4 and ketones are 0.5. BloodGasPro graphs these values visually and demonstrates how much of the anion gap they explain. In this case, there are still 13 unexplained anions. Click below to investigate why.",
+    position: "bottom",
+    onDismiss: dismissDemoHAGMAIntroTooltip
+  })), /*#__PURE__*/React.createElement("div", {
     style: styles.card,
     className: "animate-in stagger-1"
   }, /*#__PURE__*/React.createElement("div", {
@@ -6216,12 +6200,7 @@ const HAGMAWorkupScreen = ({
       fontFamily: 'var(--font)',
       padding: '4px 8px'
     }
-  }, "Causes"))), /*#__PURE__*/React.createElement(DemoTooltip, {
-    visible: showDemoHAGMAIntroTooltip,
-    message: "This patient's lactate is 4 and ketones are 0.5. BloodGasPro graphs these values visually and demonstrates how much of the anion gap they explain. In this case, there are still 13 unexplained anions. Click below to investigate why.",
-    position: "top",
-    onDismiss: dismissDemoHAGMAIntroTooltip
-  })), hasAnyInput && /*#__PURE__*/React.createElement("div", {
+  }, "Causes"))), hasAnyInput && /*#__PURE__*/React.createElement("div", {
     style: styles.card,
     className: "animate-in stagger-2"
   }, /*#__PURE__*/React.createElement(AnionGapBar, {
@@ -7540,11 +7519,11 @@ const SummaryScreen = ({
 
   // Demo tooltip state
   const [showDemoSummaryTooltip, setShowDemoSummaryTooltip] = useState(() => {
-    return isDemoMode && !safeLocalStorage.getItem('demoDismissed_summary');
+    return isDemoMode && !localStorage.getItem('demoDismissed_summary');
   });
   const dismissDemoSummaryTooltip = () => {
     setShowDemoSummaryTooltip(false);
-    safeLocalStorage.setItem('demoDismissed_summary', 'true');
+    localStorage.setItem('demoDismissed_summary', 'true');
   };
 
   // Cause label mappings
@@ -7944,20 +7923,12 @@ const AdvancedHybridScreen = ({
   let deltaRatio = null;
   let hasAdditionalNAGMA = false;
   let hasAdditionalMetAlk = false;
-  if (hasHAGMA && agCorrected) {
+  if (hasHAGMA && agCorrected && hco3Val < 24) {
     const deltaAG = agCorrected - 12;
     const deltaHCO3 = 24 - hco3Val;
-    // Only calculate ratio if HCO3 is actually low (meaningful denominator)
-    if (deltaHCO3 > 1) {
+    if (deltaHCO3 > 0) {
       deltaRatio = deltaAG / deltaHCO3;
-      if (deltaRatio < 0.8) hasAdditionalNAGMA = true;
-      else if (deltaRatio > 2) hasAdditionalMetAlk = true;
-    } else if (deltaHCO3 <= 1 && deltaHCO3 >= -2) {
-      // HCO3 is near normal despite HAGMA - indicates concurrent metabolic alkalosis
-      hasAdditionalMetAlk = true;
-    } else {
-      // HCO3 is elevated (frank metabolic alkalosis)
-      hasAdditionalMetAlk = true;
+      if (deltaRatio < 0.8) hasAdditionalNAGMA = true;else if (deltaRatio > 2) hasAdditionalMetAlk = true;
     }
   }
 
@@ -9189,13 +9160,18 @@ const FindCauseScreen = ({
       style: styles.backButton,
       onClick: onBack
     }, /*#__PURE__*/React.createElement(BackIcon, null), " Back"), /*#__PURE__*/React.createElement("div", {
+      style: { position: 'relative', marginBottom: '16px' }
+    }, /*#__PURE__*/React.createElement("div", {
       style: styles.header,
       className: "animate-in"
     }, /*#__PURE__*/React.createElement("h1", {
       style: styles.title
-    }, "Processes to Investigate")), /*#__PURE__*/React.createElement("div", {
-      style: { position: 'relative' }
-    }, /*#__PURE__*/React.createElement("div", {
+    }, "Processes to Investigate")), showDemoOverviewTooltip && uniqueProcesses.length > 0 && /*#__PURE__*/React.createElement(DemoTooltip, {
+      visible: true,
+      message: "BloodGasPro identified " + uniqueProcesses.length + " acid-base processes. It will guide you through each one. Tap \"Begin Investigation\" below to start.",
+      position: "bottom",
+      onDismiss: dismissDemoOverviewTooltip
+    })), /*#__PURE__*/React.createElement("div", {
       style: styles.card,
       className: "animate-in stagger-1"
     }, /*#__PURE__*/React.createElement("div", {
@@ -9228,12 +9204,7 @@ const FindCauseScreen = ({
       style: {
         color: 'var(--text-secondary)'
       }
-    }, "Normal acid-base status"))), showDemoOverviewTooltip && uniqueProcesses.length > 0 && /*#__PURE__*/React.createElement(DemoTooltip, {
-      visible: true,
-      message: "BloodGasPro identified " + uniqueProcesses.length + " acid-base processes. It will guide you through each one. Tap \"Begin Investigation\" below to start.",
-      position: "top",
-      onDismiss: dismissDemoOverviewTooltip
-    })), hiddenHAGMA && /*#__PURE__*/React.createElement("div", {
+    }, "Normal acid-base status"))), hiddenHAGMA && /*#__PURE__*/React.createElement("div", {
       style: {
         ...styles.warningBox,
         margin: '0 0 16px 0'
@@ -10306,7 +10277,10 @@ const DemoCaseModal = ({ onContinue }) => {
           color: 'var(--text-secondary)'
         }
       },
-        /*#__PURE__*/React.createElement("p", null, "68-year-old man presents with fever, cough, and confusion. He's been vomiting for the past few days and has an acute kidney injury.")
+        /*#__PURE__*/React.createElement("p", {
+          style: { marginBottom: '12px' }
+        }, "68-year-old man with COPD presents to the Emergency Department with fever, cough, and confusion."),
+        /*#__PURE__*/React.createElement("p", null, "He has been vomiting for the past two days and has an acute kidney injury (creatinine 280 \u03BCmol/L).")
       )
     ),
     /*#__PURE__*/React.createElement("button", {
@@ -11208,7 +11182,6 @@ const App = () => {
   // });
   const [showDemoOffer, setShowDemoOffer] = useState(true); // Always show for testing
   const [showDemoCaseModal, setShowDemoCaseModal] = useState(false);
-  const [showDemoTraditionalTooltip, setShowDemoTraditionalTooltip] = useState(false);
 
   const handleRestart = () => {
     setApproach(null);
@@ -11243,8 +11216,6 @@ const App = () => {
     safeLocalStorage.removeItem('bloodgaspro_tooltip_renal_seen');
     safeLocalStorage.removeItem('bloodgaspro_tooltip_copd_seen');
     safeLocalStorage.removeItem('bloodgaspro_tooltip_vomiting_seen');
-    safeLocalStorage.removeItem('demoDismissed_step1');
-    safeLocalStorage.removeItem('demoDismissed_summary');
     setShowSettings(false);
     setShowDemoCaseModal(true);
   };
@@ -11300,24 +11271,16 @@ const App = () => {
     return /*#__PURE__*/React.createElement(React.Fragment, null,
       /*#__PURE__*/React.createElement(LandingScreen, {
         onSelect: a => {
-          // If demo tooltip is showing and user clicks Traditional, show case modal
-          if (showDemoTraditionalTooltip && a === 'traditional') {
-            setShowDemoTraditionalTooltip(false);
-            setShowDemoCaseModal(true);
-            return;
-          }
           setApproach(a);
           setStep(1);
         },
-        onOpenSettings: () => setShowSettings(true),
-        showDemoTooltip: showDemoTraditionalTooltip,
-        onDismissDemoTooltip: () => setShowDemoTraditionalTooltip(false)
+        onOpenSettings: () => setShowSettings(true)
       }),
       showDemoOffer && /*#__PURE__*/React.createElement(DemoOfferModal, {
         onTryDemo: () => {
           safeLocalStorage.setItem('bloodgaspro_demo_offered', 'true');
           setShowDemoOffer(false);
-          setShowDemoTraditionalTooltip(true);
+          setShowDemoCaseModal(true);
         },
         onSkip: handleSkipDemo
       })
