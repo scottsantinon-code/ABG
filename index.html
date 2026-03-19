@@ -1483,7 +1483,8 @@ const Step1_AllValues = ({
   setData,
   onNext,
   onBack,
-  approach
+  approach,
+  isDemoMode = false
 }) => {
   const needsStewart = approach === 'stewart';
   const canProceed = data.pH && data.paCO2 && data.hco3 && data.na && data.cl;
@@ -1495,6 +1496,15 @@ const Step1_AllValues = ({
     ...prev,
     [field]: true
   }));
+
+  // Demo tooltip state
+  const [showDemoStep1Tooltip, setShowDemoStep1Tooltip] = useState(() => {
+    return isDemoMode && !localStorage.getItem('demoDismissed_step1');
+  });
+  const dismissDemoStep1Tooltip = () => {
+    setShowDemoStep1Tooltip(false);
+    localStorage.setItem('demoDismissed_step1', 'true');
+  };
 
   // Refs for auto-advance functionality
   const inputRefs = {
@@ -1606,17 +1616,26 @@ const Step1_AllValues = ({
   }, "\u26A0\uFE0F ", warning) : null;
   return /*#__PURE__*/React.createElement("div", {
     style: styles.container
+  }, /*#__PURE__*/React.createElement("div", {
+    style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' }
   }, /*#__PURE__*/React.createElement("button", {
     style: styles.backButton,
     onClick: onBack
-  }, /*#__PURE__*/React.createElement(BackIcon, null), " Back"), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(BackIcon, null), " Back"), isDemoMode && /*#__PURE__*/React.createElement(DemoBanner, null)), /*#__PURE__*/React.createElement("div", {
+    style: { position: 'relative', marginBottom: '16px' }
+  }, /*#__PURE__*/React.createElement("div", {
     style: styles.header,
     className: "animate-in"
   }, /*#__PURE__*/React.createElement("div", {
     style: styles.stepIndicator
   }, "Step 1"), /*#__PURE__*/React.createElement("h1", {
     style: styles.title
-  }, "Enter Values")), /*#__PURE__*/React.createElement("div", {
+  }, "Enter Values")), /*#__PURE__*/React.createElement(DemoTooltip, {
+    visible: showDemoStep1Tooltip,
+    message: "These are the values from the patient's ABG. Tap Analyse below to see the interpretation.",
+    position: "bottom",
+    onDismiss: dismissDemoStep1Tooltip
+  })), /*#__PURE__*/React.createElement("div", {
     style: styles.card,
     className: "animate-in stagger-1"
   }, /*#__PURE__*/React.createElement("div", {
@@ -2254,7 +2273,8 @@ const Step2_FullAnalysis = ({
   onNext,
   onBack,
   onSwitchToStewart,
-  onRestart
+  onRestart,
+  isDemoMode = false
 }) => {
   // Safe parsing with bounds validation
   const pH = safeParseFloat(data.pH, 'pH', 7.4);
@@ -2268,6 +2288,15 @@ const Step2_FullAnalysis = ({
   const [showVBGRespInfo, setShowVBGRespInfo] = useState(false);
   const [showDeltaInfo, setShowDeltaInfo] = useState(false);
   const [chronicHypercapniaSelection, setChronicHypercapniaSelection] = useState(data.chronicHypercapniaSelection || null);
+
+  // Demo tooltip state
+  const [showDemoInfoTooltip, setShowDemoInfoTooltip] = useState(() => {
+    return isDemoMode && safeLocalStorage.getItem('bloodgaspro_tooltip_info_seen') !== 'true';
+  });
+  const dismissDemoInfoTooltip = () => {
+    safeLocalStorage.setItem('bloodgaspro_tooltip_info_seen', 'true');
+    setShowDemoInfoTooltip(false);
+  };
   const [showChronicGuidance, setShowChronicGuidance] = useState(false);
   const [respChronicOverride, setRespChronicOverride] = useState(data.respChronicOverride || null); // null, 'yes', 'no'
   const [showRespChronicGuidance, setShowRespChronicGuidance] = useState(false);
@@ -2686,17 +2715,26 @@ const Step2_FullAnalysis = ({
   };
   return /*#__PURE__*/React.createElement("div", {
     style: styles.container
+  }, /*#__PURE__*/React.createElement("div", {
+    style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' }
   }, /*#__PURE__*/React.createElement("button", {
     style: styles.backButton,
     onClick: onBack
-  }, /*#__PURE__*/React.createElement(BackIcon, null), " Back"), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(BackIcon, null), " Back"), isDemoMode && /*#__PURE__*/React.createElement(DemoBanner, null)), /*#__PURE__*/React.createElement("div", {
+    style: { position: 'relative', marginBottom: '16px' }
+  }, /*#__PURE__*/React.createElement("div", {
     style: styles.header,
     className: "animate-in"
   }, /*#__PURE__*/React.createElement("div", {
     style: styles.stepIndicator
   }, "Step 2"), /*#__PURE__*/React.createElement("h1", {
     style: styles.title
-  }, "Analysis")), /*#__PURE__*/React.createElement("div", {
+  }, "Analysis")), /*#__PURE__*/React.createElement(DemoTooltip, {
+    visible: showDemoInfoTooltip,
+    message: "This page shows the key numbers. Tap Show working to see how each calculation was made.",
+    position: "bottom",
+    onDismiss: dismissDemoInfoTooltip
+  })), /*#__PURE__*/React.createElement("div", {
     style: styles.card,
     className: "animate-in stagger-1"
   }, /*#__PURE__*/React.createElement("div", {
@@ -5414,7 +5452,8 @@ const HAGMAWorkupScreen = ({
   data,
   setData,
   onNext,
-  onBack
+  onBack,
+  isDemoMode = false
 }) => {
   // Use data state for subScreen to persist across re-renders
   const subScreen = data.hagmaSubScreen || null;
@@ -5424,6 +5463,36 @@ const HAGMAWorkupScreen = ({
   }));
   const [showSheet, setShowSheet] = useState(null); // 'lactate', 'ketones', 'dlactate', 'pyroglutamic'
   const [investigatedUnexplained, setInvestigatedUnexplained] = useState(data.investigatedUnexplained || false);
+
+  // Demo tooltip states
+  const [showDemoHAGMAIntroTooltip, setShowDemoHAGMAIntroTooltip] = useState(() => {
+    return isDemoMode && safeLocalStorage.getItem('bloodgaspro_tooltip_hagma_intro_seen') !== 'true';
+  });
+  const dismissDemoHAGMAIntroTooltip = () => {
+    safeLocalStorage.setItem('bloodgaspro_tooltip_hagma_intro_seen', 'true');
+    setShowDemoHAGMAIntroTooltip(false);
+  };
+  const [showDemoAGTooltip, setShowDemoAGTooltip] = useState(() => {
+    return isDemoMode && safeLocalStorage.getItem('bloodgaspro_tooltip_ag_seen') !== 'true';
+  });
+  const dismissDemoAGTooltip = () => {
+    safeLocalStorage.setItem('bloodgaspro_tooltip_ag_seen', 'true');
+    setShowDemoAGTooltip(false);
+  };
+  const [showDemoUnexplainedTooltip, setShowDemoUnexplainedTooltip] = useState(() => {
+    return isDemoMode && safeLocalStorage.getItem('bloodgaspro_tooltip_unexplained_seen') !== 'true';
+  });
+  const dismissDemoUnexplainedTooltip = () => {
+    safeLocalStorage.setItem('bloodgaspro_tooltip_unexplained_seen', 'true');
+    setShowDemoUnexplainedTooltip(false);
+  };
+  const [showDemoRenalTooltip, setShowDemoRenalTooltip] = useState(() => {
+    return isDemoMode && safeLocalStorage.getItem('bloodgaspro_tooltip_renal_seen') !== 'true';
+  });
+  const dismissDemoRenalTooltip = () => {
+    safeLocalStorage.setItem('bloodgaspro_tooltip_renal_seen', 'true');
+    setShowDemoRenalTooltip(false);
+  };
 
   // Sync investigatedUnexplained to data when it changes
   const updateInvestigatedUnexplained = val => {
@@ -5593,9 +5662,9 @@ const HAGMAWorkupScreen = ({
       padding: '10px 0',
       marginBottom: '2px',
       background: checked ? 'var(--accent-light)' : 'transparent',
-      borderRadius: checked ? '8px' : '0',
+      borderRadius: '8px',
       paddingLeft: '12px',
-      paddingRight: checked ? '12px' : '0',
+      paddingRight: '12px',
       cursor: 'pointer',
       fontSize: '15px',
       lineHeight: '1.2',
@@ -5686,6 +5755,8 @@ const HAGMAWorkupScreen = ({
       marginBottom: '10px'
       }
     }, "Select likely cause(s):"), /*#__PURE__*/React.createElement("div", {
+      style: { position: 'relative' }
+    }, /*#__PURE__*/React.createElement("div", {
       style: {
         ...itemStyle(unexplainedCauses.includes('renal')),
         justifyContent: 'space-between'
@@ -5715,7 +5786,12 @@ const HAGMAWorkupScreen = ({
         padding: '4px 8px',
         fontWeight: '500'
       }
-    }, "ⓘ")), /*#__PURE__*/React.createElement("div", {
+    }, "ⓘ")), /*#__PURE__*/React.createElement(DemoTooltip, {
+      visible: showDemoRenalTooltip,
+      message: "In this case, the patient has an AKI. Select renal failure as a likely cause and then click Continue below.",
+      position: "bottom",
+      onDismiss: dismissDemoRenalTooltip
+    })), /*#__PURE__*/React.createElement("div", {
       style: {
         ...itemStyle(unexplainedCauses.includes('pyroglutamic')),
         justifyContent: 'space-between'
@@ -5951,13 +6027,20 @@ const HAGMAWorkupScreen = ({
     style: styles.backButton,
     onClick: onBack
   }, /*#__PURE__*/React.createElement(BackIcon, null), " Back"), /*#__PURE__*/React.createElement("div", {
+    style: { position: 'relative', marginBottom: '16px' }
+  }, /*#__PURE__*/React.createElement("div", {
     style: styles.header,
     className: "animate-in"
   }, /*#__PURE__*/React.createElement("div", {
     style: styles.stepIndicator
   }, "Process 1"), /*#__PURE__*/React.createElement("h1", {
     style: styles.title
-  }, "HAGMA Workup")), /*#__PURE__*/React.createElement("div", {
+  }, "HAGMA Workup")), /*#__PURE__*/React.createElement(DemoTooltip, {
+    visible: showDemoHAGMAIntroTooltip,
+    message: "This patient's lactate is 4 and ketones are 0.5. BloodGasPro graphs these values visually and demonstrates how much of the anion gap they explain. In this case, there are still 13 unexplained anions. Click below to investigate why.",
+    position: "bottom",
+    onDismiss: dismissDemoHAGMAIntroTooltip
+  })), /*#__PURE__*/React.createElement("div", {
     style: styles.card,
     className: "animate-in stagger-1"
   }, /*#__PURE__*/React.createElement("div", {
@@ -6272,9 +6355,9 @@ const NAGMAScreen = ({
     padding: '7px 0',
     marginBottom: '1px',
     background: checked ? 'var(--accent-light)' : 'transparent',
-    borderRadius: checked ? '8px' : '0',
+    borderRadius: '8px',
     paddingLeft: '12px',
-    paddingRight: checked ? '12px' : '0',
+    paddingRight: '12px',
     cursor: 'pointer',
     fontSize: '16px',
     lineHeight: '1.25',
@@ -6799,7 +6882,8 @@ const MetAlkalosisScreen = ({
   setData,
   onNext,
   onBack,
-  processNumber
+  processNumber,
+  isDemoMode = false
 }) => {
   const [showContraction, setShowContraction] = useState(false);
   const causes = data.identifiedCauses?.metAlk || [];
@@ -6815,6 +6899,15 @@ const MetAlkalosisScreen = ({
     }));
   };
 
+  // Demo tooltip state
+  const [showDemoVomitingTooltip, setShowDemoVomitingTooltip] = useState(() => {
+    return isDemoMode && safeLocalStorage.getItem('bloodgaspro_tooltip_vomiting_seen') !== 'true';
+  });
+  const dismissDemoVomitingTooltip = () => {
+    safeLocalStorage.setItem('bloodgaspro_tooltip_vomiting_seen', 'true');
+    setShowDemoVomitingTooltip(false);
+  };
+
   // Selectable item style
   const itemStyle = checked => ({
     display: 'flex',
@@ -6823,9 +6916,9 @@ const MetAlkalosisScreen = ({
     padding: '7px 0',
     marginBottom: '1px',
     background: checked ? 'var(--accent-light)' : 'transparent',
-    borderRadius: checked ? '8px' : '0',
+    borderRadius: '8px',
     paddingLeft: '12px',
-    paddingRight: checked ? '12px' : '0',
+    paddingRight: '12px',
     cursor: 'pointer',
     fontSize: '16px',
     lineHeight: '1.25',
@@ -6878,9 +6971,16 @@ const MetAlkalosisScreen = ({
       marginBottom: '4px'
     }
   }, "Loss of H\u207A from GIT"), /*#__PURE__*/React.createElement("div", {
+    style: { position: 'relative' }
+  }, /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('vomiting')),
     onClick: () => toggleCause('vomiting')
-  }, checkMark(causes.includes('vomiting')), /*#__PURE__*/React.createElement("span", null, "Vomiting / NG suction")), /*#__PURE__*/React.createElement("div", {
+  }, checkMark(causes.includes('vomiting')), /*#__PURE__*/React.createElement("span", null, "Vomiting / NG suction")), /*#__PURE__*/React.createElement(DemoTooltip, {
+    visible: showDemoVomitingTooltip,
+    message: "The patient has been vomiting — select this as a likely cause and then click Continue below.",
+    position: "bottom",
+    onDismiss: dismissDemoVomitingTooltip
+  })), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: '12px',
       fontWeight: '600',
@@ -7089,7 +7189,8 @@ const RespAcidosisScreen = ({
   setData,
   onNext,
   onBack,
-  processNumber
+  processNumber,
+  isDemoMode = false
 }) => {
   const causes = data.identifiedCauses?.respAcid || [];
   const toggleCause = cause => {
@@ -7108,6 +7209,15 @@ const RespAcidosisScreen = ({
   const [showNeuroInfo, setShowNeuroInfo] = useState(false);
   const [showChestInfo, setShowChestInfo] = useState(false);
 
+  // Demo tooltip state
+  const [showDemoCOPDTooltip, setShowDemoCOPDTooltip] = useState(() => {
+    return isDemoMode && safeLocalStorage.getItem('bloodgaspro_tooltip_copd_seen') !== 'true';
+  });
+  const dismissDemoCOPDTooltip = () => {
+    safeLocalStorage.setItem('bloodgaspro_tooltip_copd_seen', 'true');
+    setShowDemoCOPDTooltip(false);
+  };
+
   // Selectable item style
   const itemStyle = checked => ({
     display: 'flex',
@@ -7116,9 +7226,9 @@ const RespAcidosisScreen = ({
     padding: '7px 0',
     marginBottom: '1px',
     background: checked ? 'var(--accent-light)' : 'transparent',
-    borderRadius: checked ? '8px' : '0',
+    borderRadius: '8px',
     paddingLeft: '12px',
-    paddingRight: checked ? '12px' : '0',
+    paddingRight: '12px',
     cursor: 'pointer',
     fontSize: '16px',
     lineHeight: '1.25',
@@ -7200,9 +7310,16 @@ const RespAcidosisScreen = ({
       marginTop: '10px'
     }
   }, "Airways / parenchyma"), /*#__PURE__*/React.createElement("div", {
+    style: { position: 'relative' }
+  }, /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('copd')),
     onClick: () => toggleCause('copd')
-  }, checkMark(causes.includes('copd')), /*#__PURE__*/React.createElement("span", null, "COPD / asthma exacerbation")), /*#__PURE__*/React.createElement("div", {
+  }, checkMark(causes.includes('copd')), /*#__PURE__*/React.createElement("span", null, "COPD / asthma exacerbation")), /*#__PURE__*/React.createElement(DemoTooltip, {
+    visible: showDemoCOPDTooltip,
+    message: "In this case, you deem the hypercapnia to be related to the patient's known COPD. Select this as the likely cause and then click Continue below.",
+    position: "bottom",
+    onDismiss: dismissDemoCOPDTooltip
+  })), /*#__PURE__*/React.createElement("div", {
     style: itemStyle(causes.includes('pneumonia')),
     onClick: () => toggleCause('pneumonia')
   }, checkMark(causes.includes('pneumonia')), /*#__PURE__*/React.createElement("span", null, "Severe pneumonia / ARDS")), /*#__PURE__*/React.createElement("div", {
@@ -7266,9 +7383,9 @@ const RespAlkalosisScreen = ({
     padding: '7px 0',
     marginBottom: '1px',
     background: checked ? 'var(--accent-light)' : 'transparent',
-    borderRadius: checked ? '8px' : '0',
+    borderRadius: '8px',
     paddingLeft: '12px',
-    paddingRight: checked ? '12px' : '0',
+    paddingRight: '12px',
     cursor: 'pointer',
     fontSize: '16px',
     lineHeight: '1.25',
@@ -7395,9 +7512,19 @@ const SummaryScreen = ({
   approach,
   onRestart,
   onSwitchToStewart,
-  onBack
+  onBack,
+  isDemoMode = false
 }) => {
   const [copied, setCopied] = useState(false);
+
+  // Demo tooltip state
+  const [showDemoSummaryTooltip, setShowDemoSummaryTooltip] = useState(() => {
+    return isDemoMode && !localStorage.getItem('demoDismissed_summary');
+  });
+  const dismissDemoSummaryTooltip = () => {
+    setShowDemoSummaryTooltip(false);
+    localStorage.setItem('demoDismissed_summary', 'true');
+  };
 
   // Cause label mappings
   const causeLabels = {
@@ -7601,13 +7728,20 @@ const SummaryScreen = ({
     style: styles.backButton,
     onClick: onBack
   }, /*#__PURE__*/React.createElement(BackIcon, null), " Back"), /*#__PURE__*/React.createElement("div", {
+    style: { position: 'relative', marginBottom: '16px' }
+  }, /*#__PURE__*/React.createElement("div", {
     style: styles.header,
     className: "animate-in"
   }, /*#__PURE__*/React.createElement("div", {
     style: styles.stepIndicator
   }, "Complete"), /*#__PURE__*/React.createElement("h1", {
     style: styles.title
-  }, "Summary")), /*#__PURE__*/React.createElement("div", {
+  }, "Summary")), /*#__PURE__*/React.createElement(DemoTooltip, {
+    visible: showDemoSummaryTooltip,
+    message: "You've analysed a triple acid-base disorder! Tap New Analysis to try with your own patient data, or analyse the same blood gas with the physico-chemical model — BloodGasPro supports both.",
+    position: "bottom",
+    onDismiss: dismissDemoSummaryTooltip
+  })), /*#__PURE__*/React.createElement("div", {
     style: styles.card,
     className: "animate-in stagger-1"
   }, /*#__PURE__*/React.createElement("div", {
@@ -8800,11 +8934,21 @@ const FindCauseScreen = ({
   approach,
   onBack,
   onRestart,
-  onSwitchToStewart
+  onSwitchToStewart,
+  isDemoMode = false
 }) => {
   // For Stewart pathway, skip directly to summary - the analysis IS the endpoint
   const initialStep = approach === 'stewart' ? 'summary' : 'syndromes';
   const [currentStep, setCurrentStep] = useState(initialStep); // syndromes, overview, process-0, process-1, ..., summary
+
+  // Demo tooltip states
+  const [showDemoOverviewTooltip, setShowDemoOverviewTooltip] = useState(() => {
+    return isDemoMode && safeLocalStorage.getItem('bloodgaspro_tooltip_overview_seen') !== 'true';
+  });
+  const dismissDemoOverviewTooltip = () => {
+    safeLocalStorage.setItem('bloodgaspro_tooltip_overview_seen', 'true');
+    setShowDemoOverviewTooltip(false);
+  };
 
   // Check for syndromes
   const syndromes = checkSyndromePatterns(data);
@@ -8833,8 +8977,8 @@ const FindCauseScreen = ({
         type: 'metalkalosis',
         label: 'Metabolic alkalosis'
       });
-    } else if (data.deltaInterpretation && data.deltaInterpretation.includes('metabolic alkalosis') && data.chronicHypercapniaConfirmed !== true && data.chronicHypercapniaSelection == null) {
-      // Old behavior for backward compatibility: only if user hasn't made a decision
+    } else if (data.deltaInterpretation && (data.deltaInterpretation.includes('metabolic alkalosis') || data.deltaInterpretation === '↑HCO₃ component') && data.chronicHypercapniaConfirmed !== true && data.chronicHypercapniaSelection == null) {
+      // Delta ratio > 2 suggests concurrent metabolic alkalosis; only if user hasn't made a decision
       processes.push({
         type: 'metalkalosis',
         label: 'Metabolic alkalosis'
@@ -9016,11 +9160,18 @@ const FindCauseScreen = ({
       style: styles.backButton,
       onClick: onBack
     }, /*#__PURE__*/React.createElement(BackIcon, null), " Back"), /*#__PURE__*/React.createElement("div", {
+      style: { position: 'relative', marginBottom: '16px' }
+    }, /*#__PURE__*/React.createElement("div", {
       style: styles.header,
       className: "animate-in"
     }, /*#__PURE__*/React.createElement("h1", {
       style: styles.title
-    }, "Processes to Investigate")), /*#__PURE__*/React.createElement("div", {
+    }, "Processes to Investigate")), showDemoOverviewTooltip && uniqueProcesses.length > 0 && /*#__PURE__*/React.createElement(DemoTooltip, {
+      visible: true,
+      message: "BloodGasPro identified " + uniqueProcesses.length + " acid-base processes. It will guide you through each one. Tap \"Begin Investigation\" below to start.",
+      position: "bottom",
+      onDismiss: dismissDemoOverviewTooltip
+    })), /*#__PURE__*/React.createElement("div", {
       style: styles.card,
       className: "animate-in stagger-1"
     }, /*#__PURE__*/React.createElement("div", {
@@ -9098,7 +9249,8 @@ const FindCauseScreen = ({
       approach: approach,
       onRestart: onRestart,
       onSwitchToStewart: onSwitchToStewart,
-      onBack: () => lastProcessIndex >= 0 ? setCurrentStep(`process-${lastProcessIndex}`) : setCurrentStep('overview')
+      onBack: () => lastProcessIndex >= 0 ? setCurrentStep(`process-${lastProcessIndex}`) : setCurrentStep('overview'),
+      isDemoMode: isDemoMode
     }));
   }
 
@@ -9121,7 +9273,8 @@ const FindCauseScreen = ({
         data: data,
         setData: setData,
         onNext: () => goToNextProcess(processIndex),
-        onBack: () => goToPrevProcess(processIndex)
+        onBack: () => goToPrevProcess(processIndex),
+        isDemoMode: isDemoMode
       }));
     case 'nagma':
       return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(ProgressBar, {
@@ -9141,7 +9294,8 @@ const FindCauseScreen = ({
         setData: setData,
         processNumber: processNumber,
         onNext: () => goToNextProcess(processIndex),
-        onBack: () => goToPrevProcess(processIndex)
+        onBack: () => goToPrevProcess(processIndex),
+        isDemoMode: isDemoMode
       }));
     case 'respacidosis':
       return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(ProgressBar, {
@@ -9151,7 +9305,8 @@ const FindCauseScreen = ({
         setData: setData,
         processNumber: processNumber,
         onNext: () => goToNextProcess(processIndex),
-        onBack: () => goToPrevProcess(processIndex)
+        onBack: () => goToPrevProcess(processIndex),
+        isDemoMode: isDemoMode
       }));
     case 'respalkalosis':
       return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(ProgressBar, {
@@ -9967,6 +10122,262 @@ const VentilatoryRatioScreen = ({
 // ============================================
 
 // ============================================
+// DEMO MODE CONSTANTS AND COMPONENTS
+// ============================================
+
+const DEMO_CASE = {
+  data: {
+    pH: '7.15',
+    paCO2: '60',
+    hco3: '20',
+    na: '138',
+    cl: '91',
+    albumin: '35',
+    lactate: '4',
+    ketones: '0.5',
+    sampleType: 'abg'
+  }
+};
+
+// Demo Offer Screen - shown after disclaimer for first-time users
+const DemoOfferModal = ({ onTryDemo, onSkip }) => {
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: 'rgba(0,0,0,0.4)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '20px',
+      zIndex: 10000
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: 'rgba(var(--bg-primary-rgb, 255,255,255), 0.92)',
+      backdropFilter: 'blur(10px)',
+      WebkitBackdropFilter: 'blur(10px)',
+      borderRadius: '16px',
+      padding: '16px 20px',
+      maxWidth: '280px',
+      width: '100%',
+      textAlign: 'center',
+      boxShadow: '0 12px 40px rgba(0,0,0,0.25)'
+    }
+  },
+    /*#__PURE__*/React.createElement("h1", {
+      style: {
+        fontSize: '26px',
+        fontWeight: '800',
+        letterSpacing: '-0.03em',
+        marginBottom: '8px',
+        background: 'linear-gradient(135deg, var(--text-primary) 0%, var(--accent) 100%)',
+        WebkitBackgroundClip: 'text',
+        WebkitTextFillColor: 'transparent',
+        backgroundClip: 'text'
+      }
+    }, "BloodGasPro"),
+    /*#__PURE__*/React.createElement("p", {
+      style: {
+        fontSize: '14px',
+        color: 'var(--text-secondary)',
+        marginBottom: '16px',
+        lineHeight: '1.4'
+      }
+    }, "Want to see how it works with an example case?"),
+    /*#__PURE__*/React.createElement("button", {
+      onClick: onTryDemo,
+      style: {
+        width: '100%',
+        padding: '12px 16px',
+        border: 'none',
+        borderRadius: '10px',
+        background: 'var(--accent)',
+        color: 'white',
+        fontSize: '15px',
+        fontWeight: '600',
+        fontFamily: 'var(--font)',
+        cursor: 'pointer',
+        marginBottom: '8px'
+      }
+    }, "Try example case"),
+    /*#__PURE__*/React.createElement("button", {
+      onClick: onSkip,
+      style: {
+        width: '100%',
+        padding: '8px',
+        background: 'none',
+        border: 'none',
+        color: 'var(--text-tertiary)',
+        fontSize: '13px',
+        cursor: 'pointer',
+        fontFamily: 'var(--font)'
+      }
+    }, "Skip to main menu")
+  ));
+};
+
+// Demo Case Modal - shows clinical scenario before starting demo
+const DemoCaseModal = ({ onContinue }) => {
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: 'rgba(0,0,0,0.7)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '20px',
+      zIndex: 10000
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: 'var(--bg-primary)',
+      borderRadius: '16px',
+      padding: '24px',
+      maxWidth: '340px',
+      width: '100%',
+      boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
+    }
+  },
+    /*#__PURE__*/React.createElement("div", {
+      style: {
+        textAlign: 'center',
+        marginBottom: '16px'
+      }
+    },
+      /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: '13px',
+          fontWeight: '600',
+          textTransform: 'uppercase',
+          letterSpacing: '1px',
+          color: 'var(--accent)'
+        }
+      }, "Example Case")
+    ),
+    /*#__PURE__*/React.createElement("div", {
+      style: {
+        background: 'var(--accent-light)',
+        borderRadius: '12px',
+        padding: '16px',
+        marginBottom: '24px'
+      }
+    },
+      /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: '15px',
+          lineHeight: '1.7',
+          color: 'var(--text-secondary)'
+        }
+      },
+        /*#__PURE__*/React.createElement("p", {
+          style: { marginBottom: '12px' }
+        }, "68-year-old man with COPD presents to the Emergency Department with fever, cough, and confusion."),
+        /*#__PURE__*/React.createElement("p", null, "He has been vomiting for the past two days and has an acute kidney injury (creatinine 280 \u03BCmol/L).")
+      )
+    ),
+    /*#__PURE__*/React.createElement("button", {
+      onClick: onContinue,
+      style: {
+        width: '100%',
+        padding: '14px 20px',
+        border: 'none',
+        borderRadius: '12px',
+        background: 'var(--accent)',
+        color: 'white',
+        fontSize: '17px',
+        fontWeight: '600',
+        fontFamily: 'var(--font)',
+        cursor: 'pointer'
+      }
+    }, "See the ABG \u2192")
+  ));
+};
+
+// Demo Tooltip - reusable tooltip component for demo guidance
+const DemoTooltip = ({ message, onDismiss, position = 'bottom', visible = true }) => {
+  if (!visible) return null;
+
+  const positionStyles = {
+    bottom: { top: '100%', left: '50%', transform: 'translateX(-50%)', marginTop: '8px' },
+    top: { bottom: '100%', left: '50%', transform: 'translateX(-50%)', marginBottom: '8px' },
+    left: { right: '100%', top: '50%', transform: 'translateY(-50%)', marginRight: '8px' },
+    right: { left: '100%', top: '50%', transform: 'translateY(-50%)', marginLeft: '8px' }
+  };
+
+  const arrowStyles = {
+    bottom: { top: '-6px', left: '50%', transform: 'translateX(-50%) rotate(45deg)' },
+    top: { bottom: '-6px', left: '50%', transform: 'translateX(-50%) rotate(45deg)' },
+    left: { right: '-6px', top: '50%', transform: 'translateY(-50%) rotate(45deg)' },
+    right: { left: '-6px', top: '50%', transform: 'translateY(-50%) rotate(45deg)' }
+  };
+
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: 'absolute',
+      ...positionStyles[position],
+      background: 'var(--accent)',
+      color: 'white',
+      padding: '12px 16px',
+      borderRadius: '12px',
+      fontSize: '13px',
+      lineHeight: '1.5',
+      maxWidth: '240px',
+      boxShadow: '0 4px 20px rgba(139, 92, 246, 0.4)',
+      zIndex: 1000
+    }
+  },
+    /*#__PURE__*/React.createElement("div", {
+      style: {
+        position: 'absolute',
+        ...arrowStyles[position],
+        width: '12px',
+        height: '12px',
+        background: 'var(--accent)'
+      }
+    }),
+    /*#__PURE__*/React.createElement("div", { style: { marginBottom: '8px' } }, message),
+    /*#__PURE__*/React.createElement("button", {
+      onClick: onDismiss,
+      style: {
+        background: 'rgba(255,255,255,0.2)',
+        border: 'none',
+        color: 'white',
+        fontSize: '12px',
+        fontWeight: '600',
+        padding: '4px 12px',
+        borderRadius: '6px',
+        cursor: 'pointer',
+        fontFamily: 'var(--font)'
+      }
+    }, "Got it")
+  );
+};
+
+// Demo Banner - shows "EXAMPLE" indicator during demo mode
+const DemoBanner = () => {
+  return /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: '11px',
+      fontWeight: '700',
+      textTransform: 'uppercase',
+      letterSpacing: '0.5px',
+      color: 'white',
+      background: 'var(--accent)',
+      padding: '4px 8px',
+      borderRadius: '6px'
+    }
+  }, "Example");
+};
+
+// ============================================
 // DISCLAIMER POPUP (Short version on launch)
 // ============================================
 
@@ -10578,7 +10989,8 @@ const SettingsScreen = ({
   onBack,
   onViewTerms,
   onResetDisclaimer,
-  onNavigateToDDx
+  onNavigateToDDx,
+  onReplayDemo
 }) => {
   const ddxButtonStyle = {
     width: '100%',
@@ -10677,9 +11089,44 @@ const SettingsScreen = ({
     style: {
       color: 'var(--text-tertiary)'
     }
-  }, "\u2192"))), /*#__PURE__*/React.createElement("div", {
+  }, "\u2192"))), onReplayDemo && /*#__PURE__*/React.createElement("div", {
     style: styles.card,
     className: "animate-in stagger-3"
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '12px',
+      fontWeight: '600',
+      color: 'var(--text-tertiary)',
+      letterSpacing: '0.5px',
+      marginBottom: '12px'
+    }
+  }, "TUTORIAL"), /*#__PURE__*/React.createElement("button", {
+    onClick: onReplayDemo,
+    style: {
+      width: '100%',
+      padding: '14px',
+      background: 'var(--accent-light)',
+      border: '1px solid var(--accent)',
+      borderRadius: '8px',
+      fontSize: '14px',
+      fontFamily: 'var(--font)',
+      cursor: 'pointer',
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      color: 'var(--accent)',
+      fontWeight: '500'
+    }
+  }, /*#__PURE__*/React.createElement("span", null, "Replay Example Case"), /*#__PURE__*/React.createElement("span", null, "\u2192")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: '8px',
+      fontSize: '12px',
+      color: 'var(--text-tertiary)',
+      lineHeight: '1.5'
+    }
+  }, "Walk through a guided triple acid-base disorder case to learn app features.")), /*#__PURE__*/React.createElement("div", {
+    style: styles.card,
+    className: "animate-in stagger-4"
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: '12px',
@@ -10726,6 +11173,16 @@ const App = () => {
   const [showFindCause, setShowFindCause] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
+
+  // Demo mode state
+  const [isDemoMode, setIsDemoMode] = useState(false);
+  // TODO: Restore localStorage check after testing demo
+  // const [showDemoOffer, setShowDemoOffer] = useState(() => {
+  //   return safeLocalStorage.getItem('bloodgaspro_demo_offered') !== 'true';
+  // });
+  const [showDemoOffer, setShowDemoOffer] = useState(true); // Always show for testing
+  const [showDemoCaseModal, setShowDemoCaseModal] = useState(false);
+
   const handleRestart = () => {
     setApproach(null);
     setStep(0);
@@ -10733,6 +11190,34 @@ const App = () => {
     setShowFindCause(false);
     setShowSettings(false);
     setShowTerms(false);
+    setIsDemoMode(false);
+  };
+
+  const handleStartDemo = () => {
+    setShowDemoCaseModal(false);
+    setIsDemoMode(true);
+    setData(DEMO_CASE.data);
+    setApproach('traditional');
+    setStep(1);
+  };
+
+  const handleSkipDemo = () => {
+    safeLocalStorage.setItem('bloodgaspro_demo_offered', 'true');
+    setShowDemoOffer(false);
+  };
+
+  const handleReplayDemo = () => {
+    // Clear demo tooltip localStorage so they show again
+    safeLocalStorage.removeItem('bloodgaspro_tooltip_info_seen');
+    safeLocalStorage.removeItem('bloodgaspro_tooltip_overview_seen');
+    safeLocalStorage.removeItem('bloodgaspro_tooltip_hagma_intro_seen');
+    safeLocalStorage.removeItem('bloodgaspro_tooltip_ag_seen');
+    safeLocalStorage.removeItem('bloodgaspro_tooltip_unexplained_seen');
+    safeLocalStorage.removeItem('bloodgaspro_tooltip_renal_seen');
+    safeLocalStorage.removeItem('bloodgaspro_tooltip_copd_seen');
+    safeLocalStorage.removeItem('bloodgaspro_tooltip_vomiting_seen');
+    setShowSettings(false);
+    setShowDemoCaseModal(true);
   };
   const handleSwitchToStewart = () => {
     setApproach('stewart');
@@ -10755,7 +11240,8 @@ const App = () => {
       onNavigateToDDx: (ddxType) => {
         setShowSettings(false);
         setApproach('ddx-' + ddxType);
-      }
+      },
+      onReplayDemo: handleReplayDemo
     });
   }
 
@@ -10773,15 +11259,32 @@ const App = () => {
     });
   }
 
-  // Landing
-  if (!approach) {
-    return /*#__PURE__*/React.createElement(LandingScreen, {
-      onSelect: a => {
-        setApproach(a);
-        setStep(1);
-      },
-      onOpenSettings: () => setShowSettings(true)
+  // Show demo case modal
+  if (showDemoCaseModal) {
+    return /*#__PURE__*/React.createElement(DemoCaseModal, {
+      onContinue: handleStartDemo
     });
+  }
+
+  // Landing (with optional demo offer modal overlay)
+  if (!approach) {
+    return /*#__PURE__*/React.createElement(React.Fragment, null,
+      /*#__PURE__*/React.createElement(LandingScreen, {
+        onSelect: a => {
+          setApproach(a);
+          setStep(1);
+        },
+        onOpenSettings: () => setShowSettings(true)
+      }),
+      showDemoOffer && /*#__PURE__*/React.createElement(DemoOfferModal, {
+        onTryDemo: () => {
+          safeLocalStorage.setItem('bloodgaspro_demo_offered', 'true');
+          setShowDemoOffer(false);
+          setShowDemoCaseModal(true);
+        },
+        onSkip: handleSkipDemo
+      })
+    );
   }
 
   // Oxygenation screen
@@ -10825,7 +11328,8 @@ const App = () => {
       approach: approach,
       onBack: handleBackFromFindCause,
       onRestart: handleRestart,
-      onSwitchToStewart: handleSwitchToStewart
+      onSwitchToStewart: handleSwitchToStewart,
+      isDemoMode: isDemoMode
     });
   }
 
@@ -10840,7 +11344,8 @@ const App = () => {
           setData: setData,
           onNext: () => setStep(2),
           onBack: handleRestart,
-          approach: approach
+          approach: approach,
+          isDemoMode: isDemoMode
         }));
       case 2:
         return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(ProgressBar, {
@@ -10851,7 +11356,8 @@ const App = () => {
           onNext: () => setShowFindCause(true),
           onBack: () => setStep(1),
           onSwitchToStewart: handleSwitchToStewart,
-          onRestart: handleRestart
+          onRestart: handleRestart,
+          isDemoMode: isDemoMode
         }));
     }
   }
