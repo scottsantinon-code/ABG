@@ -3314,7 +3314,7 @@ const Step2_FullAnalysis = ({
     }
   }, "<", "0.4 NAGMA | 0.4-0.8 mixed | 0.8-2 pure | ", ">", "2 met alk")))), /*#__PURE__*/React.createElement(DemoTooltip, {
     visible: showDemoInfoTooltip,
-    message: "This page shows the key numbers. Tap Show working to see how each calculation was made.",
+    message: "This page shows the key calculations you'd find on other blood gas apps. Tap \"Show working\" to see the maths.",
     position: "bottom",
     onDismiss: dismissDemoInfoTooltip
   })), /*#__PURE__*/React.createElement("button", {
@@ -5810,7 +5810,7 @@ const HAGMAWorkupScreen = ({
       }
     }, "ⓘ")), /*#__PURE__*/React.createElement(DemoTooltip, {
       visible: showDemoRenalTooltip,
-      message: "In this case, the patient has an AKI. Select renal failure as a likely cause and then click Continue below.",
+      message: "For this patient, we know he has an AKI and the other causes of HAGMA seem unlikely. Select 'Renal failure' and then click continue below.",
       position: "bottom",
       onDismiss: dismissDemoRenalTooltip
     })), /*#__PURE__*/React.createElement("div", {
@@ -6219,7 +6219,7 @@ const HAGMAWorkupScreen = ({
     }
   }, "Causes"))), /*#__PURE__*/React.createElement(DemoTooltip, {
     visible: showDemoHAGMAIntroTooltip,
-    message: "This patient's lactate is 4 and ketones are 0.5. BloodGasPro graphs these values visually and demonstrates how much of the anion gap they explain. In this case, there are still 13 unexplained anions. Click below to investigate why.",
+    message: "This patient's lactate is 4 and ketones are 1.5. BloodGasPro graphs these values visually and demonstrates how much of the anion gap they explain. In this case, there are still 12 unexplained anions. Click below to investigate why.",
     position: "bottom",
     onDismiss: dismissDemoHAGMAIntroTooltip
   })), hasAnyInput && /*#__PURE__*/React.createElement("div", {
@@ -6999,7 +6999,7 @@ const MetAlkalosisScreen = ({
     onClick: () => toggleCause('vomiting')
   }, checkMark(causes.includes('vomiting')), /*#__PURE__*/React.createElement("span", null, "Vomiting / NG suction")), /*#__PURE__*/React.createElement(DemoTooltip, {
     visible: showDemoVomitingTooltip,
-    message: "The patient has been vomiting — select this as a likely cause and then click Continue below.",
+    message: "Moving on to the metabolic alkalosis, you determine that this is likely explained by the patient's history of vomiting. Select vomiting here and then click continue below.",
     position: "bottom",
     onDismiss: dismissDemoVomitingTooltip
   })), /*#__PURE__*/React.createElement("div", {
@@ -7760,7 +7760,7 @@ const SummaryScreen = ({
     style: styles.title
   }, "Summary")), /*#__PURE__*/React.createElement(DemoTooltip, {
     visible: showDemoSummaryTooltip,
-    message: "You've analysed a triple acid-base disorder! Tap New Analysis to try with your own patient data, or analyse the same blood gas with the physico-chemical model — BloodGasPro supports both.",
+    message: "Congrats! You've analysed a triple acid-base disorder! Tap New Analysis to try with your own patient data, or analyse the same blood gas with the physico-chemical model — BloodGasPro supports both.",
     position: "bottom",
     onDismiss: dismissDemoSummaryTooltip
   })), /*#__PURE__*/React.createElement("div", {
@@ -9231,7 +9231,7 @@ const FindCauseScreen = ({
       }
     }, "Normal acid-base status"))), showDemoOverviewTooltip && uniqueProcesses.length > 0 && /*#__PURE__*/React.createElement(DemoTooltip, {
       visible: true,
-      message: "BloodGasPro identified " + uniqueProcesses.length + " acid-base disturbances. It will guide you through each one. Tap \"Begin Investigation\" below to start.",
+      message: "In this case we identified " + uniqueProcesses.length + " acid-base disturbances. BloodGasPro doesn't stop here, now we'll work through understanding what's driving these disturbances for this patient.",
       position: "bottom",
       onDismiss: dismissDemoOverviewTooltip
     })), hiddenHAGMA && /*#__PURE__*/React.createElement("div", {
@@ -10164,7 +10164,7 @@ const DEMO_CASE = {
     cl: '91',
     albumin: '35',
     lactate: '4',
-    ketones: '0.5',
+    ketones: '1.5',
     sampleType: 'abg'
   }
 };
@@ -10361,7 +10361,7 @@ const DemoTooltip = ({ message, onDismiss, position = 'bottom', visible = true }
       lineHeight: '1.5',
       maxWidth: '240px',
       boxShadow: '0 4px 20px rgba(139, 92, 246, 0.4)',
-      zIndex: 1000
+      zIndex: 10001
     }
   },
     /*#__PURE__*/React.createElement("div", {
