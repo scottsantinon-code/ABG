@@ -2092,10 +2092,9 @@ const Step1_AllValues = ({
 };
 
 // Dual Interpretation Card for Pathway C (Normal pH + Normal AG + Abnormal values)
-// Guided approach to help user decide between respiratory vs metabolic primary
+// Guided approach: ask user first, show guidance only if they're unsure
 const DualInterpretationCard = ({ hco3, paCO2, onSelect, selection }) => {
-  const [clinicalAnswer, setClinicalAnswer] = React.useState(null); // 'yes', 'no', or 'unsure'
-  const [showMath, setShowMath] = React.useState(false);
+  const [showGuidance, setShowGuidance] = React.useState(false);
 
   // Memoized calculations
   const calculations = React.useMemo(() => {
@@ -2136,65 +2135,93 @@ const DualInterpretationCard = ({ hco3, paCO2, onSelect, selection }) => {
     }
     const metFits = Math.abs(paCO2 - metExpectedPaCO2) <= metTolerance;
 
-    // Determine which label to show
+    // Determine labels
     const respLabel = respDirection === 'acidosis' ? 'Respiratory acidosis' : 'Respiratory alkalosis';
     const metLabel = metDirection === 'acidosis' ? 'Metabolic acidosis' : 'Metabolic alkalosis';
+
+    // Clinical clues
+    const respClues = respDirection === 'acidosis'
+      ? 'COPD, asthma, pneumonia, sedation, neuromuscular weakness, obesity hypoventilation'
+      : 'Anxiety, pain, PE, pregnancy, high altitude, mechanical ventilation';
+    const metClues = metDirection === 'acidosis'
+      ? 'Diarrhoea, RTA, early renal failure, acetazolamide'
+      : 'Vomiting, NG suction, diuretics, volume contraction';
 
     return {
       respDirection, metDirection, respLabel, metLabel,
       respExpectedHCO3Chronic, metExpectedPaCO2, metTolerance,
-      respFits, metFits
+      respFits, metFits, respClues, metClues
     };
   }, [paCO2, hco3]);
 
-  const { respDirection, metDirection, respLabel, metLabel, respExpectedHCO3Chronic, metExpectedPaCO2, metTolerance, respFits, metFits } = calculations;
+  const { respDirection, metDirection, respLabel, metLabel, respExpectedHCO3Chronic, metExpectedPaCO2, metTolerance, respFits, metFits, respClues, metClues } = calculations;
 
-  // Determine recommendation based on clinical answer + math
-  const getRecommendation = () => {
-    if (clinicalAnswer === 'yes') {
-      // Known lung disease - favour respiratory
-      if (respFits) return { favour: 'respiratory', confidence: 'high', reason: 'Clinical history and compensation pattern both support respiratory primary.' };
-      return { favour: 'respiratory', confidence: 'medium', reason: 'Clinical history suggests respiratory, though compensation pattern is atypical.' };
-    } else if (clinicalAnswer === 'no') {
-      // No lung disease - favour metabolic
-      if (metFits) return { favour: 'metabolic', confidence: 'high', reason: 'No respiratory history and compensation pattern supports metabolic primary.' };
-      return { favour: 'metabolic', confidence: 'medium', reason: 'No respiratory history suggests metabolic, though compensation pattern is atypical.' };
-    } else if (clinicalAnswer === 'unsure') {
-      // Unsure - use math only
-      if (respFits && !metFits) return { favour: 'respiratory', confidence: 'medium', reason: 'Compensation pattern better fits respiratory primary.' };
-      if (metFits && !respFits) return { favour: 'metabolic', confidence: 'medium', reason: 'Compensation pattern better fits metabolic primary.' };
-      if (respFits && metFits) return { favour: null, confidence: 'low', reason: 'Both interpretations fit mathematically. Clinical context is key.' };
-      return { favour: null, confidence: 'low', reason: 'Neither interpretation fits perfectly. Consider mixed disorder.' };
-    }
-    return null;
-  };
-
-  const recommendation = clinicalAnswer ? getRecommendation() : null;
-
-  const buttonStyle = (isSelected) => ({
-    flex: 1,
-    padding: '14px 12px',
+  const buttonStyle = (isSelected, isMain = false) => ({
+    flex: isMain ? 1 : undefined,
+    padding: isMain ? '16px 14px' : '12px 16px',
     border: isSelected ? '2px solid var(--accent)' : '1px solid var(--border)',
     borderRadius: '10px',
     background: isSelected ? 'rgba(139, 92, 246, 0.1)' : 'var(--bg-primary)',
     cursor: 'pointer',
     fontFamily: 'var(--font)',
     fontWeight: '600',
-    fontSize: '14px',
+    fontSize: isMain ? '14px' : '13px',
     color: isSelected ? 'var(--accent)' : 'var(--text-primary)'
   });
 
-  const clinicalButtonStyle = (value) => ({
-    padding: '10px 16px',
-    border: clinicalAnswer === value ? '2px solid var(--accent)' : '1px solid var(--border)',
+  const notSureButtonStyle = {
+    width: '100%',
+    padding: '10px 14px',
+    border: showGuidance ? '2px solid var(--accent)' : '1px solid var(--border)',
     borderRadius: '8px',
-    background: clinicalAnswer === value ? 'rgba(139, 92, 246, 0.1)' : 'var(--bg-primary)',
+    background: showGuidance ? 'rgba(139, 92, 246, 0.05)' : 'transparent',
     cursor: 'pointer',
     fontFamily: 'var(--font)',
     fontWeight: '500',
     fontSize: '13px',
-    color: clinicalAnswer === value ? 'var(--accent)' : 'var(--text-primary)'
-  });
+    color: 'var(--text-secondary)',
+    marginTop: '10px'
+  };
+
+  // If user has made a selection, show confirmation
+  if (selection && !showGuidance) {
+    const selectedLabel = selection === 'respiratory' ? respLabel : metLabel;
+    return /*#__PURE__*/React.createElement("div", {
+      style: { marginTop: '16px' }
+    },
+      /*#__PURE__*/React.createElement("div", {
+        style: {
+          padding: '14px',
+          background: 'rgba(16, 185, 129, 0.1)',
+          border: '1px solid rgba(16, 185, 129, 0.3)',
+          borderRadius: '10px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }
+      },
+        /*#__PURE__*/React.createElement("div", null,
+          /*#__PURE__*/React.createElement("div", {
+            style: { fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '2px' }
+          }, "Primary disorder"),
+          /*#__PURE__*/React.createElement("div", {
+            style: { fontSize: '15px', fontWeight: '600', color: 'var(--success)' }
+          }, selectedLabel, " (compensated)")
+        ),
+        /*#__PURE__*/React.createElement("button", {
+          onClick: () => onSelect(null),
+          style: {
+            background: 'none',
+            border: 'none',
+            color: 'var(--text-tertiary)',
+            fontSize: '12px',
+            cursor: 'pointer',
+            fontFamily: 'var(--font)'
+          }
+        }, "Change")
+      )
+    );
+  }
 
   return /*#__PURE__*/React.createElement("div", {
     style: { marginTop: '16px' }
@@ -2213,115 +2240,129 @@ const DualInterpretationCard = ({ hco3, paCO2, onSelect, selection }) => {
     },
       /*#__PURE__*/React.createElement("strong", null, "Normal pH with abnormal values"),
       /*#__PURE__*/React.createElement("br", null),
-      "This could be a compensated respiratory or metabolic disorder. Let's work out which."
+      "This could be a compensated respiratory or metabolic disorder."
     ),
 
-    // Step 1: Clinical question
+    // Primary question - ask user directly
     /*#__PURE__*/React.createElement("div", {
       style: {
         padding: '14px',
         background: 'var(--bg-secondary)',
         borderRadius: '10px',
-        marginBottom: '12px'
+        marginBottom: showGuidance ? '12px' : '0'
       }
     },
       /*#__PURE__*/React.createElement("div", {
-        style: { fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '10px' }
-      }, "Does this patient have known lung disease or acute respiratory symptoms?"),
+        style: { fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '12px' }
+      }, "What do you think is the primary disorder?"),
       /*#__PURE__*/React.createElement("div", {
-        style: { display: 'flex', gap: '8px', flexWrap: 'wrap' }
+        style: { display: 'flex', gap: '10px' }
       },
         /*#__PURE__*/React.createElement("button", {
-          style: clinicalButtonStyle('yes'),
-          onClick: () => setClinicalAnswer('yes')
-        }, "Yes"),
+          style: buttonStyle(selection === 'respiratory', true),
+          onClick: () => { setShowGuidance(false); onSelect && onSelect('respiratory'); }
+        }, respLabel),
         /*#__PURE__*/React.createElement("button", {
-          style: clinicalButtonStyle('no'),
-          onClick: () => setClinicalAnswer('no')
-        }, "No"),
-        /*#__PURE__*/React.createElement("button", {
-          style: clinicalButtonStyle('unsure'),
-          onClick: () => setClinicalAnswer('unsure')
-        }, "Unsure")
-      )
+          style: buttonStyle(selection === 'metabolic', true),
+          onClick: () => { setShowGuidance(false); onSelect && onSelect('metabolic'); }
+        }, metLabel)
+      ),
+      /*#__PURE__*/React.createElement("button", {
+        style: notSureButtonStyle,
+        onClick: () => setShowGuidance(!showGuidance)
+      }, showGuidance ? "Hide guidance ▲" : "Not sure? Get help deciding ▼")
     ),
 
-    // Step 2: Show recommendation after clinical answer
-    clinicalAnswer && /*#__PURE__*/React.createElement(React.Fragment, null,
-      // Compensation math (collapsible)
+    // Guidance section (only shown when "Not sure" is clicked)
+    showGuidance && /*#__PURE__*/React.createElement("div", {
+      style: {
+        padding: '14px',
+        background: 'var(--bg-tertiary)',
+        borderRadius: '10px',
+        border: '1px solid var(--border)'
+      }
+    },
+      // Compensation analysis
       /*#__PURE__*/React.createElement("div", {
-        style: {
-          padding: '12px 14px',
-          background: 'var(--bg-tertiary)',
-          borderRadius: '8px',
-          marginBottom: '12px'
-        }
+        style: { marginBottom: '16px' }
       },
         /*#__PURE__*/React.createElement("div", {
-          style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' },
-          onClick: () => setShowMath(!showMath)
-        },
-          /*#__PURE__*/React.createElement("span", {
-            style: { fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)' }
-          }, "Compensation analysis"),
-          /*#__PURE__*/React.createElement("span", {
-            style: { fontSize: '11px', color: 'var(--text-tertiary)' }
-          }, showMath ? '▼ Hide' : '▶ Show')
-        ),
-        showMath && /*#__PURE__*/React.createElement("div", {
-          style: { marginTop: '10px', fontSize: '12px', lineHeight: '1.6', color: 'var(--text-secondary)' }
+          style: { fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', marginBottom: '8px' }
+        }, "Compensation analysis"),
+        /*#__PURE__*/React.createElement("div", {
+          style: { fontSize: '12px', lineHeight: '1.6', color: 'var(--text-secondary)' }
         },
           /*#__PURE__*/React.createElement("div", {
-            style: { marginBottom: '8px' }
+            style: {
+              padding: '8px 10px',
+              background: respFits ? 'rgba(16, 185, 129, 0.1)' : 'rgba(245, 158, 11, 0.1)',
+              borderRadius: '6px',
+              marginBottom: '6px'
+            }
           },
-            /*#__PURE__*/React.createElement("strong", null, "If ", respLabel, ":"),
-            " Expected HCO\u2083 \u2248 ", respExpectedHCO3Chronic.toFixed(0), ". ",
-            "Actual: ", hco3, ". ",
+            /*#__PURE__*/React.createElement("strong", null, "If ", respLabel, ": "),
+            "Expected HCO\u2083 \u2248 ", respExpectedHCO3Chronic.toFixed(0), ", Actual: ", hco3, " ",
             /*#__PURE__*/React.createElement("span", {
-              style: { color: respFits ? 'var(--success)' : 'var(--warning)' }
+              style: { fontWeight: '600', color: respFits ? 'var(--success)' : 'var(--warning)' }
             }, respFits ? '\u2713 Fits' : '\u2717 Doesn\'t fit')
           ),
-          /*#__PURE__*/React.createElement("div", null,
-            /*#__PURE__*/React.createElement("strong", null, "If ", metLabel, ":"),
-            " Expected PaCO\u2082 \u2248 ", metExpectedPaCO2.toFixed(0), ". ",
-            "Actual: ", paCO2, ". ",
+          /*#__PURE__*/React.createElement("div", {
+            style: {
+              padding: '8px 10px',
+              background: metFits ? 'rgba(16, 185, 129, 0.1)' : 'rgba(245, 158, 11, 0.1)',
+              borderRadius: '6px'
+            }
+          },
+            /*#__PURE__*/React.createElement("strong", null, "If ", metLabel, ": "),
+            "Expected PaCO\u2082 \u2248 ", metExpectedPaCO2.toFixed(0), ", Actual: ", paCO2, " ",
             /*#__PURE__*/React.createElement("span", {
-              style: { color: metFits ? 'var(--success)' : 'var(--warning)' }
+              style: { fontWeight: '600', color: metFits ? 'var(--success)' : 'var(--warning)' }
             }, metFits ? '\u2713 Fits' : '\u2717 Doesn\'t fit')
           )
         )
       ),
 
-      // Recommendation
-      recommendation && /*#__PURE__*/React.createElement("div", {
-        style: {
-          padding: '12px 14px',
-          background: recommendation.confidence === 'high' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(245, 158, 11, 0.1)',
-          border: '1px solid ' + (recommendation.confidence === 'high' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(245, 158, 11, 0.3)'),
-          borderRadius: '8px',
-          marginBottom: '14px'
-        }
-      },
+      // Clinical clues
+      /*#__PURE__*/React.createElement("div", null,
         /*#__PURE__*/React.createElement("div", {
-          style: { fontSize: '12px', color: 'var(--text-secondary)', lineHeight: '1.5' }
-        }, recommendation.reason)
+          style: { fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', marginBottom: '8px' }
+        }, "Clinical clues to look for"),
+        /*#__PURE__*/React.createElement("div", {
+          style: { fontSize: '12px', lineHeight: '1.6', color: 'var(--text-secondary)' }
+        },
+          /*#__PURE__*/React.createElement("div", {
+            style: { marginBottom: '8px' }
+          },
+            /*#__PURE__*/React.createElement("strong", {
+              style: { color: 'rgb(59, 130, 246)' }
+            }, respLabel, ": "),
+            respClues
+          ),
+          /*#__PURE__*/React.createElement("div", null,
+            /*#__PURE__*/React.createElement("strong", {
+              style: { color: 'rgb(249, 115, 22)' }
+            }, metLabel, ": "),
+            metClues
+          )
+        )
       ),
 
-      // Selection buttons
+      // Summary recommendation
       /*#__PURE__*/React.createElement("div", {
-        style: { fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', marginBottom: '8px' }
-      }, "What is the primary disorder?"),
-      /*#__PURE__*/React.createElement("div", {
-        style: { display: 'flex', gap: '10px' }
+        style: {
+          marginTop: '14px',
+          padding: '10px 12px',
+          background: 'var(--bg-primary)',
+          borderRadius: '8px',
+          fontSize: '12px',
+          color: 'var(--text-secondary)',
+          lineHeight: '1.5'
+        }
       },
-        /*#__PURE__*/React.createElement("button", {
-          style: buttonStyle(selection === 'respiratory'),
-          onClick: () => onSelect && onSelect('respiratory')
-        }, respLabel),
-        /*#__PURE__*/React.createElement("button", {
-          style: buttonStyle(selection === 'metabolic'),
-          onClick: () => onSelect && onSelect('metabolic')
-        }, metLabel)
+        respFits && !metFits ? /*#__PURE__*/React.createElement("span", null, "\u2192 Compensation pattern favours ", /*#__PURE__*/React.createElement("strong", null, respLabel), ". Check history for respiratory causes.") :
+        metFits && !respFits ? /*#__PURE__*/React.createElement("span", null, "\u2192 Compensation pattern favours ", /*#__PURE__*/React.createElement("strong", null, metLabel), ". Check history for metabolic causes.") :
+        respFits && metFits ? /*#__PURE__*/React.createElement("span", null, "\u2192 Both patterns fit mathematically. Clinical history is essential to differentiate.") :
+        /*#__PURE__*/React.createElement("span", null, "\u2192 Neither pattern fits perfectly. Consider a mixed disorder or early/evolving process.")
       )
     )
   );
