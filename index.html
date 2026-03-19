@@ -1631,20 +1631,15 @@ const Step1_AllValues = ({
     style: styles.backButton,
     onClick: onBack
   }, /*#__PURE__*/React.createElement(BackIcon, null), " Back"), isDemoMode && /*#__PURE__*/React.createElement(DemoBanner, null)), /*#__PURE__*/React.createElement("div", {
-    style: { position: 'relative', marginBottom: '16px' }
-  }, /*#__PURE__*/React.createElement("div", {
     style: styles.header,
     className: "animate-in"
   }, /*#__PURE__*/React.createElement("div", {
     style: styles.stepIndicator
   }, "Step 1"), /*#__PURE__*/React.createElement("h1", {
     style: styles.title
-  }, "Enter Values")), /*#__PURE__*/React.createElement(DemoTooltip, {
-    visible: showDemoStep1Tooltip,
-    message: "These are the values from the patient's ABG. Tap Analyse below to see the interpretation.",
-    position: "bottom",
-    onDismiss: dismissDemoStep1Tooltip
-  })), /*#__PURE__*/React.createElement("div", {
+  }, "Enter Values")), /*#__PURE__*/React.createElement("div", {
+    style: { position: 'relative' }
+  }, /*#__PURE__*/React.createElement("div", {
     style: styles.card,
     className: "animate-in stagger-1"
   }, /*#__PURE__*/React.createElement("div", {
@@ -1920,7 +1915,12 @@ const Step1_AllValues = ({
       background: 'var(--bg-secondary)',
       outline: 'none'
     }
-  })))), /*#__PURE__*/React.createElement("button", {
+  }))), /*#__PURE__*/React.createElement(DemoTooltip, {
+    visible: showDemoStep1Tooltip,
+    message: "These are the values from the patient's ABG. Tap Analyse below to see the interpretation.",
+    position: "top",
+    onDismiss: dismissDemoStep1Tooltip
+  })), /*#__PURE__*/React.createElement("button", {
     className: "animate-in stagger-2",
     style: {
       ...styles.button,
@@ -2730,20 +2730,15 @@ const Step2_FullAnalysis = ({
     style: styles.backButton,
     onClick: onBack
   }, /*#__PURE__*/React.createElement(BackIcon, null), " Back"), isDemoMode && /*#__PURE__*/React.createElement(DemoBanner, null)), /*#__PURE__*/React.createElement("div", {
-    style: { position: 'relative', marginBottom: '16px' }
-  }, /*#__PURE__*/React.createElement("div", {
     style: styles.header,
     className: "animate-in"
   }, /*#__PURE__*/React.createElement("div", {
     style: styles.stepIndicator
   }, "Step 2"), /*#__PURE__*/React.createElement("h1", {
     style: styles.title
-  }, "Analysis")), /*#__PURE__*/React.createElement(DemoTooltip, {
-    visible: showDemoInfoTooltip,
-    message: "This page shows the key numbers. Tap Show working to see how each calculation was made.",
-    position: "bottom",
-    onDismiss: dismissDemoInfoTooltip
-  })), /*#__PURE__*/React.createElement("div", {
+  }, "Analysis")), /*#__PURE__*/React.createElement("div", {
+    style: { position: 'relative' }
+  }, /*#__PURE__*/React.createElement("div", {
     style: styles.card,
     className: "animate-in stagger-1"
   }, /*#__PURE__*/React.createElement("div", {
@@ -3304,7 +3299,12 @@ const Step2_FullAnalysis = ({
       fontSize: '12px',
       color: 'var(--text-tertiary)'
     }
-  }, "<", "0.4 NAGMA | 0.4-0.8 mixed | 0.8-2 pure | ", ">", "2 met alk")))), /*#__PURE__*/React.createElement("button", {
+  }, "<", "0.4 NAGMA | 0.4-0.8 mixed | 0.8-2 pure | ", ">", "2 met alk")))), /*#__PURE__*/React.createElement(DemoTooltip, {
+    visible: showDemoInfoTooltip,
+    message: "This page shows the key numbers. Tap Show working to see how each calculation was made.",
+    position: "top",
+    onDismiss: dismissDemoInfoTooltip
+  })), /*#__PURE__*/React.createElement("button", {
     className: "animate-in stagger-2",
     style: styles.button,
     onClick: handleNext
@@ -6036,20 +6036,15 @@ const HAGMAWorkupScreen = ({
     style: styles.backButton,
     onClick: onBack
   }, /*#__PURE__*/React.createElement(BackIcon, null), " Back"), /*#__PURE__*/React.createElement("div", {
-    style: { position: 'relative', marginBottom: '16px' }
-  }, /*#__PURE__*/React.createElement("div", {
     style: styles.header,
     className: "animate-in"
   }, /*#__PURE__*/React.createElement("div", {
     style: styles.stepIndicator
   }, "Process 1"), /*#__PURE__*/React.createElement("h1", {
     style: styles.title
-  }, "HAGMA Workup")), /*#__PURE__*/React.createElement(DemoTooltip, {
-    visible: showDemoHAGMAIntroTooltip,
-    message: "This patient's lactate is 4 and ketones are 0.5. BloodGasPro graphs these values visually and demonstrates how much of the anion gap they explain. In this case, there are still 13 unexplained anions. Click below to investigate why.",
-    position: "bottom",
-    onDismiss: dismissDemoHAGMAIntroTooltip
-  })), /*#__PURE__*/React.createElement("div", {
+  }, "HAGMA Workup")), /*#__PURE__*/React.createElement("div", {
+    style: { position: 'relative' }
+  }, /*#__PURE__*/React.createElement("div", {
     style: styles.card,
     className: "animate-in stagger-1"
   }, /*#__PURE__*/React.createElement("div", {
@@ -6209,7 +6204,12 @@ const HAGMAWorkupScreen = ({
       fontFamily: 'var(--font)',
       padding: '4px 8px'
     }
-  }, "Causes"))), hasAnyInput && /*#__PURE__*/React.createElement("div", {
+  }, "Causes"))), /*#__PURE__*/React.createElement(DemoTooltip, {
+    visible: showDemoHAGMAIntroTooltip,
+    message: "This patient's lactate is 4 and ketones are 0.5. BloodGasPro graphs these values visually and demonstrates how much of the anion gap they explain. In this case, there are still 13 unexplained anions. Click below to investigate why.",
+    position: "top",
+    onDismiss: dismissDemoHAGMAIntroTooltip
+  })), hasAnyInput && /*#__PURE__*/React.createElement("div", {
     style: styles.card,
     className: "animate-in stagger-2"
   }, /*#__PURE__*/React.createElement(AnionGapBar, {
@@ -9177,18 +9177,13 @@ const FindCauseScreen = ({
       style: styles.backButton,
       onClick: onBack
     }, /*#__PURE__*/React.createElement(BackIcon, null), " Back"), /*#__PURE__*/React.createElement("div", {
-      style: { position: 'relative', marginBottom: '16px' }
-    }, /*#__PURE__*/React.createElement("div", {
       style: styles.header,
       className: "animate-in"
     }, /*#__PURE__*/React.createElement("h1", {
       style: styles.title
-    }, "Processes to Investigate")), showDemoOverviewTooltip && uniqueProcesses.length > 0 && /*#__PURE__*/React.createElement(DemoTooltip, {
-      visible: true,
-      message: "BloodGasPro identified " + uniqueProcesses.length + " acid-base processes. It will guide you through each one. Tap \"Begin Investigation\" below to start.",
-      position: "bottom",
-      onDismiss: dismissDemoOverviewTooltip
-    })), /*#__PURE__*/React.createElement("div", {
+    }, "Processes to Investigate")), /*#__PURE__*/React.createElement("div", {
+      style: { position: 'relative' }
+    }, /*#__PURE__*/React.createElement("div", {
       style: styles.card,
       className: "animate-in stagger-1"
     }, /*#__PURE__*/React.createElement("div", {
@@ -9221,7 +9216,12 @@ const FindCauseScreen = ({
       style: {
         color: 'var(--text-secondary)'
       }
-    }, "Normal acid-base status"))), hiddenHAGMA && /*#__PURE__*/React.createElement("div", {
+    }, "Normal acid-base status"))), showDemoOverviewTooltip && uniqueProcesses.length > 0 && /*#__PURE__*/React.createElement(DemoTooltip, {
+      visible: true,
+      message: "BloodGasPro identified " + uniqueProcesses.length + " acid-base processes. It will guide you through each one. Tap \"Begin Investigation\" below to start.",
+      position: "top",
+      onDismiss: dismissDemoOverviewTooltip
+    })), hiddenHAGMA && /*#__PURE__*/React.createElement("div", {
       style: {
         ...styles.warningBox,
         margin: '0 0 16px 0'
