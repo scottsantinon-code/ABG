@@ -1369,14 +1369,15 @@ const LandingScreen = ({
       style: { fontSize: '13px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--accent)', marginBottom: '12px' }
     }, "Acid-Base Analysis"),
     /*#__PURE__*/React.createElement("div", {
-      style: { position: 'relative' }
+      style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }
     },
       /*#__PURE__*/React.createElement("div", {
-        style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }
+        style: { position: 'relative' }
       },
         /*#__PURE__*/React.createElement("button", {
           onClick: () => onSelect('traditional'),
           style: {
+            width: '100%',
             backgroundColor: 'var(--bg-primary)',
             border: 'none',
             borderRadius: '12px',
@@ -1392,31 +1393,31 @@ const LandingScreen = ({
           /*#__PURE__*/React.createElement(BeakerIcon, { size: 38, color: 'var(--accent)' }),
           /*#__PURE__*/React.createElement("span", { style: { fontWeight: '600', fontSize: '15px', color: 'var(--text-primary)', marginTop: '4px' } }, "Traditional")
         ),
-        /*#__PURE__*/React.createElement("button", {
-          onClick: () => onSelect('stewart'),
-          style: {
-            backgroundColor: 'var(--bg-primary)',
-            border: 'none',
-            borderRadius: '12px',
-            padding: '20px 16px',
-            cursor: 'pointer',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-            fontFamily: 'var(--font)'
-          }
-        },
-          /*#__PURE__*/React.createElement(AtomIcon, { size: 38, color: 'var(--accent)' }),
-          /*#__PURE__*/React.createElement("span", { style: { fontWeight: '600', fontSize: '15px', color: 'var(--text-primary)', marginTop: '4px' } }, "Physicochemical")
-        )
+        /*#__PURE__*/React.createElement(DemoTooltip, {
+          visible: showDemoTooltip,
+          message: "Most ABG analysis uses the traditional approach. Tap Traditional to continue with the example case.",
+          position: "bottom",
+          onDismiss: onDismissDemoTooltip
+        })
       ),
-      /*#__PURE__*/React.createElement(DemoTooltip, {
-        visible: showDemoTooltip,
-        message: "Most ABG analysis uses the traditional approach. Tap Traditional to continue with the example case.",
-        position: "bottom",
-        onDismiss: onDismissDemoTooltip
-      })
+      /*#__PURE__*/React.createElement("button", {
+        onClick: () => onSelect('stewart'),
+        style: {
+          backgroundColor: 'var(--bg-primary)',
+          border: 'none',
+          borderRadius: '12px',
+          padding: '20px 16px',
+          cursor: 'pointer',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+          fontFamily: 'var(--font)'
+        }
+      },
+        /*#__PURE__*/React.createElement(AtomIcon, { size: 38, color: 'var(--accent)' }),
+        /*#__PURE__*/React.createElement("span", { style: { fontWeight: '600', fontSize: '15px', color: 'var(--text-primary)', marginTop: '4px' } }, "Physicochemical")
+      )
     ),
     /*#__PURE__*/React.createElement("div", { style: { textAlign: 'center' } },
       /*#__PURE__*/React.createElement("button", {
@@ -9230,7 +9231,7 @@ const FindCauseScreen = ({
       }
     }, "Normal acid-base status"))), showDemoOverviewTooltip && uniqueProcesses.length > 0 && /*#__PURE__*/React.createElement(DemoTooltip, {
       visible: true,
-      message: "BloodGasPro identified " + uniqueProcesses.length + " acid-base processes. It will guide you through each one. Tap \"Begin Investigation\" below to start.",
+      message: "BloodGasPro identified " + uniqueProcesses.length + " acid-base disturbances. It will guide you through each one. Tap \"Begin Investigation\" below to start.",
       position: "bottom",
       onDismiss: dismissDemoOverviewTooltip
     })), hiddenHAGMA && /*#__PURE__*/React.createElement("div", {
@@ -10216,7 +10217,7 @@ const DemoOfferModal = ({ onTryDemo, onSkip }) => {
         marginBottom: '16px',
         lineHeight: '1.4'
       }
-    }, "Want to see how it works with an example case?"),
+    }, "Want to see how it works?"),
     /*#__PURE__*/React.createElement("button", {
       onClick: onTryDemo,
       style: {
