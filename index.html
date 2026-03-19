@@ -1371,34 +1371,23 @@ const LandingScreen = ({
     /*#__PURE__*/React.createElement("div", {
       style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }
     },
-      /*#__PURE__*/React.createElement("div", {
-        style: { position: 'relative' }
+      /*#__PURE__*/React.createElement("button", {
+        onClick: () => onSelect('traditional'),
+        style: {
+          backgroundColor: 'var(--bg-primary)',
+          border: 'none',
+          borderRadius: '12px',
+          padding: '20px 16px',
+          cursor: 'pointer',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+          fontFamily: 'var(--font)'
+        }
       },
-        /*#__PURE__*/React.createElement("button", {
-          onClick: () => onSelect('traditional'),
-          style: {
-            width: '100%',
-            backgroundColor: 'var(--bg-primary)',
-            border: 'none',
-            borderRadius: '12px',
-            padding: '20px 16px',
-            cursor: 'pointer',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-            fontFamily: 'var(--font)'
-          }
-        },
-          /*#__PURE__*/React.createElement(BeakerIcon, { size: 38, color: 'var(--accent)' }),
-          /*#__PURE__*/React.createElement("span", { style: { fontWeight: '600', fontSize: '15px', color: 'var(--text-primary)', marginTop: '4px' } }, "Traditional")
-        ),
-        /*#__PURE__*/React.createElement(DemoTooltip, {
-          visible: showDemoTooltip,
-          message: "Most ABG analysis uses the traditional approach. Tap Traditional to continue with the example case.",
-          position: "bottom",
-          onDismiss: onDismissDemoTooltip
-        })
+        /*#__PURE__*/React.createElement(BeakerIcon, { size: 38, color: 'var(--accent)' }),
+        /*#__PURE__*/React.createElement("span", { style: { fontWeight: '600', fontSize: '15px', color: 'var(--text-primary)', marginTop: '4px' } }, "Traditional")
       ),
       /*#__PURE__*/React.createElement("button", {
         onClick: () => onSelect('stewart'),
@@ -1496,6 +1485,71 @@ const LandingScreen = ({
       style: { display: 'block', marginTop: '8px', fontSize: '11px', color: 'var(--accent)', opacity: 0.7, textDecoration: 'none' },
       className: "animate-in stagger-4"
     }, "More apps from Critical Condition \u203A")
+  ),
+
+  // Fixed tooltip overlay for demo mode
+  showDemoTooltip && /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      zIndex: 10000,
+      pointerEvents: 'none'
+    }
+  },
+    /*#__PURE__*/React.createElement("div", {
+      style: {
+        position: 'absolute',
+        top: '220px',
+        left: '20px',
+        right: '20px',
+        maxWidth: '360px',
+        margin: '0 auto',
+        pointerEvents: 'auto'
+      }
+    },
+      /*#__PURE__*/React.createElement("div", {
+        style: {
+          background: 'var(--accent)',
+          color: 'white',
+          padding: '12px 16px',
+          borderRadius: '12px',
+          fontSize: '13px',
+          lineHeight: '1.5',
+          boxShadow: '0 4px 20px rgba(139, 92, 246, 0.4)',
+          position: 'relative'
+        }
+      },
+        /*#__PURE__*/React.createElement("div", {
+          style: {
+            position: 'absolute',
+            top: '-6px',
+            left: '60px',
+            width: '12px',
+            height: '12px',
+            background: 'var(--accent)',
+            transform: 'rotate(45deg)'
+          }
+        }),
+        /*#__PURE__*/React.createElement("div", { style: { marginBottom: '8px' } }, "Most ABG analysis uses the traditional approach. Tap Traditional to continue with the example case."),
+        /*#__PURE__*/React.createElement("button", {
+          onClick: onDismissDemoTooltip,
+          style: {
+            background: 'rgba(255,255,255,0.2)',
+            border: 'none',
+            color: 'white',
+            fontSize: '12px',
+            fontWeight: '600',
+            padding: '4px 12px',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            fontFamily: 'var(--font)'
+          }
+        }, "Got it")
+      )
+    )
   )
 );
 
