@@ -475,6 +475,15 @@ const safeLocalStorage = {
       console.warn('localStorage not available:', e);
       return false;
     }
+  },
+  removeItem: (key) => {
+    try {
+      localStorage.removeItem(key);
+      return true;
+    } catch (e) {
+      console.warn('localStorage not available:', e);
+      return false;
+    }
   }
 };
 
@@ -1499,11 +1508,11 @@ const Step1_AllValues = ({
 
   // Demo tooltip state
   const [showDemoStep1Tooltip, setShowDemoStep1Tooltip] = useState(() => {
-    return isDemoMode && !localStorage.getItem('demoDismissed_step1');
+    return isDemoMode && !safeLocalStorage.getItem('demoDismissed_step1');
   });
   const dismissDemoStep1Tooltip = () => {
     setShowDemoStep1Tooltip(false);
-    localStorage.setItem('demoDismissed_step1', 'true');
+    safeLocalStorage.setItem('demoDismissed_step1', 'true');
   };
 
   // Refs for auto-advance functionality
@@ -7519,11 +7528,11 @@ const SummaryScreen = ({
 
   // Demo tooltip state
   const [showDemoSummaryTooltip, setShowDemoSummaryTooltip] = useState(() => {
-    return isDemoMode && !localStorage.getItem('demoDismissed_summary');
+    return isDemoMode && !safeLocalStorage.getItem('demoDismissed_summary');
   });
   const dismissDemoSummaryTooltip = () => {
     setShowDemoSummaryTooltip(false);
-    localStorage.setItem('demoDismissed_summary', 'true');
+    safeLocalStorage.setItem('demoDismissed_summary', 'true');
   };
 
   // Cause label mappings
@@ -7923,12 +7932,20 @@ const AdvancedHybridScreen = ({
   let deltaRatio = null;
   let hasAdditionalNAGMA = false;
   let hasAdditionalMetAlk = false;
-  if (hasHAGMA && agCorrected && hco3Val < 24) {
+  if (hasHAGMA && agCorrected) {
     const deltaAG = agCorrected - 12;
     const deltaHCO3 = 24 - hco3Val;
-    if (deltaHCO3 > 0) {
+    // Only calculate ratio if HCO3 is actually low (meaningful denominator)
+    if (deltaHCO3 > 1) {
       deltaRatio = deltaAG / deltaHCO3;
-      if (deltaRatio < 0.8) hasAdditionalNAGMA = true;else if (deltaRatio > 2) hasAdditionalMetAlk = true;
+      if (deltaRatio < 0.8) hasAdditionalNAGMA = true;
+      else if (deltaRatio > 2) hasAdditionalMetAlk = true;
+    } else if (deltaHCO3 <= 1 && deltaHCO3 >= -2) {
+      // HCO3 is near normal despite HAGMA - indicates concurrent metabolic alkalosis
+      hasAdditionalMetAlk = true;
+    } else {
+      // HCO3 is elevated (frank metabolic alkalosis)
+      hasAdditionalMetAlk = true;
     }
   }
 
@@ -11216,6 +11233,8 @@ const App = () => {
     safeLocalStorage.removeItem('bloodgaspro_tooltip_renal_seen');
     safeLocalStorage.removeItem('bloodgaspro_tooltip_copd_seen');
     safeLocalStorage.removeItem('bloodgaspro_tooltip_vomiting_seen');
+    safeLocalStorage.removeItem('demoDismissed_step1');
+    safeLocalStorage.removeItem('demoDismissed_summary');
     setShowSettings(false);
     setShowDemoCaseModal(true);
   };
