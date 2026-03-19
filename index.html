@@ -475,6 +475,15 @@ const safeLocalStorage = {
       console.warn('localStorage not available:', e);
       return false;
     }
+  },
+  removeItem: (key) => {
+    try {
+      localStorage.removeItem(key);
+      return true;
+    } catch (e) {
+      console.warn('localStorage not available:', e);
+      return false;
+    }
   }
 };
 
