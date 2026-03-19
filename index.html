@@ -2169,9 +2169,14 @@ const DualInterpretationCard = ({ hco3, paCO2, onSelect, selection }) => {
     color: isSelected ? 'var(--accent)' : 'var(--text-primary)'
   });
 
+  // Build explicit compensation labels
+  const respCompensation = respDirection === 'acidosis' ? 'with metabolic compensation' : 'with metabolic compensation';
+  const metCompensation = metDirection === 'acidosis' ? 'with respiratory compensation' : 'with respiratory compensation';
+
   // If user has made a selection, show confirmation
   if (selection && !showGuidance) {
     const selectedLabel = selection === 'respiratory' ? respLabel : metLabel;
+    const selectedCompensation = selection === 'respiratory' ? respCompensation : metCompensation;
     return /*#__PURE__*/React.createElement("div", {
       style: { marginTop: '16px' }
     },
@@ -2192,7 +2197,7 @@ const DualInterpretationCard = ({ hco3, paCO2, onSelect, selection }) => {
           }, "Primary disorder"),
           /*#__PURE__*/React.createElement("div", {
             style: { fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)' }
-          }, selectedLabel, " (compensated)")
+          }, selectedLabel, " ", selectedCompensation)
         ),
         /*#__PURE__*/React.createElement("button", {
           onClick: () => onSelect(null),
@@ -2214,25 +2219,29 @@ const DualInterpretationCard = ({ hco3, paCO2, onSelect, selection }) => {
   return /*#__PURE__*/React.createElement("div", {
     style: { marginTop: '16px' }
   },
-    // Banner - simple, no gradient
+    // Banner - with gradient
     /*#__PURE__*/React.createElement("div", {
       style: {
         padding: '12px 14px',
-        background: 'var(--bg-secondary)',
+        background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.08), rgba(6, 182, 212, 0.08))',
         borderRadius: '10px',
         fontSize: '13px',
         lineHeight: '1.5',
-        color: 'var(--text-secondary)',
+        color: 'var(--text-primary)',
         marginBottom: '14px'
       }
-    }, "Normal pH with abnormal values \u2014 this could be a compensated respiratory or metabolic disorder."),
+    },
+      /*#__PURE__*/React.createElement("strong", null, "Normal pH with abnormal values"),
+      /*#__PURE__*/React.createElement("br", null),
+      "This could be a compensated respiratory or metabolic disorder."
+    ),
 
     // Primary question
     /*#__PURE__*/React.createElement("div", {
       style: { fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '10px' }
     }, "What is the primary disorder?"),
 
-    // Selection buttons - clean grid
+    // Selection buttons - all three same style
     /*#__PURE__*/React.createElement("div", {
       style: { display: 'flex', gap: '10px', marginBottom: '8px' }
     },
@@ -2246,23 +2255,22 @@ const DualInterpretationCard = ({ hco3, paCO2, onSelect, selection }) => {
       }, metLabel)
     ),
 
-    // Not sure link - simple text style
-    /*#__PURE__*/React.createElement("div", {
-      style: { textAlign: 'center', marginTop: '4px' }
-    },
-      /*#__PURE__*/React.createElement("button", {
-        onClick: () => setShowGuidance(!showGuidance),
-        style: {
-          background: 'none',
-          border: 'none',
-          color: 'var(--accent)',
-          fontSize: '13px',
-          cursor: 'pointer',
-          fontFamily: 'var(--font)',
-          padding: '8px'
-        }
-      }, showGuidance ? "Hide guidance" : "Not sure? \u2192")
-    ),
+    // Not sure button - same style as other buttons
+    /*#__PURE__*/React.createElement("button", {
+      onClick: () => setShowGuidance(!showGuidance),
+      style: {
+        width: '100%',
+        padding: '14px 12px',
+        border: showGuidance ? '2px solid var(--accent)' : '1px solid var(--border)',
+        borderRadius: '10px',
+        background: showGuidance ? 'rgba(139, 92, 246, 0.08)' : 'var(--bg-primary)',
+        cursor: 'pointer',
+        fontFamily: 'var(--font)',
+        fontWeight: '600',
+        fontSize: '14px',
+        color: showGuidance ? 'var(--accent)' : 'var(--text-primary)'
+      }
+    }, showGuidance ? "Hide guidance" : "Not sure"),
 
     // Guidance section - clean and minimal
     showGuidance && /*#__PURE__*/React.createElement("div", {
@@ -2513,8 +2521,8 @@ const Step2_FullAnalysis = ({
   }
   // PATHWAY C: Normal pH + Normal AG (Ambiguous - dual interpretation)
   else if (analysisPathway === 'C') {
-    // Don't force a single label - show dual interpretation
-    primaryDisorder = 'Dual interpretation needed';
+    // Don't force a single label - user will select below
+    primaryDisorder = 'Compensated disorder';
     // Set flags based on value directions for downstream logic
     if (lowHCO3 || lowPaCO2) {
       isMetabolic = lowHCO3;
