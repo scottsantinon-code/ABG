@@ -11267,6 +11267,7 @@ const App = () => {
   const [showDemoOffer, setShowDemoOffer] = useState(true); // Always show for testing
   const [showDemoCaseModal, setShowDemoCaseModal] = useState(false);
   const [showDemoTraditionalTooltip, setShowDemoTraditionalTooltip] = useState(false);
+  const [demoAwaitingTraditional, setDemoAwaitingTraditional] = useState(false);
 
   const handleRestart = () => {
     setApproach(null);
@@ -11276,6 +11277,7 @@ const App = () => {
     setShowSettings(false);
     setShowTerms(false);
     setIsDemoMode(false);
+    setDemoAwaitingTraditional(false);
   };
 
   const handleStartDemo = () => {
@@ -11358,9 +11360,10 @@ const App = () => {
     return /*#__PURE__*/React.createElement(React.Fragment, null,
       /*#__PURE__*/React.createElement(LandingScreen, {
         onSelect: a => {
-          // If demo tooltip is showing and user clicks Traditional, show case modal
-          if (showDemoTraditionalTooltip && a === 'traditional') {
+          // If demo is awaiting Traditional click, show case modal
+          if (demoAwaitingTraditional && a === 'traditional') {
             setShowDemoTraditionalTooltip(false);
+            setDemoAwaitingTraditional(false);
             setShowDemoCaseModal(true);
             return;
           }
@@ -11376,6 +11379,7 @@ const App = () => {
           safeLocalStorage.setItem('bloodgaspro_demo_offered', 'true');
           setShowDemoOffer(false);
           setShowDemoTraditionalTooltip(true);
+          setDemoAwaitingTraditional(true);
         },
         onSkip: handleSkipDemo
       })
