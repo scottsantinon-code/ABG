@@ -2156,32 +2156,18 @@ const DualInterpretationCard = ({ hco3, paCO2, onSelect, selection }) => {
 
   const { respDirection, metDirection, respLabel, metLabel, respExpectedHCO3Chronic, metExpectedPaCO2, metTolerance, respFits, metFits, respClues, metClues } = calculations;
 
-  const buttonStyle = (isSelected, isMain = false) => ({
-    flex: isMain ? 1 : undefined,
-    padding: isMain ? '16px 14px' : '12px 16px',
+  const buttonStyle = (isSelected) => ({
+    flex: 1,
+    padding: '14px 12px',
     border: isSelected ? '2px solid var(--accent)' : '1px solid var(--border)',
     borderRadius: '10px',
-    background: isSelected ? 'rgba(139, 92, 246, 0.1)' : 'var(--bg-primary)',
+    background: isSelected ? 'rgba(139, 92, 246, 0.08)' : 'var(--bg-primary)',
     cursor: 'pointer',
     fontFamily: 'var(--font)',
     fontWeight: '600',
-    fontSize: isMain ? '14px' : '13px',
+    fontSize: '14px',
     color: isSelected ? 'var(--accent)' : 'var(--text-primary)'
   });
-
-  const notSureButtonStyle = {
-    width: '100%',
-    padding: '10px 14px',
-    border: showGuidance ? '2px solid var(--accent)' : '1px solid var(--border)',
-    borderRadius: '8px',
-    background: showGuidance ? 'rgba(139, 92, 246, 0.05)' : 'transparent',
-    cursor: 'pointer',
-    fontFamily: 'var(--font)',
-    fontWeight: '500',
-    fontSize: '13px',
-    color: 'var(--text-secondary)',
-    marginTop: '10px'
-  };
 
   // If user has made a selection, show confirmation
   if (selection && !showGuidance) {
@@ -2191,9 +2177,9 @@ const DualInterpretationCard = ({ hco3, paCO2, onSelect, selection }) => {
     },
       /*#__PURE__*/React.createElement("div", {
         style: {
-          padding: '14px',
-          background: 'rgba(16, 185, 129, 0.1)',
-          border: '1px solid rgba(16, 185, 129, 0.3)',
+          padding: '12px 14px',
+          background: 'var(--bg-secondary)',
+          border: '1px solid var(--border)',
           borderRadius: '10px',
           display: 'flex',
           justifyContent: 'space-between',
@@ -2202,18 +2188,20 @@ const DualInterpretationCard = ({ hco3, paCO2, onSelect, selection }) => {
       },
         /*#__PURE__*/React.createElement("div", null,
           /*#__PURE__*/React.createElement("div", {
-            style: { fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '2px' }
+            style: { fontSize: '11px', color: 'var(--text-tertiary)', marginBottom: '2px', textTransform: 'uppercase', letterSpacing: '0.5px' }
           }, "Primary disorder"),
           /*#__PURE__*/React.createElement("div", {
-            style: { fontSize: '15px', fontWeight: '600', color: 'var(--success)' }
+            style: { fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)' }
           }, selectedLabel, " (compensated)")
         ),
         /*#__PURE__*/React.createElement("button", {
           onClick: () => onSelect(null),
           style: {
             background: 'none',
-            border: 'none',
-            color: 'var(--text-tertiary)',
+            border: '1px solid var(--border)',
+            borderRadius: '6px',
+            padding: '6px 12px',
+            color: 'var(--text-secondary)',
             fontSize: '12px',
             cursor: 'pointer',
             fontFamily: 'var(--font)'
@@ -2226,143 +2214,121 @@ const DualInterpretationCard = ({ hco3, paCO2, onSelect, selection }) => {
   return /*#__PURE__*/React.createElement("div", {
     style: { marginTop: '16px' }
   },
-    // Banner
+    // Banner - simple, no gradient
     /*#__PURE__*/React.createElement("div", {
       style: {
         padding: '12px 14px',
-        background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.08), rgba(6, 182, 212, 0.08))',
+        background: 'var(--bg-secondary)',
         borderRadius: '10px',
         fontSize: '13px',
         lineHeight: '1.5',
-        color: 'var(--text-primary)',
-        marginBottom: '16px'
+        color: 'var(--text-secondary)',
+        marginBottom: '14px'
       }
-    },
-      /*#__PURE__*/React.createElement("strong", null, "Normal pH with abnormal values"),
-      /*#__PURE__*/React.createElement("br", null),
-      "This could be a compensated respiratory or metabolic disorder."
-    ),
+    }, "Normal pH with abnormal values \u2014 this could be a compensated respiratory or metabolic disorder."),
 
-    // Primary question - ask user directly
+    // Primary question
     /*#__PURE__*/React.createElement("div", {
-      style: {
-        padding: '14px',
-        background: 'var(--bg-secondary)',
-        borderRadius: '10px',
-        marginBottom: showGuidance ? '12px' : '0'
-      }
+      style: { fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '10px' }
+    }, "What is the primary disorder?"),
+
+    // Selection buttons - clean grid
+    /*#__PURE__*/React.createElement("div", {
+      style: { display: 'flex', gap: '10px', marginBottom: '8px' }
     },
-      /*#__PURE__*/React.createElement("div", {
-        style: { fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '12px' }
-      }, "What do you think is the primary disorder?"),
-      /*#__PURE__*/React.createElement("div", {
-        style: { display: 'flex', gap: '10px' }
-      },
-        /*#__PURE__*/React.createElement("button", {
-          style: buttonStyle(selection === 'respiratory', true),
-          onClick: () => { setShowGuidance(false); onSelect && onSelect('respiratory'); }
-        }, respLabel),
-        /*#__PURE__*/React.createElement("button", {
-          style: buttonStyle(selection === 'metabolic', true),
-          onClick: () => { setShowGuidance(false); onSelect && onSelect('metabolic'); }
-        }, metLabel)
-      ),
       /*#__PURE__*/React.createElement("button", {
-        style: notSureButtonStyle,
-        onClick: () => setShowGuidance(!showGuidance)
-      }, showGuidance ? "Hide guidance ▲" : "Not sure? Get help deciding ▼")
+        style: buttonStyle(selection === 'respiratory'),
+        onClick: () => { setShowGuidance(false); onSelect && onSelect('respiratory'); }
+      }, respLabel),
+      /*#__PURE__*/React.createElement("button", {
+        style: buttonStyle(selection === 'metabolic'),
+        onClick: () => { setShowGuidance(false); onSelect && onSelect('metabolic'); }
+      }, metLabel)
     ),
 
-    // Guidance section (only shown when "Not sure" is clicked)
+    // Not sure link - simple text style
+    /*#__PURE__*/React.createElement("div", {
+      style: { textAlign: 'center', marginTop: '4px' }
+    },
+      /*#__PURE__*/React.createElement("button", {
+        onClick: () => setShowGuidance(!showGuidance),
+        style: {
+          background: 'none',
+          border: 'none',
+          color: 'var(--accent)',
+          fontSize: '13px',
+          cursor: 'pointer',
+          fontFamily: 'var(--font)',
+          padding: '8px'
+        }
+      }, showGuidance ? "Hide guidance" : "Not sure? \u2192")
+    ),
+
+    // Guidance section - clean and minimal
     showGuidance && /*#__PURE__*/React.createElement("div", {
       style: {
+        marginTop: '12px',
         padding: '14px',
         background: 'var(--bg-tertiary)',
-        borderRadius: '10px',
-        border: '1px solid var(--border)'
+        borderRadius: '10px'
       }
     },
-      // Compensation analysis
+      // Compensation analysis - simple list
       /*#__PURE__*/React.createElement("div", {
-        style: { marginBottom: '16px' }
+        style: { marginBottom: '14px' }
       },
         /*#__PURE__*/React.createElement("div", {
-          style: { fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', marginBottom: '8px' }
+          style: { fontSize: '12px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '8px' }
         }, "Compensation analysis"),
         /*#__PURE__*/React.createElement("div", {
-          style: { fontSize: '12px', lineHeight: '1.6', color: 'var(--text-secondary)' }
+          style: { fontSize: '12px', lineHeight: '1.8', color: 'var(--text-secondary)' }
         },
-          /*#__PURE__*/React.createElement("div", {
-            style: {
-              padding: '8px 10px',
-              background: respFits ? 'rgba(16, 185, 129, 0.1)' : 'rgba(245, 158, 11, 0.1)',
-              borderRadius: '6px',
-              marginBottom: '6px'
-            }
-          },
-            /*#__PURE__*/React.createElement("strong", null, "If ", respLabel, ": "),
-            "Expected HCO\u2083 \u2248 ", respExpectedHCO3Chronic.toFixed(0), ", Actual: ", hco3, " ",
+          /*#__PURE__*/React.createElement("div", null,
+            /*#__PURE__*/React.createElement("strong", null, "If ", respLabel, ":"), " Expected HCO\u2083 \u2248 ", respExpectedHCO3Chronic.toFixed(0), ", Actual: ", hco3, " \u2014 ",
             /*#__PURE__*/React.createElement("span", {
-              style: { fontWeight: '600', color: respFits ? 'var(--success)' : 'var(--warning)' }
-            }, respFits ? '\u2713 Fits' : '\u2717 Doesn\'t fit')
-          ),
-          /*#__PURE__*/React.createElement("div", {
-            style: {
-              padding: '8px 10px',
-              background: metFits ? 'rgba(16, 185, 129, 0.1)' : 'rgba(245, 158, 11, 0.1)',
-              borderRadius: '6px'
-            }
-          },
-            /*#__PURE__*/React.createElement("strong", null, "If ", metLabel, ": "),
-            "Expected PaCO\u2082 \u2248 ", metExpectedPaCO2.toFixed(0), ", Actual: ", paCO2, " ",
-            /*#__PURE__*/React.createElement("span", {
-              style: { fontWeight: '600', color: metFits ? 'var(--success)' : 'var(--warning)' }
-            }, metFits ? '\u2713 Fits' : '\u2717 Doesn\'t fit')
-          )
-        )
-      ),
-
-      // Clinical clues
-      /*#__PURE__*/React.createElement("div", null,
-        /*#__PURE__*/React.createElement("div", {
-          style: { fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', marginBottom: '8px' }
-        }, "Clinical clues to look for"),
-        /*#__PURE__*/React.createElement("div", {
-          style: { fontSize: '12px', lineHeight: '1.6', color: 'var(--text-secondary)' }
-        },
-          /*#__PURE__*/React.createElement("div", {
-            style: { marginBottom: '8px' }
-          },
-            /*#__PURE__*/React.createElement("strong", {
-              style: { color: 'rgb(59, 130, 246)' }
-            }, respLabel, ": "),
-            respClues
+              style: { color: respFits ? 'var(--success)' : 'var(--text-tertiary)' }
+            }, respFits ? 'Fits' : 'Doesn\'t fit')
           ),
           /*#__PURE__*/React.createElement("div", null,
-            /*#__PURE__*/React.createElement("strong", {
-              style: { color: 'rgb(249, 115, 22)' }
-            }, metLabel, ": "),
-            metClues
+            /*#__PURE__*/React.createElement("strong", null, "If ", metLabel, ":"), " Expected PaCO\u2082 \u2248 ", metExpectedPaCO2.toFixed(0), ", Actual: ", paCO2, " \u2014 ",
+            /*#__PURE__*/React.createElement("span", {
+              style: { color: metFits ? 'var(--success)' : 'var(--text-tertiary)' }
+            }, metFits ? 'Fits' : 'Doesn\'t fit')
           )
         )
       ),
 
-      // Summary recommendation
+      // Clinical clues - simple list
+      /*#__PURE__*/React.createElement("div", {
+        style: { marginBottom: '14px' }
+      },
+        /*#__PURE__*/React.createElement("div", {
+          style: { fontSize: '12px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '8px' }
+        }, "Clinical clues"),
+        /*#__PURE__*/React.createElement("div", {
+          style: { fontSize: '12px', lineHeight: '1.8', color: 'var(--text-secondary)' }
+        },
+          /*#__PURE__*/React.createElement("div", null,
+            /*#__PURE__*/React.createElement("strong", null, respLabel, ":"), " ", respClues
+          ),
+          /*#__PURE__*/React.createElement("div", null,
+            /*#__PURE__*/React.createElement("strong", null, metLabel, ":"), " ", metClues
+          )
+        )
+      ),
+
+      // Summary - simple text
       /*#__PURE__*/React.createElement("div", {
         style: {
-          marginTop: '14px',
-          padding: '10px 12px',
-          background: 'var(--bg-primary)',
-          borderRadius: '8px',
           fontSize: '12px',
           color: 'var(--text-secondary)',
-          lineHeight: '1.5'
+          fontStyle: 'italic'
         }
       },
-        respFits && !metFits ? /*#__PURE__*/React.createElement("span", null, "\u2192 Compensation pattern favours ", /*#__PURE__*/React.createElement("strong", null, respLabel), ". Check history for respiratory causes.") :
-        metFits && !respFits ? /*#__PURE__*/React.createElement("span", null, "\u2192 Compensation pattern favours ", /*#__PURE__*/React.createElement("strong", null, metLabel), ". Check history for metabolic causes.") :
-        respFits && metFits ? /*#__PURE__*/React.createElement("span", null, "\u2192 Both patterns fit mathematically. Clinical history is essential to differentiate.") :
-        /*#__PURE__*/React.createElement("span", null, "\u2192 Neither pattern fits perfectly. Consider a mixed disorder or early/evolving process.")
+        respFits && !metFits ? "Compensation pattern suggests " + respLabel + "." :
+        metFits && !respFits ? "Compensation pattern suggests " + metLabel + "." :
+        respFits && metFits ? "Both patterns fit \u2014 clinical history is key." :
+        "Neither fits perfectly \u2014 consider mixed disorder."
       )
     )
   );
