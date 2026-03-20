@@ -10382,6 +10382,15 @@ const DemoCaseModal = ({ onContinue }) => {
         /*#__PURE__*/React.createElement("p", null, "His bloods show raised inflammatory markers and an acute kidney injury.")
       )
     ),
+    /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: '12px',
+        color: 'var(--text-tertiary)',
+        textAlign: 'center',
+        marginBottom: '16px',
+        lineHeight: '1.5'
+      }
+    }, "This tour covers acid-base analysis. BloodGasPro also includes oxygenation and ventilation calculators."),
     /*#__PURE__*/React.createElement("button", {
       onClick: onContinue,
       style: {
@@ -11387,7 +11396,12 @@ const App = () => {
         },
         onOpenSettings: () => setShowSettings(true),
         showDemoTooltip: showDemoTraditionalTooltip,
-        onDismissDemoTooltip: () => setShowDemoTraditionalTooltip(false)
+        onDismissDemoTooltip: () => {
+          // "Got it" progresses the tutorial - same as clicking Traditional
+          setShowDemoTraditionalTooltip(false);
+          setDemoAwaitingTraditional(false);
+          setShowDemoCaseModal(true);
+        }
       }),
       showDemoOffer && /*#__PURE__*/React.createElement(DemoOfferModal, {
         onTryDemo: () => {
