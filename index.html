@@ -7814,7 +7814,7 @@ const SummaryScreen = ({
     style: styles.title
   }, "Summary")), /*#__PURE__*/React.createElement(DemoTooltip, {
     visible: showDemoSummaryTooltip,
-    message: "Congrats! You've analysed a triple acid-base disorder! Tap New Analysis to try with your own patient data, or analyse the same blood gas with the physico-chemical model — BloodGasPro supports both.",
+    message: "Congrats! You've analysed a triple acid-base disorder. Tap New Analysis to try your own data, explore the physicochemical model, or check out the oxygenation and ventilation tools from the home screen.",
     position: "bottom",
     onDismiss: dismissDemoSummaryTooltip
   })), /*#__PURE__*/React.createElement("div", {
@@ -10319,94 +10319,6 @@ const DemoOfferModal = ({ onTryDemo, onSkip }) => {
   ));
 };
 
-// Demo Gas Exchange Modal - brief intro to oxygenation/ventilation features
-const DemoGasExchangeModal = ({ onContinue }) => {
-  return /*#__PURE__*/React.createElement("div", {
-    style: {
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: 'rgba(0,0,0,0.7)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '20px',
-      zIndex: 10000
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      background: 'var(--bg-primary)',
-      borderRadius: '16px',
-      padding: '24px',
-      maxWidth: '340px',
-      width: '100%',
-      boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
-    }
-  },
-    /*#__PURE__*/React.createElement("div", {
-      style: {
-        textAlign: 'center',
-        marginBottom: '16px'
-      }
-    },
-      /*#__PURE__*/React.createElement("div", {
-        style: {
-          fontSize: '13px',
-          fontWeight: '600',
-          textTransform: 'uppercase',
-          letterSpacing: '1px',
-          color: '#06B6D4'
-        }
-      }, "Gas Exchange")
-    ),
-    /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: '14px',
-        lineHeight: '1.7',
-        color: 'var(--text-secondary)',
-        marginBottom: '20px'
-      }
-    },
-      /*#__PURE__*/React.createElement("p", {
-        style: { marginBottom: '12px' }
-      }, "BloodGasPro also includes tools for assessing oxygenation and ventilation:"),
-      /*#__PURE__*/React.createElement("div", {
-        style: { paddingLeft: '8px' }
-      },
-        /*#__PURE__*/React.createElement("p", {
-          style: { marginBottom: '6px' }
-        }, "\u2022 ", /*#__PURE__*/React.createElement("strong", null, "Oxygenation"), " \u2014 P/F ratio, A-a gradient"),
-        /*#__PURE__*/React.createElement("p", null, "\u2022 ", /*#__PURE__*/React.createElement("strong", null, "Ventilation"), " \u2014 Ventilatory ratio, dead space")
-      )
-    ),
-    /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: '13px',
-        color: 'var(--text-tertiary)',
-        marginBottom: '20px',
-        lineHeight: '1.5'
-      }
-    }, "This tour focuses on acid-base analysis. You can explore these features from the home screen."),
-    /*#__PURE__*/React.createElement("button", {
-      onClick: onContinue,
-      style: {
-        width: '100%',
-        padding: '14px 20px',
-        border: 'none',
-        borderRadius: '12px',
-        background: 'var(--accent)',
-        color: 'white',
-        fontSize: '17px',
-        fontWeight: '600',
-        fontFamily: 'var(--font)',
-        cursor: 'pointer'
-      }
-    }, "Continue \u2192")
-  ));
-};
-
 // Demo Case Modal - shows clinical scenario before starting demo
 const DemoCaseModal = ({ onContinue }) => {
   return /*#__PURE__*/React.createElement("div", {
@@ -11368,7 +11280,6 @@ const App = () => {
   //   return safeLocalStorage.getItem('bloodgaspro_demo_offered') !== 'true';
   // });
   const [showDemoOffer, setShowDemoOffer] = useState(true); // Always show for testing
-  const [showDemoGasExchangeModal, setShowDemoGasExchangeModal] = useState(false);
   const [showDemoCaseModal, setShowDemoCaseModal] = useState(false);
   const [showDemoTraditionalTooltip, setShowDemoTraditionalTooltip] = useState(false);
   const [demoAwaitingTraditional, setDemoAwaitingTraditional] = useState(false);
@@ -11452,16 +11363,6 @@ const App = () => {
     });
   }
 
-  // Show demo gas exchange modal (before case modal)
-  if (showDemoGasExchangeModal) {
-    return /*#__PURE__*/React.createElement(DemoGasExchangeModal, {
-      onContinue: () => {
-        setShowDemoGasExchangeModal(false);
-        setShowDemoCaseModal(true);
-      }
-    });
-  }
-
   // Show demo case modal
   if (showDemoCaseModal) {
     return /*#__PURE__*/React.createElement(DemoCaseModal, {
@@ -11474,11 +11375,11 @@ const App = () => {
     return /*#__PURE__*/React.createElement(React.Fragment, null,
       /*#__PURE__*/React.createElement(LandingScreen, {
         onSelect: a => {
-          // If demo is awaiting Traditional click, show gas exchange modal first
+          // If demo is awaiting Traditional click, show case modal
           if (demoAwaitingTraditional && a === 'traditional') {
             setShowDemoTraditionalTooltip(false);
             setDemoAwaitingTraditional(false);
-            setShowDemoGasExchangeModal(true);
+            setShowDemoCaseModal(true);
             return;
           }
           setApproach(a);
@@ -11487,10 +11388,10 @@ const App = () => {
         onOpenSettings: () => setShowSettings(true),
         showDemoTooltip: showDemoTraditionalTooltip,
         onDismissDemoTooltip: () => {
-          // "Got it" progresses the tutorial - show gas exchange modal first
+          // "Got it" progresses the tutorial - show case modal
           setShowDemoTraditionalTooltip(false);
           setDemoAwaitingTraditional(false);
-          setShowDemoGasExchangeModal(true);
+          setShowDemoCaseModal(true);
         }
       }),
       showDemoOffer && /*#__PURE__*/React.createElement(DemoOfferModal, {
