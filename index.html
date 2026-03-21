@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Blood Gas Pro</title>
+  <title>BloodGasPro</title>
   <meta name="author" content="Critical Condition">
   <meta name="description" content="Systematic arterial blood gas interpretation tool supporting Traditional (Henderson-Hasselbalch) and Physicochemical (Stewart) approaches">
   <meta name="copyright" content="© 2026 Critical Condition Pty Ltd (ABN 24 695 461 057)">
@@ -911,9 +911,9 @@ const ReportBugLink = ({ data, screenName }) => {
       if (data.analysisPathway) stateLines.push(`Pathway: ${data.analysisPathway}`);
     }
 
-    const body = `[Describe the bug here]\n\n\n\n--- Debug Info (do not edit) ---\n${stateLines.join('\n')}\nTimestamp: ${timestamp}\nDevice: ${userAgent}\nApp: Blood Gas Pro v1.0\n`;
+    const body = `[Describe the bug here]\n\n\n\n--- Debug Info (do not edit) ---\n${stateLines.join('\n')}\nTimestamp: ${timestamp}\nDevice: ${userAgent}\nApp: BloodGasPro v1.0\n`;
 
-    const mailtoUrl = `mailto:hello@criticalcondition.com.au?subject=${encodeURIComponent('Blood Gas Pro Bug Report')}&body=${encodeURIComponent(body)}`;
+    const mailtoUrl = `mailto:hello@criticalcondition.com.au?subject=${encodeURIComponent('BloodGasPro Bug Report')}&body=${encodeURIComponent(body)}`;
     window.location.href = mailtoUrl;
   };
 
@@ -1352,7 +1352,7 @@ const LandingScreen = ({
         WebkitTextFillColor: 'transparent',
         backgroundClip: 'text'
       }
-    }, "Blood Gas Pro")
+    }, "BloodGasPro")
   ),
 
   // ACID-BASE SECTION - Blue tinted
@@ -1505,7 +1505,7 @@ const LandingScreen = ({
         top: '290px',
         left: '20px',
         right: '20px',
-        maxWidth: '360px',
+        maxWidth: '320px',
         margin: '0 auto',
         pointerEvents: 'auto'
       }
@@ -1533,7 +1533,7 @@ const LandingScreen = ({
             transform: 'rotate(45deg)'
           }
         }),
-        /*#__PURE__*/React.createElement("div", { style: { marginBottom: '8px' } }, "Most ABG analysis uses the traditional approach. Tap Traditional to continue with the example case."),
+        /*#__PURE__*/React.createElement("div", { style: { marginBottom: '8px', whiteSpace: 'pre-line' } }, "Most ABG analysis uses the traditional approach. Tap \"Traditional\" to continue with the example case."),
         /*#__PURE__*/React.createElement("button", {
           onClick: onDismissDemoTooltip,
           style: {
@@ -1726,7 +1726,7 @@ const Step1_AllValues = ({
     ref: inputRefs.pH,
     type: "text",
     inputMode: "decimal",
-    autoFocus: true,
+    autoFocus: !isDemoMode,
     value: data.pH || '',
     onChange: e => handleInputChange('pH', e.target.value),
     onBlur: () => markTouched('pH'),
@@ -1984,7 +1984,7 @@ const Step1_AllValues = ({
     }
   })))), /*#__PURE__*/React.createElement(DemoTooltip, {
     visible: showDemoStep1Tooltip,
-    message: "These are the values from the patient's ABG. Tap Analyse below to see the interpretation.",
+    message: "These are the values from the patient's ABG.\n\nTap \"Analyse\" below to see the interpretation.",
     position: "bottom",
     onDismiss: dismissDemoStep1Tooltip
   })), /*#__PURE__*/React.createElement("button", {
@@ -3368,7 +3368,7 @@ const Step2_FullAnalysis = ({
     }
   }, "<", "0.4 NAGMA | 0.4-0.8 mixed | 0.8-2 pure | ", ">", "2 met alk")))), /*#__PURE__*/React.createElement(DemoTooltip, {
     visible: showDemoInfoTooltip,
-    message: "This page shows the identified acid-base disturbances. Single, double and triple disorders are accounted for. Click \"Show working\" to see the maths, or click next to continue.",
+    message: "This page shows the identified acid-base disturbances. Single, double and triple disorders are accounted for.\n\nClick \"Show working\" to see the maths, or click \"Next\" to continue.",
     position: "bottom",
     onDismiss: dismissDemoInfoTooltip
   })), /*#__PURE__*/React.createElement("button", {
@@ -5864,7 +5864,7 @@ const HAGMAWorkupScreen = ({
       }
     }, "ⓘ")), /*#__PURE__*/React.createElement(DemoTooltip, {
       visible: showDemoRenalTooltip,
-      message: "For this patient, we know he has an AKI and the other causes of HAGMA seem unlikely. Select 'Renal failure' and then click continue below.",
+      message: "For this patient, we know he has an AKI and the other causes of HAGMA seem unlikely. Select \"Renal failure\" and then click \"Continue\" below.",
       position: "bottom",
       onDismiss: dismissDemoRenalTooltip
     })), /*#__PURE__*/React.createElement("div", {
@@ -6273,7 +6273,7 @@ const HAGMAWorkupScreen = ({
     }
   }, "Causes"))), /*#__PURE__*/React.createElement(DemoTooltip, {
     visible: showDemoHAGMAIntroTooltip,
-    message: "This patient's lactate is 4 and ketones are 1.5. BloodGasPro graphs these values visually and demonstrates how much of the anion gap they explain. In this case, there are still 12 unexplained anions. Click below to investigate why.",
+    message: "This patient's lactate is 4 and ketones are 1.5. BloodGasPro graphs these values and demonstrates how much of the anion gap they explain.\n\nIn this case, there are still 12 unexplained anions.\n\nClick \"Investigate\" below to find out why.",
     position: "bottom",
     onDismiss: dismissDemoHAGMAIntroTooltip
   })), hasAnyInput && /*#__PURE__*/React.createElement("div", {
@@ -7053,7 +7053,7 @@ const MetAlkalosisScreen = ({
     onClick: () => toggleCause('vomiting')
   }, checkMark(causes.includes('vomiting')), /*#__PURE__*/React.createElement("span", null, "Vomiting / NG suction")), /*#__PURE__*/React.createElement(DemoTooltip, {
     visible: showDemoVomitingTooltip,
-    message: "Moving on to the metabolic alkalosis, you determine that this is likely explained by the patient's history of vomiting. Select vomiting here and then click continue below.",
+    message: "Moving on to the metabolic alkalosis, you determine that this is likely explained by the patient's history of vomiting. Select \"Vomiting\" and then click \"Continue\" below.",
     position: "bottom",
     onDismiss: dismissDemoVomitingTooltip
   })), /*#__PURE__*/React.createElement("div", {
@@ -7392,7 +7392,7 @@ const RespAcidosisScreen = ({
     onClick: () => toggleCause('copd')
   }, checkMark(causes.includes('copd')), /*#__PURE__*/React.createElement("span", null, "COPD / asthma exacerbation")), /*#__PURE__*/React.createElement(DemoTooltip, {
     visible: showDemoCOPDTooltip,
-    message: "In this case, you deem the hypercapnia to be related to the patient's known COPD. Select this as the likely cause and then click Continue below.",
+    message: "In this case, you deem the hypercapnia to be related to the patient's known COPD. Select \"COPD\" as the likely cause and then click \"Continue\" below.",
     position: "bottom",
     onDismiss: dismissDemoCOPDTooltip
   })), /*#__PURE__*/React.createElement("div", {
@@ -7814,7 +7814,7 @@ const SummaryScreen = ({
     style: styles.title
   }, "Summary")), /*#__PURE__*/React.createElement(DemoTooltip, {
     visible: showDemoSummaryTooltip,
-    message: "Congrats! You've analysed a triple acid-base disorder. Tap New Analysis to try your own data, explore the physicochemical model, or check out the oxygenation and ventilation tools from the home screen.",
+    message: "Congrats! 🎉 You've analysed a triple acid-base disorder.\n\nTap \"Analyse with physicochemical model\" to interpret the same data with a Stewartian lens (BloodGasPro supports both approaches), or tap \"New Analysis\" to try your own patient's data.\n\nYou'll also find tools for analysing oxygenation and ventilation data on the home screen.",
     position: "bottom",
     onDismiss: dismissDemoSummaryTooltip
   })), /*#__PURE__*/React.createElement("div", {
@@ -9300,7 +9300,7 @@ const FindCauseScreen = ({
       }
     }, "Normal acid-base status"))), showDemoOverviewTooltip && uniqueProcesses.length > 0 && /*#__PURE__*/React.createElement(DemoTooltip, {
       visible: true,
-      message: "In this case we identified " + uniqueProcesses.length + " acid-base disturbances. BloodGasPro doesn't stop here, now we'll work through understanding what's driving these disturbances for this patient.",
+      message: "In this case we identified " + uniqueProcesses.length + " acid-base disturbances.\n\nBloodGasPro doesn't stop here, now we'll work through understanding what's driving these disturbances for this patient.\n\nClick \"Begin Investigation\" to continue.",
       position: "bottom",
       onDismiss: dismissDemoOverviewTooltip
     })), hiddenHAGMA && /*#__PURE__*/React.createElement("div", {
@@ -10428,7 +10428,8 @@ const DemoTooltip = ({ message, onDismiss, position = 'bottom', visible = true }
       borderRadius: '12px',
       fontSize: '13px',
       lineHeight: '1.5',
-      maxWidth: '240px',
+      width: 'max-content',
+      maxWidth: 'min(380px, calc(100vw - 40px))',
       boxShadow: '0 4px 20px rgba(139, 92, 246, 0.4)',
       zIndex: 10001
     }
@@ -10442,7 +10443,7 @@ const DemoTooltip = ({ message, onDismiss, position = 'bottom', visible = true }
         background: 'var(--accent)'
       }
     }),
-    /*#__PURE__*/React.createElement("div", { style: { marginBottom: '8px' } }, message),
+    /*#__PURE__*/React.createElement("div", { style: { marginBottom: '8px', whiteSpace: 'pre-line' } }, message),
     /*#__PURE__*/React.createElement("button", {
       onClick: onDismiss,
       style: {
@@ -10853,7 +10854,7 @@ const FullTermsScreen = ({
       marginBottom: '12px',
       fontSize: '12px'
     }
-  }, /*#__PURE__*/React.createElement("strong", null, "LabLogic"), " \u2013 Laboratory investigation interpreter", /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement("strong", null, "Blood Gas Pro"), " \u2013 ABG interpretation", /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement("strong", null, "CodeClock"), " \u2013 Cardiac arrest timing & management", /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement("strong", null, "IntubAid"), " \u2013 Airway management cognitive aid")), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("strong", null, "LabLogic"), " \u2013 Laboratory investigation interpreter", /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement("strong", null, "BloodGasPro"), " \u2013 ABG interpretation", /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement("strong", null, "CodeClock"), " \u2013 Cardiac arrest timing & management", /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement("strong", null, "IntubAid"), " \u2013 Airway management cognitive aid")), /*#__PURE__*/React.createElement("div", {
     style: {
       textAlign: 'center',
       padding: '16px',
@@ -11240,7 +11241,7 @@ const SettingsScreen = ({
       color: 'var(--text-secondary)',
       lineHeight: '1.6'
     }
-  }, /*#__PURE__*/React.createElement("p", null, /*#__PURE__*/React.createElement("strong", null, "Blood Gas Pro")), /*#__PURE__*/React.createElement("p", {
+  }, /*#__PURE__*/React.createElement("p", null, /*#__PURE__*/React.createElement("strong", null, "BloodGasPro")), /*#__PURE__*/React.createElement("p", {
     style: {
       marginTop: '4px'
     }
@@ -11275,11 +11276,9 @@ const App = () => {
 
   // Demo mode state
   const [isDemoMode, setIsDemoMode] = useState(false);
-  // TODO: Restore localStorage check after testing demo
-  // const [showDemoOffer, setShowDemoOffer] = useState(() => {
-  //   return safeLocalStorage.getItem('bloodgaspro_demo_offered') !== 'true';
-  // });
-  const [showDemoOffer, setShowDemoOffer] = useState(true); // Always show for testing
+  const [showDemoOffer, setShowDemoOffer] = useState(() => {
+    return safeLocalStorage.getItem('bloodgaspro_demo_offered') !== 'true';
+  });
   const [showDemoCaseModal, setShowDemoCaseModal] = useState(false);
   const [showDemoTraditionalTooltip, setShowDemoTraditionalTooltip] = useState(false);
   const [demoAwaitingTraditional, setDemoAwaitingTraditional] = useState(false);
